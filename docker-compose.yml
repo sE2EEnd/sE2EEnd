@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres-se2eend
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: se2eend
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: keycloak-se2eend
+    restart: always
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      # Theme configuration - pass to container for CSS generation
+      THEME_COLOR_PRIMARY: ${THEME_COLOR_PRIMARY:-#2563eb}
+      THEME_COLOR_PRIMARY_DARK: ${THEME_COLOR_PRIMARY_DARK:-#1d4ed8}
+      THEME_COLOR_PRIMARY_LIGHT: ${THEME_COLOR_PRIMARY_LIGHT:-#3b82f6}
+    command:
+      - start-dev
+      - --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
+      - --import-realm
+      - --spi-theme-static-max-age=-1
+      - --spi-theme-cache-themes=false
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./keycloak/themes:/opt/keycloak/themes
+      - ./keycloak/realm-config:/opt/keycloak/data/import
+    entrypoint: ["/opt/keycloak/themes/entrypoint.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    name: se2eend_data

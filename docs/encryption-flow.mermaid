@@ -1,0 +1,36 @@
+sequenceDiagram
+    participant Sender as Sender (Browser)
+    participant Server as Server
+    participant Recipient as Recipient (Browser)
+
+    Note over Sender: Upload Flow
+    Sender->>Sender: Generate AES-256 key (Web Crypto API)
+    Sender->>Sender: Generate random IV (96-bit) per file/text
+    Sender->>Sender: Encrypt file content (AES-256-GCM)
+    Sender->>Sender: Encrypt filename (AES-256-GCM)
+    Sender->>Sender: Encrypt send name (AES-256-GCM)
+    Sender->>Sender: Store key locally (IndexedDB)
+
+    Sender->>Server: POST /api/v1/sends {encrypted name, config}
+    Server-->>Sender: Send created (accessId)
+    Sender->>Server: POST /api/v1/files {encrypted blob, encrypted filename}
+    Server-->>Sender: File stored
+
+    Note over Sender: Build share link
+    Sender->>Sender: Link = /download/{accessId}#keyBase64url
+    Note right of Sender: Key in URL fragment, never sent to server
+
+    Sender->>Recipient: Share link (out-of-band)
+
+    Note over Recipient: Download Flow
+    Recipient->>Recipient: Extract key from URL fragment
+    Recipient->>Recipient: Import key (base64url to CryptoKey)
+    Recipient->>Server: GET /download/{accessId}
+    Server->>Server: Validate expiration
+    Server->>Server: Validate revocation
+    Server->>Server: Validate password (BCrypt)
+    Server->>Server: Validate download limit
+    Server-->>Recipient: Encrypted blob
+    Recipient->>Recipient: Extract IV (first 12 bytes)
+    Recipient->>Recipient: Decrypt with AES-256-GCM
+    Recipient->>Recipient: Save decrypted file

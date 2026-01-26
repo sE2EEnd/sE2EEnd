@@ -1,0 +1,9 @@
+{
+  "theme": {
+    "appName": "sE2EEnd",
+    //"logoUrl": "/se2eend-logo.png",
+    "primaryColor": "#2563eb",
+    "primaryDark": "#1d4ed8",
+    "primaryLight": "#3b82f6"
+  }
+}

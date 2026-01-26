@@ -1,0 +1,209 @@
+{
+  "common": {
+    "upload": "Upload",
+    "download": "Download",
+    "delete": "Delete",
+    "back": "Back",
+    "cancel": "Cancel",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "file": "File",
+    "files": "Files",
+    "remove": "Remove",
+    "active": "Active",
+    "revoked": "Revoked",
+    "expired": "Expired",
+    "exhausted": "Exhausted"
+  },
+  "layout": {
+    "dashboard": "Dashboard",
+    "upload": "Upload",
+    "admin": "Admin",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "My Sends",
+    "newSend": "New Send",
+    "noSends": "No sends yet",
+    "createFirst": "Create your first secure send!",
+    "sends": "sends",
+    "status": "Status",
+    "downloads": "Downloads",
+    "expires": "Expires",
+    "actions": "Actions",
+    "revoke": "Revoke",
+    "viewLink": "View Link",
+    "sendName": "Send Name",
+    "unnamedSend": "Unnamed Send",
+    "noFiles": "No files",
+    "created": "Created",
+    "never": "Never",
+    "shareLink": "Share Link",
+    "copyLink": "Copy Link",
+    "close": "Close",
+    "warningKey": "⚠️ The encryption key is in the URL fragment (#). Keep this link secure!",
+    "linkCopied": "Link copied to clipboard!",
+    "keyMissing": "Encryption key not available",
+    "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link."
+  },
+  "upload": {
+    "title": "Upload File",
+    "steps": {
+      "selectFiles": "Select Files",
+      "configure": "Configure",
+      "upload": "Upload",
+      "share": "Share"
+    },
+    "dropZone": {
+      "dropHere": "Drop your file here!",
+      "dragDrop": "Drag and drop your files here",
+      "or": "or",
+      "browseFiles": "Browse Files"
+    },
+    "form": {
+      "selectedFiles": "Selected Files",
+      "sendName": "Send Name (optional)",
+      "sendNamePlaceholder": "e.g., Q3 Reports, Vacation Photos...",
+      "sendNameHelp": "Give a name to this send to identify it easily",
+      "maxDownloads": "Maximum Downloads",
+      "maxDownloadsHelp": "Number of times this file can be downloaded",
+      "expiration": "Expiration (hours)",
+      "expirationHelp": "File will auto-delete after this period",
+      "passwordProtect": "Password protect this file",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password",
+      "passwordHelp": "Recipients will need this password to download"
+    },
+    "errors": {
+      "selectFile": "Please select at least one file",
+      "enterPassword": "Please enter a password",
+      "uploadFailed": "Upload failed. Please try again."
+    },
+    "uploading": {
+      "title": "Uploading your file...",
+      "message": "Please wait while we securely upload your file"
+    },
+    "success": {
+      "title": "File uploaded successfully!",
+      "message": "Share the link below to allow others to download your file",
+      "qrCode": "QR Code",
+      "qrCodeDesc": "Scan this QR code with your phone to access the download link",
+      "shareLink": "Share Link (includes encryption key)",
+      "goToDashboard": "Go to Dashboard",
+      "uploadAnother": "Upload Another"
+    },
+    "security": {
+      "title": "Security Features",
+      "endToEnd": "End-to-end encrypted",
+      "endToEndDesc": "Files are encrypted during transfer",
+      "zeroKnowledge": "Zero-knowledge",
+      "zeroKnowledgeDesc": "We never see your data",
+      "autoDeletion": "Auto-deletion",
+      "autoDeletionDesc": "Files expire automatically",
+      "passwordProtection": "Password protection",
+      "passwordProtectionDesc": "Add an extra security layer",
+      "downloadLimits": "Download limits",
+      "downloadLimitsDesc": "Control access to your files"
+    }
+  },
+  "download": {
+    "title": "Secure File Download",
+    "file": "File",
+    "files": "Files",
+    "downloads": "Downloads",
+    "expires": "Expires",
+    "qrCode": "Share this QR Code",
+    "qrCodeDesc": "Scan this QR code to share this link on another device",
+    "password": "Password (if required)",
+    "passwordPlaceholder": "Leave empty if not password protected",
+    "downloadFile": "Download File",
+    "downloading": "Downloading...",
+    "errors": {
+      "keyMissing": "Encryption key missing from URL. Cannot decrypt file.",
+      "invalidPassword": "Invalid password",
+      "expired": "This send has expired or reached its download limit",
+      "decryptionFailed": "Decryption failed. The encryption key may be invalid.",
+      "downloadFailed": "Download failed",
+      "loadFailed": "Failed to load send information",
+      "sendNotFound": "Send not found",
+      "limitReached": "This file has reached its download limit and can no longer be downloaded."
+    },
+    "footer": "Files are decrypted locally in your browser • Zero-knowledge architecture"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "subtitle": "Manage all sends and view statistics",
+    "stats": {
+      "totalSends": "Total Sends",
+      "activeSends": "Active Sends",
+      "revokedSends": "Revoked Sends",
+      "totalFiles": "Total Files"
+    },
+    "storage": {
+      "title": "Storage Usage",
+      "used": "Used",
+      "free": "Free",
+      "total": "Total",
+      "percentUsed": "used",
+      "filesInStorage": "Files in Storage",
+      "storageSize": "Storage Size",
+      "usableSpace": "Usable Space",
+      "available": "Available",
+      "runCleanup": "Run Cleanup",
+      "running": "Running..."
+    },
+    "table": {
+      "allSends": "All Sends",
+      "sendName": "Send Name",
+      "owner": "Owner",
+      "status": "Status",
+      "downloads": "Downloads",
+      "created": "Created",
+      "expires": "Expires",
+      "actions": "Actions",
+      "noSends": "No sends found",
+      "unnamedSend": "Unnamed Send",
+      "noFiles": "No files",
+      "unknown": "Unknown",
+      "never": "Never"
+    },
+    "actions": {
+      "revoke": "Revoke send",
+      "delete": "Delete send"
+    },
+    "deleteDialog": {
+      "title": "Delete Send",
+      "message": "Are you sure you want to delete this send? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "errors": {
+      "accessDenied": "Access denied. Admin role required.",
+      "loadFailed": "Failed to load admin data",
+      "cleanupFailed": "Cleanup failed",
+      "revokeFailed": "Failed to revoke send",
+      "deleteFailed": "Failed to delete send"
+    },
+    "cleanupSuccess": "Cleanup completed: {{deletedSends}} sends deleted, {{deletedFiles}} files removed, {{freedSpace}} freed",
+    "confirmCleanup": "Run cleanup to delete expired, revoked, and exhausted sends?"
+  },
+  "profile": {
+    "title": "Profile",
+    "userInformation": "User Information",
+    "accountStatus": "Account Status",
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "active": "Active",
+    "emailVerified": "Email Verified",
+    "yes": "Yes",
+    "no": "No",
+    "sessionStarted": "Session Started",
+    "notAvailable": "N/A"
+  }
+}

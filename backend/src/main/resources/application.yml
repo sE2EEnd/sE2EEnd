@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: sE2EEnd
+    version: @project.version@
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+    default-locale: fr
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/se2eend}
+    username: ${DB_USER:se2eend}
+    password: ${DB_PASSWORD:se2eend}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8090}/realms/${KEYCLOAK_REALM:se2eend}
+          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8090}/realms/${KEYCLOAK_REALM:se2eend}/protocol/openid-connect/certs
+
+server:
+  port: 8081
+
+# Cleanup Configuration
+cleanup:
+  scheduler:
+    enabled: ${CLEANUP_SCHEDULER_ENABLED:true}
+    cron: ${CLEANUP_SCHEDULER_CRON:0 0 2 * * *}
+
+# Application Branding
+app:
+  name: ${APP_NAME:sE2EEnd}
+  logo-url: ${APP_LOGO_URL:}
+
+# Security
+security:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  keycloak-url: ${KEYCLOAK_URL:http://localhost:8090}
