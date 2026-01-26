@@ -1,0 +1,209 @@
+{
+  "common": {
+    "upload": "Téléverser",
+    "download": "Télécharger",
+    "delete": "Supprimer",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "file": "Fichier",
+    "files": "Fichiers",
+    "remove": "Retirer",
+    "active": "Actif",
+    "revoked": "Révoqué",
+    "expired": "Expiré",
+    "exhausted": "Épuisé"
+  },
+  "layout": {
+    "dashboard": "Tableau de bord",
+    "upload": "Téléverser",
+    "admin": "Admin",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "title": "Mes Envois",
+    "newSend": "Nouvel Envoi",
+    "noSends": "Aucun envoi pour le moment",
+    "createFirst": "Créez votre premier envoi sécurisé !",
+    "sends": "envois",
+    "status": "Statut",
+    "downloads": "Téléchargements",
+    "expires": "Expire",
+    "actions": "Actions",
+    "revoke": "Révoquer",
+    "viewLink": "Voir le lien",
+    "sendName": "Nom de l'envoi",
+    "unnamedSend": "Envoi sans nom",
+    "noFiles": "Aucun fichier",
+    "created": "Créé",
+    "never": "Jamais",
+    "shareLink": "Lien de partage",
+    "copyLink": "Copier le lien",
+    "close": "Fermer",
+    "warningKey": "⚠️ La clé de chiffrement est dans le fragment de l'URL (#). Gardez ce lien en sécurité !",
+    "linkCopied": "Lien copié dans le presse-papier !",
+    "keyMissing": "Clé de chiffrement non disponible",
+    "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien."
+  },
+  "upload": {
+    "title": "Téléverser un fichier",
+    "steps": {
+      "selectFiles": "Sélectionner les fichiers",
+      "configure": "Configurer",
+      "upload": "Téléverser",
+      "share": "Partager"
+    },
+    "dropZone": {
+      "dropHere": "Déposez votre fichier ici !",
+      "dragDrop": "Glissez et déposez vos fichiers ici",
+      "or": "ou",
+      "browseFiles": "Parcourir les fichiers"
+    },
+    "form": {
+      "selectedFiles": "Fichiers sélectionnés",
+      "sendName": "Nom de l'envoi (optionnel)",
+      "sendNamePlaceholder": "ex: Rapports Q3, Photos de vacances...",
+      "sendNameHelp": "Donnez un nom à cet envoi pour l'identifier facilement",
+      "maxDownloads": "Nombre maximum de téléchargements",
+      "maxDownloadsHelp": "Nombre de fois que ce fichier peut être téléchargé",
+      "expiration": "Expiration (heures)",
+      "expirationHelp": "Le fichier sera automatiquement supprimé après cette période",
+      "passwordProtect": "Protéger par mot de passe",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Entrez un mot de passe",
+      "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger"
+    },
+    "errors": {
+      "selectFile": "Veuillez sélectionner au moins un fichier",
+      "enterPassword": "Veuillez entrer un mot de passe",
+      "uploadFailed": "Échec du téléversement. Veuillez réessayer."
+    },
+    "uploading": {
+      "title": "Téléversement de votre fichier...",
+      "message": "Veuillez patienter pendant que nous téléversons votre fichier en toute sécurité"
+    },
+    "success": {
+      "title": "Fichier téléversé avec succès !",
+      "message": "Partagez le lien ci-dessous pour permettre aux autres de télécharger votre fichier",
+      "qrCode": "QR Code",
+      "qrCodeDesc": "Scannez ce QR code avec votre téléphone pour accéder au lien de téléchargement",
+      "shareLink": "Lien de partage (inclut la clé de chiffrement)",
+      "goToDashboard": "Aller au tableau de bord",
+      "uploadAnother": "Téléverser un autre"
+    },
+    "security": {
+      "title": "Fonctionnalités de sécurité",
+      "endToEnd": "Chiffrement de bout en bout",
+      "endToEndDesc": "Les fichiers sont chiffrés pendant le transfert",
+      "zeroKnowledge": "Zéro-connaissance",
+      "zeroKnowledgeDesc": "Nous ne voyons jamais vos données",
+      "autoDeletion": "Suppression automatique",
+      "autoDeletionDesc": "Les fichiers expirent automatiquement",
+      "passwordProtection": "Protection par mot de passe",
+      "passwordProtectionDesc": "Ajoutez une couche de sécurité supplémentaire",
+      "downloadLimits": "Limites de téléchargement",
+      "downloadLimitsDesc": "Contrôlez l'accès à vos fichiers"
+    }
+  },
+  "download": {
+    "title": "Téléchargement sécurisé de fichier",
+    "file": "Fichier",
+    "files": "Fichiers",
+    "downloads": "Téléchargements",
+    "expires": "Expire",
+    "qrCode": "Partager ce QR Code",
+    "qrCodeDesc": "Scannez ce QR code pour partager ce lien sur un autre appareil",
+    "password": "Mot de passe (si requis)",
+    "passwordPlaceholder": "Laissez vide si non protégé par mot de passe",
+    "downloadFile": "Télécharger le fichier",
+    "downloading": "Téléchargement...",
+    "errors": {
+      "keyMissing": "Clé de chiffrement manquante dans l'URL. Impossible de déchiffrer le fichier.",
+      "invalidPassword": "Mot de passe invalide",
+      "expired": "Cet envoi a expiré ou a atteint sa limite de téléchargements",
+      "decryptionFailed": "Échec du déchiffrement. La clé de chiffrement peut être invalide.",
+      "downloadFailed": "Échec du téléchargement",
+      "loadFailed": "Échec du chargement des informations d'envoi",
+      "sendNotFound": "Envoi introuvable",
+      "limitReached": "Ce fichier a atteint sa limite de téléchargements et ne peut plus être téléchargé."
+    },
+    "footer": "Les fichiers sont déchiffrés localement dans votre navigateur • Architecture zéro-connaissance"
+  },
+  "admin": {
+    "title": "Administration",
+    "subtitle": "Gérer tous les envois et voir les statistiques",
+    "stats": {
+      "totalSends": "Total des envois",
+      "activeSends": "Envois actifs",
+      "revokedSends": "Envois révoqués",
+      "totalFiles": "Total des fichiers"
+    },
+    "storage": {
+      "title": "Utilisation du stockage",
+      "used": "Utilisé",
+      "free": "Libre",
+      "total": "Total",
+      "percentUsed": "utilisé",
+      "filesInStorage": "Fichiers en stockage",
+      "storageSize": "Taille du stockage",
+      "usableSpace": "Espace utilisable",
+      "available": "Disponible",
+      "runCleanup": "Lancer le nettoyage",
+      "running": "En cours..."
+    },
+    "table": {
+      "allSends": "Tous les envois",
+      "sendName": "Nom de l'envoi",
+      "owner": "Propriétaire",
+      "status": "Statut",
+      "downloads": "Téléchargements",
+      "created": "Créé",
+      "expires": "Expire",
+      "actions": "Actions",
+      "noSends": "Aucun envoi trouvé",
+      "unnamedSend": "Envoi sans nom",
+      "noFiles": "Aucun fichier",
+      "unknown": "Inconnu",
+      "never": "Jamais"
+    },
+    "actions": {
+      "revoke": "Révoquer l'envoi",
+      "delete": "Supprimer l'envoi"
+    },
+    "deleteDialog": {
+      "title": "Supprimer l'envoi",
+      "message": "Êtes-vous sûr de vouloir supprimer cet envoi ? Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "errors": {
+      "accessDenied": "Accès refusé. Rôle administrateur requis.",
+      "loadFailed": "Échec du chargement des données administrateur",
+      "cleanupFailed": "Échec du nettoyage",
+      "revokeFailed": "Échec de la révocation de l'envoi",
+      "deleteFailed": "Échec de la suppression de l'envoi"
+    },
+    "cleanupSuccess": "Nettoyage terminé : {{deletedSends}} envois supprimés, {{deletedFiles}} fichiers retirés, {{freedSpace}} libérés",
+    "confirmCleanup": "Lancer le nettoyage pour supprimer les envois expirés, révoqués et épuisés ?"
+  },
+  "profile": {
+    "title": "Profil",
+    "userInformation": "Informations utilisateur",
+    "accountStatus": "Statut du compte",
+    "username": "Nom d'utilisateur",
+    "email": "Email",
+    "firstName": "Prénom",
+    "lastName": "Nom de famille",
+    "active": "Actif",
+    "emailVerified": "Email vérifié",
+    "yes": "Oui",
+    "no": "Non",
+    "sessionStarted": "Session démarrée",
+    "notAvailable": "N/A"
+  }
+}

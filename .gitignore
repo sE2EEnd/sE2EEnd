@@ -1,0 +1,39 @@
+# Environment variables
+.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.run/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend (Java/Maven)
+backend/target/
+backend/*.log
+backend/.mvn/
+
+*/uploads/
+
+# Frontend (Node/NPM)
+frontend/core/node_modules/
+frontend/core/dist/
+frontend/core/.vite/
+frontend/core/*.log
+frontend/core/.env.local
+frontend/core/.env.development.local
+frontend/core/.env.test.local
+frontend/core/.env.production.local
+
+# Database
+mysql_data/
+
+# Keycloak generated theme files
+keycloak/themes/se2eend/login/resources/css/login.css
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,55 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-se2eend
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: se2eend
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak-se2eend
+    restart: always
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      # Theme configuration - pass to container for CSS generation
+      THEME_COLOR_PRIMARY: ${THEME_COLOR_PRIMARY:-#2563eb}
+      THEME_COLOR_PRIMARY_DARK: ${THEME_COLOR_PRIMARY_DARK:-#1d4ed8}
+      THEME_COLOR_PRIMARY_LIGHT: ${THEME_COLOR_PRIMARY_LIGHT:-#3b82f6}
+    command:
+      - start-dev
+      - --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
+      - --import-realm
+      - --spi-theme-static-max-age=-1
+      - --spi-theme-cache-themes=false
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./keycloak/themes:/opt/keycloak/themes
+      - ./keycloak/realm-config:/opt/keycloak/data/import
+    entrypoint: ["/opt/keycloak/themes/entrypoint.sh"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+    name: se2eend_data

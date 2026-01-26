@@ -1,0 +1,14 @@
+package fr.se2eend.backend.exception.enums;
+
+public enum ErrorCode {
+    VALIDATION_ERROR,
+    TYPE_MISMATCH,
+    SEND_NOT_FOUND,
+    INTERNAL_ERROR,
+    SEND_EXPIRED,
+    SEND_REVOKED,
+    SEND_DOWNLOAD_LIMIT_EXCEEDED,
+    SEND_PASSWORD_INVALID,
+    SEND_STORAGE_MISSING,
+    FILE_NOT_FOUND,
+}
