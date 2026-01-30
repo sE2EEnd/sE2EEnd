@@ -21,6 +21,7 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Abstra
 
     private final JwtGrantedAuthoritiesConverter defaultGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
+
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         Collection<GrantedAuthority> authorities = Stream.concat(
