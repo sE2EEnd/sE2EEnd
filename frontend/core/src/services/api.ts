@@ -46,7 +46,7 @@ interface SendResponse {
   passwordProtected: boolean;
   revoked: boolean;
   createdAt: string;
-  files: any[];
+  files: FileMetadata[];
 }
 
 interface FileMetadata {
@@ -115,13 +115,20 @@ interface CleanupResult {
   timestamp: string;
 }
 
+interface AdminStats {
+  totalSends: number;
+  activeSends: number;
+  revokedSends: number;
+  totalFiles: number;
+}
+
 const adminApi = {
   getAllSends: async (): Promise<SendResponse[]> => {
     const response = await api.get('/admin/sends');
     return response.data;
   },
 
-  getStats: async (): Promise<any> => {
+  getStats: async (): Promise<AdminStats> => {
     const response = await api.get('/admin/stats');
     return response.data;
   },
@@ -159,5 +166,5 @@ interface ThemeConfig {
 }
 
 export { sendApi, adminApi };
-export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult };
+export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats };
 export default api;
