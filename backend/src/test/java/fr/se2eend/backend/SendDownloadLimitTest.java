@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests the scenario where a Send has a maxDownloads limit that should be enforced.
  */
 @SpringBootTest
+@ActiveProfiles("test")
 class SendDownloadLimitTest {
 
     @Autowired

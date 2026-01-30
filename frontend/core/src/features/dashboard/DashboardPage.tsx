@@ -58,7 +58,7 @@ export default function DashboardPage() {
             if (send.name) {
               try {
                 decryptedSend.decryptedName = await decryptText(send.name, encryptionKey);
-              } catch (e) {
+              } catch {
                 // Name might not be encrypted
                 console.warn('Could not decrypt send name');
               }
@@ -72,7 +72,7 @@ export default function DashboardPage() {
                   file.filename,
                   encryptionKey
                 );
-              } catch (e) {
+              } catch {
                 // Filename might not be encrypted
                 decryptedFilenames[file.filename] = file.filename;
               }
@@ -88,7 +88,7 @@ export default function DashboardPage() {
       );
 
       setSends(sendsWithDecryptedNames);
-    } catch (err: any) {
+    } catch {
       setError('Failed to load sends');
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function DashboardPage() {
       setSends(sends.filter((s) => s.id !== sendToDelete));
       setDeleteDialogOpen(false);
       setSendToDelete(null);
-    } catch (err: any) {
+    } catch {
       setError('Failed to delete send');
     }
   };

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { isAxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
 import { adminApi } from '../../services/api';
-import type { SendResponse, StorageMetrics, CleanupResult } from '../../services/api';
+import type { SendResponse, StorageMetrics, CleanupResult, AdminStats } from '../../services/api';
 import {
   Loader2,
   AlertCircle,
@@ -21,7 +22,7 @@ import {
 export default function AdminPage() {
   const { t } = useTranslation();
   const [sends, setSends] = useState<SendResponse[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [storageMetrics, setStorageMetrics] = useState<StorageMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -46,8 +47,8 @@ export default function AdminPage() {
       setSends(sendsData);
       setStats(statsData);
       setStorageMetrics(storageData);
-    } catch (err: any) {
-      if (err.response?.status === 403) {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 403) {
         setError('Access denied. Admin role required.');
       } else {
         setError('Failed to load admin data');
@@ -71,7 +72,7 @@ export default function AdminPage() {
         `Cleanup completed: ${result.deletedSends} sends deleted, ${result.deletedFiles} files removed, ${formatBytes(result.freedSpace)} freed`
       );
       await loadData(); // Refresh data
-    } catch (err: any) {
+    } catch {
       setError('Cleanup failed');
     } finally {
       setCleanupRunning(false);
@@ -90,7 +91,7 @@ export default function AdminPage() {
     try {
       await adminApi.revokeSend(sendId);
       await loadData();
-    } catch (err: any) {
+    } catch {
       setError('Failed to revoke send');
     }
   };
@@ -109,7 +110,7 @@ export default function AdminPage() {
       setDeleteDialogOpen(false);
       setSendToDelete(null);
       await loadData(); // Reload to update stats
-    } catch (err: any) {
+    } catch {
       setError('Failed to delete send');
     }
   };

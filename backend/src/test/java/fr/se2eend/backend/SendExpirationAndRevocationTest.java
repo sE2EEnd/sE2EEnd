@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests that expired or revoked Sends cannot be downloaded.
  */
 @SpringBootTest
+@ActiveProfiles("test")
 class SendExpirationAndRevocationTest {
 
     @Autowired
