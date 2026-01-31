@@ -21,20 +21,24 @@ jobs:
         working-directory: ./frontend/core
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
-          node-version: '18'
+          node-version: '25'
           cache: 'npm'
           cache-dependency-path: frontend/core/package-lock.json
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build
-        run: npm run build
-
       - name: Lint
         run: npm run lint --if-present
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_KEYCLOAK_URL: http://localhost:8090
+          VITE_KEYCLOAK_REALM: se2eend
+          VITE_KEYCLOAK_CLIENT_ID: se2eend-frontend

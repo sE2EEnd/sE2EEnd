@@ -44,15 +44,15 @@
       "rootUrl": "https://demo.se2eend.com",
       "baseUrl": "/",
       "redirectUris": [
-        "https://demo.se2eend.com/*",
-        "http://localhost:3000/*"
+        "http://localhost:3000/*",
+        "http://localhost/*"
       ],
       "webOrigins": [
-        "https://demo.se2eend.com",
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://localhost"
       ],
       "attributes": {
-        "post.logout.redirect.uris": "https://demo.se2eend.com/*##http://localhost:5173/*##http://localhost:3000/*",
+        "post.logout.redirect.uris": "http://localhost:3000/*##http://localhost/*",
         "pkce.code.challenge.method": "S256"
       }
     }

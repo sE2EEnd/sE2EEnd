@@ -1,0 +1,170 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/se2eend/se2eend-backend
+  FRONTEND_IMAGE: ghcr.io/se2eend/se2eend-frontend
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test
+        working-directory: ./backend
+        run: mvn clean install
+
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend/core
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '25'
+          cache: 'npm'
+          cache-dependency-path: frontend/core/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_KEYCLOAK_URL: http://localhost:8090
+          VITE_KEYCLOAK_REALM: se2eend
+          VITE_KEYCLOAK_CLIENT_ID: se2eend-frontend
+
+  publish-backend:
+    needs: [backend-test, frontend-check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.BACKEND_IMAGE }}:latest
+
+  publish-frontend:
+    needs: [backend-test, frontend-check]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend/core
+          push: true
+          build-args: |
+            VITE_KEYCLOAK_URL=http://localhost:8090
+            VITE_KEYCLOAK_REALM=se2eend
+            VITE_KEYCLOAK_CLIENT_ID=se2eend-frontend
+          tags: |
+            ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.FRONTEND_IMAGE }}:latest
+
+  github-release:
+    needs: [publish-backend, publish-frontend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1)
+          if [ "$PREV_TAG" = "$GITHUB_REF_NAME" ] || [ -z "$PREV_TAG" ]; then
+            # First release: all commits
+            LOG=$(git log --pretty=format:"- %s (%h)" HEAD)
+          else
+            LOG=$(git log --pretty=format:"- %s (%h)" "${PREV_TAG}..${GITHUB_REF_NAME}")
+          fi
+          # Write to file to handle multiline
+          echo "$LOG" > /tmp/changelog.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: sE2EEnd ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## Docker Images
+
+            ```bash
+            docker pull ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            docker pull ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ```
+
+            ## What's Changed
+
+            ${{ steps.changelog.outputs.CHANGELOG }}
+
+            ## Quick Start
+
+            See the [README](https://github.com/sE2EEnd/sE2EEnd#readme) for setup instructions.
+          generate_release_notes: true
