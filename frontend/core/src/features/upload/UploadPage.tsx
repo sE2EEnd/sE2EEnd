@@ -17,6 +17,7 @@ import {
   QrCode,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { isAxiosError } from 'axios';
 import { sendApi } from '../../services/api';
 import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '../../lib/crypto';
 import { storeSendKey } from '../../lib/sendKeysDB';
@@ -146,8 +147,8 @@ export default function UploadPage() {
       const link = `${window.location.origin}/download/${send.accessId}#${keyBase64}`;
       setShareLink(link);
       setActiveStep(3);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Upload failed. Please try again.');
+    } catch (err) {
+      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : 'Upload failed. Please try again.');
       setActiveStep(1);
     } finally {
       setUploading(false);

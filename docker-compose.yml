@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:18.1
     container_name: postgres-se2eend
     restart: always
     environment:
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
@@ -19,7 +19,7 @@ services:
       retries: 10
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.5
     container_name: keycloak-se2eend
     restart: always
     environment:
@@ -52,6 +52,40 @@ services:
       postgres:
         condition: service_healthy
 
+  backend:
+    build: ./backend
+    container_name: backend-se2eend
+    restart: always
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/se2eend
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_EXTERNAL_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend/core
+      args:
+        VITE_KEYCLOAK_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
+        VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
+        VITE_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-se2eend-frontend}
+    container_name: frontend-se2eend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
     name: se2eend_data
+  uploads_data:
+    name: se2eend_uploads

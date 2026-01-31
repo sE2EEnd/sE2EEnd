@@ -1,6 +1,7 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
+import {isAxiosError} from 'axios';
 import {AlertCircle, ArrowDownToLine, Clock, Download, Loader2, Shield, QrCode} from 'lucide-react';
 import {QRCodeCanvas} from 'qrcode.react';
 import type {SendResponse} from '../../services/api';
@@ -18,13 +19,7 @@ function DownloadPage() {
   const [downloading, setDownloading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  useEffect(() => {
-    if (accessId) {
-      loadSendInfo();
-    }
-  }, [accessId]);
-
-  const loadSendInfo = async () => {
+  const loadSendInfo = useCallback(async () => {
     try {
       setLoading(true);
       const info = await sendApi.getSendInfo(accessId!);
@@ -41,7 +36,7 @@ function DownloadPage() {
             try {
               const decrypted = await decryptText(info.name, encryptionKey);
               setDecryptedSendName(decrypted);
-            } catch (e) {
+            } catch {
               // Name might not be encrypted (old send), just ignore
               console.warn('Could not decrypt send name, using encrypted value');
             }
@@ -52,7 +47,7 @@ function DownloadPage() {
           for (const file of info.files || []) {
             try {
               decryptedNames[file.filename] = await decryptText(file.filename, encryptionKey);
-            } catch (e) {
+            } catch {
               // Filename might not be encrypted (old send), use as is
               decryptedNames[file.filename] = file.filename;
             }
@@ -64,12 +59,18 @@ function DownloadPage() {
       }
 
       setError('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('download.errors.loadFailed'));
+    } catch (err) {
+      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : t('download.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessId, t]);
+
+  useEffect(() => {
+    if (accessId) {
+      loadSendInfo();
+    }
+  }, [accessId, loadSendInfo]);
 
   const handleDownload = async () => {
     if (!accessId) return;
@@ -112,15 +113,15 @@ function DownloadPage() {
 
       // Reload info to update download count
       await loadSendInfo();
-    } catch (err: any) {
-      if (err.response?.status === 403) {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 403) {
         setError(t('download.errors.invalidPassword'));
-      } else if (err.response?.status === 410) {
+      } else if (isAxiosError(err) && err.response?.status === 410) {
         setError(t('download.errors.expired'));
-      } else if (err.name === 'OperationError' || err.message?.includes('decrypt')) {
+      } else if (err instanceof Error && (err.name === 'OperationError' || err.message?.includes('decrypt'))) {
         setError(t('download.errors.decryptionFailed'));
       } else {
-        setError(err.response?.data?.message || t('download.errors.downloadFailed'));
+        setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : t('download.errors.downloadFailed'));
       }
     } finally {
       setDownloading(false);

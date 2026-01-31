@@ -31,7 +31,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_URL:http://localhost:8090}/realms/${KEYCLOAK_REALM:se2eend}
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL:${KEYCLOAK_URL:http://localhost:8090}}/realms/${KEYCLOAK_REALM:se2eend}
           jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8090}/realms/${KEYCLOAK_REALM:se2eend}/protocol/openid-connect/certs
 
 server:
