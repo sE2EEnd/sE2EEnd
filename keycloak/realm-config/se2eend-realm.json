@@ -90,16 +90,16 @@
       "realmRoles": ["user", "admin"]
     },
     {
-      "username": "testuser",
+      "username": "demo",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "Test",
+      "firstName": "Demo",
       "lastName": "User",
-      "email": "test@se2eend.local",
+      "email": "demo@se2eend.app",
       "credentials": [
         {
           "type": "password",
-          "value": "test",
+          "value": "demo",
           "temporary": false
         }
       ],
