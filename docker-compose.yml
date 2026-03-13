@@ -32,7 +32,6 @@ services:
       KC_HOSTNAME_STRICT: false
       KC_HTTP_ENABLED: true
       KC_HOSTNAME_STRICT_HTTPS: false
-      # Theme configuration - pass to container for CSS generation
       THEME_COLOR_PRIMARY: ${THEME_COLOR_PRIMARY:-#2563eb}
       THEME_COLOR_PRIMARY_DARK: ${THEME_COLOR_PRIMARY_DARK:-#1d4ed8}
       THEME_COLOR_PRIMARY_LIGHT: ${THEME_COLOR_PRIMARY_LIGHT:-#3b82f6}
@@ -53,7 +52,7 @@ services:
         condition: service_healthy
 
   backend:
-    build: ./backend
+    image: ghcr.io/se2eend/se2eend-backend:${SE2EEND_VERSION:-latest}
     container_name: backend-se2eend
     restart: always
     environment:
@@ -71,14 +70,13 @@ services:
         condition: service_healthy
 
   frontend:
-    build:
-      context: ./frontend/core
-      args:
-        VITE_KEYCLOAK_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
-        VITE_KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
-        VITE_KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-se2eend-frontend}
+    image: ghcr.io/se2eend/se2eend-frontend:${SE2EEND_VERSION:-latest}
     container_name: frontend-se2eend
     restart: always
+    environment:
+      KEYCLOAK_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-se2eend-frontend}
     ports:
       - "80:80"
     depends_on:
