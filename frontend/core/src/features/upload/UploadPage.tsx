@@ -148,7 +148,7 @@ export default function UploadPage() {
       setShareLink(link);
       setActiveStep(3);
     } catch (err) {
-      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : 'Upload failed. Please try again.');
+      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : t('upload.errors.uploadFailed'));
       setActiveStep(1);
     } finally {
       setUploading(false);
