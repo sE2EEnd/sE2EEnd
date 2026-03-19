@@ -79,17 +79,23 @@ export default function Layout() {
           </nav>
 
           <div className={cn("p-4 border-t", themeClasses.sidebar.border)}>
-            <div className={cn("flex items-center px-4 py-3 text-sm", themeClasses.text.light)}>
-              <User className="w-5 h-5 mr-3" />
-              <span className="truncate">{keycloak.tokenParsed?.preferred_username}</span>
+            <div className="flex items-center gap-3 px-2 py-2">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-semibold text-white">
+                  {(keycloak.tokenParsed?.preferred_username as string)?.[0]?.toUpperCase()}
+                </span>
+              </div>
+              <span className={cn("flex-1 text-sm font-medium truncate", themeClasses.text.light)}>
+                {keycloak.tokenParsed?.preferred_username}
+              </span>
+              <button
+                onClick={handleLogout}
+                title={t('layout.logout')}
+                className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className={cn("flex items-center w-full px-4 py-3 mt-2 text-sm font-medium rounded-lg transition-colors", themeClasses.sidebar.item.inactive)}
-            >
-              <LogOut className="w-5 h-5 mr-3" />
-              {t('layout.logout')}
-            </button>
           </div>
         </div>
       </aside>
@@ -140,17 +146,23 @@ export default function Layout() {
             </nav>
 
             <div className={cn("p-4 border-t", themeClasses.sidebar.border)}>
-              <div className={cn("flex items-center px-4 py-3 text-sm", themeClasses.text.light)}>
-                <User className="w-5 h-5 mr-3" />
-                <span className="truncate">{keycloak.tokenParsed?.preferred_username}</span>
+              <div className="flex items-center gap-3 px-2 py-2">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-semibold text-white">
+                    {(keycloak.tokenParsed?.preferred_username as string)?.[0]?.toUpperCase()}
+                  </span>
+                </div>
+                <span className={cn("flex-1 text-sm font-medium truncate", themeClasses.text.light)}>
+                  {keycloak.tokenParsed?.preferred_username}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  title={t('layout.logout')}
+                  className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={handleLogout}
-                className={cn("flex items-center w-full px-4 py-3 mt-2 text-sm font-medium rounded-lg transition-colors", themeClasses.sidebar.item.inactive)}
-              >
-                <LogOut className="w-5 h-5 mr-3" />
-                {t('layout.logout')}
-              </button>
             </div>
           </div>
         </aside>

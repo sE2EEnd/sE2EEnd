@@ -73,7 +73,7 @@
       "maxDownloadsHelp": "Nombre de fois que ce fichier peut être téléchargé",
       "expiration": "Expiration (heures)",
       "expirationHelp": "Le fichier sera automatiquement supprimé après cette période",
-      "passwordProtect": "Protéger par mot de passe",
+      "passwordProtect": "Protégé par mot de passe",
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez un mot de passe",
       "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger"

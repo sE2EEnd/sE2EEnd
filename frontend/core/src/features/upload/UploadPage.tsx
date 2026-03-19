@@ -215,8 +215,8 @@ export default function UploadPage() {
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
                   isDragging
-                    ? 'border-primary bg-primary bg-opacity-10'
-                    : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-primary hover:bg-opacity-10'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-primary/10'
                 }`}
               >
                 {isDragging ? (
@@ -249,11 +249,11 @@ export default function UploadPage() {
                     {t('upload.form.selectedFiles')} ({selectedFiles.length})
                   </h3>
                   {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center gap-3 p-4 bg-primary bg-opacity-10 border border-primary border-opacity-30 rounded-lg">
-                      <UploadIcon className="w-5 h-5 text-primary-dark flex-shrink-0" />
+                    <div key={index} className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <UploadIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-blue-900">{file.name}</p>
-                        <p className="text-xs text-primary-dark">
+                        <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                        <p className="text-xs text-gray-500">
                           {(file.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>

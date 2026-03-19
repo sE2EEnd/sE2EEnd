@@ -269,7 +269,7 @@ export default function DashboardPage() {
 
                     {send.passwordProtected && (
                       <div className="flex items-center gap-2 pt-1">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary bg-opacity-10 text-primary-dark rounded-md text-xs font-medium">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-medium">
                           <Shield className="w-3.5 h-3.5" />
                           {t('upload.form.passwordProtect')}
                         </span>
