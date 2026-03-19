@@ -91,13 +91,13 @@ export default function ProfilePage() {
               </div>
 
               {/* Account Created (if available) */}
-              {keycloak.tokenParsed?.iat && (
+              {keycloak.tokenParsed?.auth_time && (
                 <div className="pt-2 border-t border-gray-200">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     {t('profile.sessionStarted')}
                   </p>
                   <p className="text-sm text-gray-900">
-                    {new Date((keycloak.tokenParsed.iat as number) * 1000).toLocaleString()}
+                    {new Date((keycloak.tokenParsed.auth_time as number) * 1000).toLocaleString()}
                   </p>
                 </div>
               )}
