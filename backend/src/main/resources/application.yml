@@ -52,3 +52,15 @@ app:
 security:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
   keycloak-url: ${KEYCLOAK_URL:http://localhost:8090}
+
+# Storage
+storage:
+  provider: ${STORAGE_PROVIDER:local}
+  base-dir: ${STORAGE_LOCAL_BASE_DIR:./uploads}
+  s3:
+    bucket: ${STORAGE_S3_BUCKET:}
+    region: ${STORAGE_S3_REGION:us-east-1}
+    endpoint: ${STORAGE_S3_ENDPOINT:}
+    access-key: ${STORAGE_S3_ACCESS_KEY:}
+    secret-key: ${STORAGE_S3_SECRET_KEY:}
+    path-style-access: ${STORAGE_S3_PATH_STYLE:false}

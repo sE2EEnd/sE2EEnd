@@ -15,7 +15,7 @@ public class StorageConfig {
     public StorageService storageService(StorageProperties properties) {
         return switch (properties.getProvider().toLowerCase()) {
             case "local" -> new LocalFileSystemStorage(properties);
-            // TODO add "s3" or an other storage here later
+            case "s3" -> new S3FileStorage(properties);
             default -> throw new IllegalArgumentException(
                     "Unsupported storage provider: " + properties.getProvider()
             );

@@ -30,6 +30,37 @@ public class StorageProperties {
      */
     private String baseDir = "./uploads";
 
+    private S3Properties s3 = new S3Properties();
+
+    @Getter
+    @Setter
+    public static class S3Properties {
+
+        /** S3 bucket name. */
+        private String bucket;
+
+        /** AWS region (e.g. eu-west-3). */
+        private String region = "us-east-1";
+
+        /**
+         * Optional custom endpoint URL (for S3-compatible storage like MinIO).
+         * Leave empty to use the standard AWS endpoint.
+         */
+        private String endpoint;
+
+        /** AWS access key ID. */
+        private String accessKey;
+
+        /** AWS secret access key. */
+        private String secretKey;
+
+        /**
+         * Force path-style access (required for MinIO and some S3-compatible providers).
+         * Defaults to false (virtual-hosted style, recommended for AWS S3).
+         */
+        private boolean pathStyleAccess = false;
+    }
+
     @Override
     public String toString() {
         return "StorageProperties{" +
