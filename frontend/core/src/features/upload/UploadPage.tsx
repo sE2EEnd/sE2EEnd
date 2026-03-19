@@ -24,7 +24,7 @@ import { storeSendKey } from '../../lib/sendKeysDB';
 
 export default function UploadPage() {
   const { t } = useTranslation();
-  useNavigate();
+  const navigate = useNavigate();
   const steps = [
     t('upload.steps.selectFiles'),
     t('upload.steps.configure'),
