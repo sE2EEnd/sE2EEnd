@@ -82,7 +82,7 @@ const sendApi = {
   downloadSend: async (accessId: string, password?: string): Promise<Blob> => {
     const response = await api.get(`/sends/${accessId}/download`, {
       responseType: 'blob',
-      params: password ? { password } : undefined,
+      headers: password ? { 'X-Send-Password': password } : undefined,
     });
     return response.data;
   },

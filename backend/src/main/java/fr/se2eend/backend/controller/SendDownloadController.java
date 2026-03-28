@@ -10,7 +10,6 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/sends")
@@ -32,7 +31,7 @@ public class SendDownloadController {
     @GetMapping("/{accessId}/download")
     public ResponseEntity<InputStreamResource> download(
             @PathVariable String accessId,
-            @RequestParam(required = false) String password) throws IOException {
+            @RequestHeader(value = "X-Send-Password", required = false) String password) throws IOException {
         DownloadStream stream = sendDownloadService.downloadByAccessId(accessId, password);
 
         HttpHeaders headers = new HttpHeaders();

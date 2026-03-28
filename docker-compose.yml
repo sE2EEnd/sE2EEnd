@@ -51,39 +51,6 @@ services:
       postgres:
         condition: service_healthy
 
-  backend:
-    image: ghcr.io/se2eend/se2eend-backend:${SE2EEND_VERSION:-latest}
-    container_name: backend-se2eend
-    restart: always
-    environment:
-      DB_URL: jdbc:postgresql://postgres:5432/se2eend
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KEYCLOAK_URL: http://keycloak:8080
-      KEYCLOAK_EXTERNAL_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
-    volumes:
-      - uploads_data:/app/uploads
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  frontend:
-    image: ghcr.io/se2eend/se2eend-frontend:${SE2EEND_VERSION:-latest}
-    container_name: frontend-se2eend
-    restart: always
-    environment:
-      KEYCLOAK_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-se2eend-frontend}
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-
 volumes:
   postgres_data:
     name: se2eend_data
-  uploads_data:
-    name: se2eend_uploads
