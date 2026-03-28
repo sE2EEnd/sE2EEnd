@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,7 +47,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/sends/*/download").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/sends/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/config/theme").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -65,7 +65,7 @@ public class SecurityConfig {
                                         "form-action 'self'"
                                 )
                         )
-                        .frameOptions(frame -> frame.deny())
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .includeSubDomains(true)
                                 .maxAgeInSeconds(31536000)
