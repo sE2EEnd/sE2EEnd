@@ -189,7 +189,14 @@
       "deleteFailed": "Failed to delete send"
     },
     "cleanupSuccess": "Cleanup completed: {{deletedSends}} sends deleted, {{deletedFiles}} files removed, {{freedSpace}} freed",
-    "confirmCleanup": "Run cleanup to delete expired, revoked, and exhausted sends?"
+    "confirmCleanup": "Run cleanup to delete expired, revoked, and exhausted sends?",
+    "settings": {
+      "title": "Instance Settings",
+      "subtitle": "Configure the behaviour of this instance",
+      "requireAuthForDownload": "Require authentication to download",
+      "requireAuthForDownloadDesc": "When enabled, users must be logged in to access download links.",
+      "updateFailed": "Failed to update setting"
+    }
   },
   "profile": {
     "title": "Profile",

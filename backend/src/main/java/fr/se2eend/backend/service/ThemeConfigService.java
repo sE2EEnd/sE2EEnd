@@ -15,10 +15,13 @@ public class ThemeConfigService {
     @Value("${app.logo-url:}")
     private String logoUrl;
 
+    private final InstanceSettingsService instanceSettingsService;
+
     public ThemeConfigDto getThemeConfig() {
         return ThemeConfigDto.builder()
                 .appName(appName)
                 .logoUrl(logoUrl)
+                .requireAuthForDownload(instanceSettingsService.getBoolean("require_auth_for_download", true))
                 .colors(ThemeConfigDto.ThemeColors.builder()
                         .primaryFrom(null)
                         .primaryTo(null)

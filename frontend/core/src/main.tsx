@@ -7,7 +7,7 @@ import App from './App.tsx'
 import keycloak from './keycloak'
 
 const keycloakProviderInitConfig = {
-  onLoad: 'login-required',
+  onLoad: 'check-sso',
   checkLoginIframe: false,
   pkceMethod: 'S256' as const,
 };

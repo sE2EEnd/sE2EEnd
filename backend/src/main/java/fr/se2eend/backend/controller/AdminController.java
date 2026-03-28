@@ -2,6 +2,7 @@ package fr.se2eend.backend.controller;
 
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.service.AdminService;
+import fr.se2eend.backend.service.InstanceSettingsService;
 import fr.se2eend.backend.service.StorageMetricsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -24,6 +25,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final StorageMetricsService storageMetricsService;
+    private final InstanceSettingsService instanceSettingsService;
 
     @GetMapping("/sends")
     @PreAuthorize("hasRole('admin')")
@@ -67,5 +69,20 @@ public class AdminController {
     @Operation(summary = "Run cleanup of expired/revoked sends")
     public ResponseEntity<Map<String, Object>> runCleanup() {
         return ResponseEntity.ok(adminService.runCleanup());
+    }
+
+    @GetMapping("/settings")
+    @PreAuthorize("hasRole('admin')")
+    @Operation(summary = "Get all instance settings")
+    public ResponseEntity<Map<String, String>> getSettings() {
+        return ResponseEntity.ok(instanceSettingsService.getAll());
+    }
+
+    @PatchMapping("/settings/{key}")
+    @PreAuthorize("hasRole('admin')")
+    @Operation(summary = "Update an instance setting")
+    public ResponseEntity<Void> updateSetting(@PathVariable String key, @RequestBody Map<String, String> body) {
+        instanceSettingsService.set(key, body.get("value"));
+        return ResponseEntity.ok().build();
     }
 }
