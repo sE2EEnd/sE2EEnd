@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { isAxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
-import { adminApi } from '../../services/api';
+import { adminApi, settingsApi } from '../../services/api';
 import type { SendResponse, StorageMetrics, CleanupResult, AdminStats } from '../../services/api';
 import {
   Loader2,
@@ -17,6 +17,7 @@ import {
   HardDrive,
   Trash,
   RefreshCw,
+  Settings,
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -30,6 +31,8 @@ export default function AdminPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sendToDelete, setSendToDelete] = useState<string | null>(null);
   const [cleanupRunning, setCleanupRunning] = useState(false);
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [settingsLoading, setSettingsLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -39,14 +42,16 @@ export default function AdminPage() {
     try {
       setLoading(true);
       setError('');
-      const [sendsData, statsData, storageData] = await Promise.all([
+      const [sendsData, statsData, storageData, settingsData] = await Promise.all([
         adminApi.getAllSends(),
         adminApi.getStats(),
         adminApi.getStorageMetrics(),
+        settingsApi.getAll(),
       ]);
       setSends(sendsData);
       setStats(statsData);
       setStorageMetrics(storageData);
+      setSettings(settingsData);
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 403) {
         setError('Access denied. Admin role required.');
@@ -76,6 +81,20 @@ export default function AdminPage() {
       setError('Cleanup failed');
     } finally {
       setCleanupRunning(false);
+    }
+  };
+
+  const handleSettingToggle = async (key: string, currentValue: string) => {
+    const newValue = currentValue === 'true' ? 'false' : 'true';
+    setSettingsLoading(true);
+    try {
+      await settingsApi.update(key, newValue);
+      setSettings(prev => ({ ...prev, [key]: newValue }));
+      setLocalSettings(prev => ({ ...prev, [key]: newValue }));
+    } catch {
+      setError(t('admin.settings.updateFailed'));
+    } finally {
+      setSettingsLoading(false);
     }
   };
 
@@ -294,6 +313,40 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Instance Settings */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Settings className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">{t('admin.settings.title')}</h2>
+            <p className="text-sm text-gray-500">{t('admin.settings.subtitle')}</p>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p className="text-sm font-medium text-gray-900">{t('admin.settings.requireAuthForDownload')}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('admin.settings.requireAuthForDownloadDesc')}</p>
+            </div>
+            <button
+              onClick={() => handleSettingToggle('require_auth_for_download', settings['require_auth_for_download'] ?? 'true')}
+              disabled={settingsLoading}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                settings['require_auth_for_download'] === 'true' ? 'bg-primary' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  settings['require_auth_for_download'] === 'true' ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Sends Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">

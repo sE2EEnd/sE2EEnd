@@ -189,7 +189,14 @@
       "deleteFailed": "Échec de la suppression de l'envoi"
     },
     "cleanupSuccess": "Nettoyage terminé : {{deletedSends}} envois supprimés, {{deletedFiles}} fichiers retirés, {{freedSpace}} libérés",
-    "confirmCleanup": "Lancer le nettoyage pour supprimer les envois expirés, révoqués et épuisés ?"
+    "confirmCleanup": "Lancer le nettoyage pour supprimer les envois expirés, révoqués et épuisés ?",
+    "settings": {
+      "title": "Paramètres de l'instance",
+      "subtitle": "Configurez le comportement de cette instance",
+      "requireAuthForDownload": "Authentification requise pour télécharger",
+      "requireAuthForDownloadDesc": "Quand activé, les utilisateurs doivent être connectés pour accéder aux liens de téléchargement.",
+      "updateFailed": "Échec de la mise à jour du paramètre"
+    }
   },
   "profile": {
     "title": "Profil",

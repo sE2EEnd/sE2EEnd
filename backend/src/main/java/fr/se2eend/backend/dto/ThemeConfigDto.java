@@ -13,6 +13,7 @@ public class ThemeConfigDto {
     private String appName;
     private String logoUrl;
     private ThemeColors colors;
+    private boolean requireAuthForDownload;
 
     @Data
     @Builder

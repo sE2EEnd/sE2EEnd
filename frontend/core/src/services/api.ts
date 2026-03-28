@@ -155,6 +155,7 @@ const adminApi = {
 interface ThemeConfig {
   appName: string;
   logoUrl: string;
+  requireAuthForDownload: boolean;
   colors: {
     primaryFrom: string;
     primaryTo: string;
@@ -165,6 +166,24 @@ interface ThemeConfig {
   };
 }
 
-export { sendApi, adminApi };
+const configApi = {
+  getThemeConfig: async (): Promise<ThemeConfig> => {
+    const response = await api.get('/config/theme');
+    return response.data;
+  },
+};
+
+const settingsApi = {
+  getAll: async (): Promise<Record<string, string>> => {
+    const response = await api.get('/admin/settings');
+    return response.data;
+  },
+
+  update: async (key: string, value: string): Promise<void> => {
+    await api.patch(`/admin/settings/${key}`, { value });
+  },
+};
+
+export { sendApi, adminApi, configApi, settingsApi };
 export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats };
 export default api;
