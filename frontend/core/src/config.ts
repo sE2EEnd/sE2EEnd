@@ -4,6 +4,7 @@ declare global {
       keycloakUrl: string;
       keycloakRealm: string;
       keycloakClientId: string;
+      apiUrl: string;
     };
   }
 }
