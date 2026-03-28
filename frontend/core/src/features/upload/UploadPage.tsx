@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -36,7 +36,7 @@ export default function UploadPage() {
   const [sendName, setSendName] = useState<string>('');
   const [maxDownloads, setMaxDownloads] = useState<number>(5);
   const [expirationHours, setExpirationHours] = useState<number>(24);
-  const [password, setPassword] = useState<string>('');
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [usePassword, setUsePassword] = useState<boolean>(false);
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -83,6 +83,7 @@ export default function UploadPage() {
       return;
     }
 
+    const password = passwordRef.current?.value ?? '';
     if (usePassword && !password) {
       setError(t('upload.errors.enterPassword'));
       return;
@@ -340,8 +341,8 @@ export default function UploadPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">{t('upload.form.password')}</label>
                       <input
                         type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        ref={passwordRef}
+                        autoComplete="new-password"
                         placeholder={t('upload.form.passwordPlaceholder')}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
@@ -414,7 +415,7 @@ export default function UploadPage() {
                       value={shareLink}
                       size={200}
                       level="H"
-                      includeMargin={true}
+                      marginSize={4}
                     />
                   </div>
                   <p className="mt-3 text-sm text-gray-600 text-center">
@@ -471,7 +472,7 @@ export default function UploadPage() {
                       setActiveStep(0);
                       setSelectedFiles([]);
                       setShareLink('');
-                      setPassword('');
+                      if (passwordRef.current) passwordRef.current.value = '';
                       setUsePassword(false);
                     }}
                     className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import {isAxiosError} from 'axios';
@@ -11,7 +11,7 @@ import {decryptBlob, decryptText, importKeyFromBase64} from '../../lib/crypto';
 function DownloadPage() {
   const { t } = useTranslation();
   const { accessId } = useParams<{ accessId: string }>();
-  const [password, setPassword] = useState<string>('');
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [sendInfo, setSendInfo] = useState<SendResponse | null>(null);
   const [decryptedSendName, setDecryptedSendName] = useState<string | null>(null);
   const [decryptedFilenames, setDecryptedFilenames] = useState<Record<string, string>>({});
@@ -90,7 +90,8 @@ function DownloadPage() {
       const encryptionKey = await importKeyFromBase64(keyBase64);
 
       // Download encrypted file
-      const encryptedBlob = await sendApi.downloadSend(accessId, password || undefined);
+      const password = passwordRef.current?.value || undefined;
+      const encryptedBlob = await sendApi.downloadSend(accessId, password);
 
       // Decrypt file
       const decryptedBlob = await decryptBlob(encryptedBlob, encryptionKey);
@@ -201,7 +202,7 @@ function DownloadPage() {
                     value={window.location.href}
                     size={160}
                     level="H"
-                    includeMargin={true}
+                    marginSize={4}
                   />
                 </div>
                 <p className="mt-2 text-xs text-gray-600 text-center">
@@ -217,8 +218,8 @@ function DownloadPage() {
                 <input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  ref={passwordRef}
+                  autoComplete="current-password"
                   placeholder={t('download.passwordPlaceholder')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
