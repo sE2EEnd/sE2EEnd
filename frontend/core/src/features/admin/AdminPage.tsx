@@ -90,7 +90,6 @@ export default function AdminPage() {
     try {
       await settingsApi.update(key, newValue);
       setSettings(prev => ({ ...prev, [key]: newValue }));
-      setLocalSettings(prev => ({ ...prev, [key]: newValue }));
     } catch {
       setError(t('admin.settings.updateFailed'));
     } finally {
