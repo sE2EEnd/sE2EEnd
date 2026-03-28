@@ -119,8 +119,45 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
             ${{ env.FRONTEND_IMAGE }}:latest
 
+  publish-frontend-static:
+    needs: [backend-test, frontend-check]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend/core
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '25'
+          cache: 'npm'
+          cache-dependency-path: frontend/core/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        working-directory: .
+
+      - name: Package dist
+        run: zip -r ../../frontend-${{ steps.version.outputs.VERSION }}.zip dist/
+
+      - name: Upload static artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: frontend-${{ steps.version.outputs.VERSION }}.zip
+
   github-release:
-    needs: [publish-backend, publish-frontend]
+    needs: [publish-backend, publish-frontend, publish-frontend-static]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -134,6 +171,11 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
+      - name: Download static frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-static
+
       - name: Generate changelog
         id: changelog
         run: |
@@ -145,13 +187,13 @@ jobs:
           else
             LOG=$(git log --pretty=format:"- %s (%h)" "${PREV_TAG}..${GITHUB_REF_NAME}")
           fi
-          # Write to file to handle multiline
           echo "$LOG" > /tmp/changelog.txt
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: sE2EEnd ${{ steps.version.outputs.VERSION }}
+          files: frontend-${{ steps.version.outputs.VERSION }}.zip
           body: |
             ## Docker Images
 
@@ -159,6 +201,10 @@ jobs:
             docker pull ${{ env.BACKEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
             docker pull ${{ env.FRONTEND_IMAGE }}:${{ steps.version.outputs.VERSION }}
             ```
+
+            ## Static Frontend (shared hosting)
+
+            Download `frontend-${{ steps.version.outputs.VERSION }}.zip`, extract it, edit `config.js` to point to your backend, then upload the contents to your web server.
 
             ## What's Changed
 
