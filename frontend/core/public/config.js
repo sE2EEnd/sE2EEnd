@@ -2,5 +2,6 @@
 window.__config = {
   keycloakUrl: "http://localhost:8090",
   keycloakRealm: "se2eend",
-  keycloakClientId: "se2eend-frontend"
+  keycloakClientId: "se2eend-frontend",
+  apiUrl: ""
 };
