@@ -5,7 +5,6 @@
 .idea/
 .vscode/
 *.iml
-.run/
 
 # OS
 .DS_Store
@@ -16,7 +15,7 @@ backend/target/
 backend/*.log
 backend/.mvn/
 
-*/uploads/
+uploads/
 
 # Frontend (Node/NPM)
 frontend/core/node_modules/
