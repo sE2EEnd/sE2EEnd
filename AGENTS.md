@@ -47,21 +47,22 @@ PostgreSQL
 
 ## Tech Stack
 
-| Layer        | Technology                                   |
-|--------------|----------------------------------------------|
-| Backend      | Java 21, Spring Boot 3.5.6, Maven 3.9        |
-| Database     | PostgreSQL 18.1, Spring Data JPA / Hibernate |
-| Security     | Spring Security, OAuth2 Resource Server, JWT |
-| API Docs     | SpringDoc OpenAPI (Swagger UI at `/swagger-ui.html`) |
-| Frontend     | React 19, TypeScript 5, Vite 7               |
-| Styling      | Tailwind CSS 3.4                             |
-| Auth (FE)    | @react-keycloak/web + keycloak-js            |
-| HTTP Client  | Axios (with JWT interceptor)                 |
-| i18n         | i18next (EN + FR)                            |
-| Crypto       | Web Crypto API (browser-native, no lib)      |
-| IdP          | Keycloak 26.5                                |
-| Containers   | Docker + Docker Compose                      |
-| CI/CD        | GitHub Actions → GHCR                        |
+| Layer       | Technology                                                                |
+|-------------|---------------------------------------------------------------------------|
+| Backend     | Java 21, Spring Boot 3.5.6, Maven 3.9                                     |
+| Database    | PostgreSQL 18.1, Spring Data JPA / Hibernate                              |
+| Migrations  | Flyway (SQL migrations in `db/migration/`)                                |
+| Security    | Spring Security, OAuth2 Resource Server, JWT                              |
+| API Docs    | SpringDoc OpenAPI (disabled by default, `SWAGGER_ENABLED=true` to enable) |
+| Frontend    | React 19, TypeScript 5, Vite 7                                            |
+| Styling     | Tailwind CSS 3.4                                                          |
+| Auth (FE)   | @react-keycloak/web + keycloak-js                                         |
+| HTTP Client | Axios (with JWT interceptor)                                              |
+| i18n        | i18next (EN + FR)                                                         |
+| Crypto      | Web Crypto API (browser-native, no lib)                                   |
+| IdP         | Keycloak 26.5                                                             |
+| Containers  | Docker + Docker Compose                                                   |
+| CI/CD       | GitHub Actions → GHCR                                                     |
 
 ---
 
@@ -70,16 +71,19 @@ PostgreSQL
 ```
 sE2EEnd/
 ├── backend/                          # Spring Boot application
-│   └── src/main/java/fr/se2eend/backend/
-│       ├── controller/               # REST endpoints
-│       ├── service/                  # Business logic
-│       ├── model/                    # JPA entities
-│       ├── repository/               # Spring Data repos
-│       ├── dto/                      # Request/response DTOs
-│       ├── config/                   # Security, CORS, OpenAPI
-│       ├── storage/                  # File storage abstraction
-│       ├── scheduler/                # Cleanup cron (daily at 2 AM)
-│       └── exception/                # Custom exceptions
+│   └── src/main/
+│       ├── java/fr/se2eend/backend/
+│       │   ├── controller/           # REST endpoints
+│       │   ├── service/              # Business logic
+│       │   ├── model/                # JPA entities
+│       │   ├── repository/           # Spring Data repos
+│       │   ├── dto/                  # Request/response DTOs
+│       │   ├── config/               # Security, CORS, OpenAPI
+│       │   ├── storage/              # File storage abstraction
+│       │   ├── scheduler/            # Cleanup cron (daily at 2 AM)
+│       │   └── exception/            # Custom exceptions
+│       └── resources/
+│           └── db/migration/         # Flyway SQL migrations (V1__, V2__, ...)
 ├── frontend/core/                    # React application
 │   └── src/
 │       ├── features/                 # upload/, download/, dashboard/, admin/, profile/
@@ -140,7 +144,8 @@ Services started:
 cd backend
 mvn spring-boot:run
 # Starts on port 8081
-# Swagger UI: http://localhost:8081/swagger-ui.html
+# Flyway runs migrations automatically on startup
+# Swagger UI (if SWAGGER_ENABLED=true): http://localhost:8081/swagger-ui.html
 ```
 
 ### 4. Run frontend
