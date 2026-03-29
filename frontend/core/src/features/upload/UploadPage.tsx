@@ -24,7 +24,7 @@ import { storeSendKey } from '../../lib/sendKeysDB';
 
 export default function UploadPage() {
   const { t } = useTranslation();
-  useNavigate();
+  const navigate = useNavigate();
   const steps = [
     t('upload.steps.selectFiles'),
     t('upload.steps.configure'),
@@ -149,7 +149,7 @@ export default function UploadPage() {
       setShareLink(link);
       setActiveStep(3);
     } catch (err) {
-      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : 'Upload failed. Please try again.');
+      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : t('upload.errors.uploadFailed'));
       setActiveStep(1);
     } finally {
       setUploading(false);
