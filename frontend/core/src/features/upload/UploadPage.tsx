@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   CloudUpload,
@@ -24,7 +24,6 @@ import { storeSendKey } from '../../lib/sendKeysDB';
 
 export default function UploadPage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const steps = [
     t('upload.steps.selectFiles'),
     t('upload.steps.configure'),
