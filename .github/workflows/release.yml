@@ -176,19 +176,6 @@ jobs:
         with:
           name: frontend-static
 
-      - name: Generate changelog
-        id: changelog
-        run: |
-          # Get previous tag
-          PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1)
-          if [ "$PREV_TAG" = "$GITHUB_REF_NAME" ] || [ -z "$PREV_TAG" ]; then
-            # First release: all commits
-            LOG=$(git log --pretty=format:"- %s (%h)" HEAD)
-          else
-            LOG=$(git log --pretty=format:"- %s (%h)" "${PREV_TAG}..${GITHUB_REF_NAME}")
-          fi
-          echo "$LOG" > /tmp/changelog.txt
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -205,10 +192,6 @@ jobs:
             ## Static Frontend (shared hosting)
 
             Download `frontend-${{ steps.version.outputs.VERSION }}.zip`, extract it, edit `config.js` to point to your backend, then upload the contents to your web server.
-
-            ## What's Changed
-
-            ${{ steps.changelog.outputs.CHANGELOG }}
 
             ## Quick Start
 
