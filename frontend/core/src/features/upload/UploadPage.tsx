@@ -57,6 +57,7 @@ export default function UploadPage() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [shareLink, setShareLink] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
+  const [showQr, setShowQr] = useState<boolean>(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -439,25 +440,32 @@ export default function UploadPage() {
 
                 {/* QR Code */}
                 <div className="flex flex-col items-center p-6 bg-white border-2 border-gray-200 rounded-xl">
-                  <div className="flex items-center gap-2 mb-4">
-                    <QrCode className="w-5 h-5 text-gray-700" />
-                    <h4 className="text-lg font-semibold text-gray-900">{t('upload.success.qrCode')}</h4>
-                  </div>
-                  <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-                    <QRCodeCanvas
-                      value={shareLink}
-                      size={200}
-                      level="H"
-                      marginSize={4}
-                    />
-                  </div>
-                  <p className="mt-3 text-sm text-gray-600 text-center">
-                    {t('upload.success.qrCodeDesc')}
-                  </p>
+                  <button
+                    onClick={() => setShowQr(v => !v)}
+                    className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+                  >
+                    <QrCode className="w-5 h-5" />
+                    <span className="text-lg font-semibold">{t('upload.success.qrCode')}</span>
+                  </button>
+                  {showQr && (
+                    <>
+                      <div className="mt-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                        <QRCodeCanvas
+                          value={shareLink}
+                          size={200}
+                          level="H"
+                          marginSize={4}
+                        />
+                      </div>
+                      <p className="mt-3 text-sm text-gray-600 text-center">
+                        {t('upload.success.qrCodeDesc')}
+                      </p>
+                    </>
+                  )}
                 </div>
 
-                <div className="p-4 bg-primary bg-opacity-10 border border-primary border-opacity-30 rounded-lg">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="p-4 bg-primary rounded-lg">
+                  <label className="block text-sm font-medium text-white mb-2">
                     {t('upload.success.shareLink')}
                   </label>
                   <div className="flex gap-2">
@@ -488,7 +496,7 @@ export default function UploadPage() {
                       )}
                     </button>
                   </div>
-                  <p className="mt-2 text-xs text-gray-600">
+                  <p className="mt-2 text-xs text-white">
                     {t('dashboard.warningKey')}
                   </p>
                 </div>
