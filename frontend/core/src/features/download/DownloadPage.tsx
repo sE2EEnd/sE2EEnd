@@ -18,6 +18,7 @@ function DownloadPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [downloading, setDownloading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [showQr, setShowQr] = useState<boolean>(false);
 
   const loadSendInfo = useCallback(async () => {
     try {
@@ -174,16 +175,16 @@ function DownloadPage() {
               )}
 
               {/* Send Info */}
-              <div className="p-4 bg-primary bg-opacity-10 border border-primary border-opacity-30 rounded-lg space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <ArrowDownToLine className="w-4 h-4 text-primary" />
+              <div className="p-4 bg-primary rounded-lg space-y-2">
+                <div className="flex items-center gap-2 text-sm text-white">
+                  <ArrowDownToLine className="w-4 h-4 text-white" />
                   <span>
                     <strong>{t('download.downloads')}:</strong> {sendInfo.downloadCount} / {sendInfo.maxDownloads}
                   </span>
                 </div>
                 {sendInfo.expiresAt && (
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <Clock className="w-4 h-4 text-primary" />
+                  <div className="flex items-center gap-2 text-sm text-white">
+                    <Clock className="w-4 h-4 text-white" />
                     <span>
                       <strong>{t('download.expires')}:</strong> {new Date(sendInfo.expiresAt).toLocaleString()}
                     </span>
@@ -193,21 +194,28 @@ function DownloadPage() {
 
               {/* QR Code */}
               <div className="flex flex-col items-center p-4 bg-white border border-gray-200 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <QrCode className="w-4 h-4 text-gray-700" />
-                  <h4 className="text-sm font-semibold text-gray-900">{t('download.qrCode')}</h4>
-                </div>
-                <div className="p-3 bg-white rounded-lg shadow-sm border border-gray-200">
-                  <QRCodeCanvas
-                    value={window.location.href}
-                    size={160}
-                    level="H"
-                    marginSize={4}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-gray-600 text-center">
-                  {t('download.qrCodeDesc')}
-                </p>
+                <button
+                  onClick={() => setShowQr(v => !v)}
+                  className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span className="text-sm font-semibold">{t('download.qrCode')}</span>
+                </button>
+                {showQr && (
+                  <>
+                    <div className="mt-3 p-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                      <QRCodeCanvas
+                        value={window.location.href}
+                        size={160}
+                        level="H"
+                        marginSize={4}
+                      />
+                    </div>
+                    <p className="mt-2 text-xs text-gray-600 text-center">
+                      {t('download.qrCodeDesc')}
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Password Input */}
