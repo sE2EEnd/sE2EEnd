@@ -54,9 +54,9 @@ export default function AdminPage() {
       setSettings(settingsData);
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 403) {
-        setError('Access denied. Admin role required.');
+        setError(t('admin.errors.accessDenied'));
       } else {
-        setError('Failed to load admin data');
+        setError(t('admin.errors.loadFailed'));
       }
     } finally {
       setLoading(false);
@@ -429,22 +429,22 @@ export default function AdminPage() {
                           {isActive ? (
                             <>
                               <CheckCircle2 className="w-3 h-3" />
-                              Active
+                              {t('common.active')}
                             </>
                           ) : send.revoked ? (
                             <>
                               <Ban className="w-3 h-3" />
-                              Revoked
+                              {t('common.revoked')}
                             </>
                           ) : isExpired ? (
                             <>
                               <Clock className="w-3 h-3" />
-                              Expired
+                              {t('common.expired')}
                             </>
                           ) : (
                             <>
                               <ShieldAlert className="w-3 h-3" />
-                              Exhausted
+                              {t('common.exhausted')}
                             </>
                           )}
                         </span>

@@ -81,7 +81,8 @@
     "errors": {
       "selectFile": "Veuillez sélectionner au moins un fichier",
       "enterPassword": "Veuillez entrer un mot de passe",
-      "uploadFailed": "Échec du téléversement. Veuillez réessayer."
+      "uploadFailed": "Échec du téléversement. Veuillez réessayer.",
+      "multiFileSizeLimit": "Les envois multi-fichiers sont limités à {{limit}} Mo au total. Veuillez répartir vos fichiers en plusieurs envois."
     },
     "uploading": {
       "title": "Téléversement de votre fichier...",

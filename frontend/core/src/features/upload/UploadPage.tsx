@@ -1,6 +1,20 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { zip } from 'fflate';
+
+// Multi-file sends are zipped client-side before encryption.
+// Above this threshold the browser risks running out of memory — split into multiple sends.
+const MULTI_FILE_ZIP_SIZE_LIMIT = 150 * 1024 * 1024; // 150 MB
+
+function zipFilesAsync(entries: Record<string, Uint8Array>): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    zip(entries, { level: 0 }, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+}
 import {
   CloudUpload,
   Loader2,
@@ -89,6 +103,14 @@ export default function UploadPage() {
       return;
     }
 
+    if (selectedFiles.length > 1) {
+      const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+      if (totalSize > MULTI_FILE_ZIP_SIZE_LIMIT) {
+        setError(t('upload.errors.multiFileSizeLimit', { limit: Math.floor(MULTI_FILE_ZIP_SIZE_LIMIT / 1024 / 1024) }));
+        return;
+      }
+    }
+
     setUploading(true);
     setError('');
     setActiveStep(2);
@@ -129,18 +151,29 @@ export default function UploadPage() {
       // Store the encryption key locally for the owner to decrypt later
       await storeSendKey(send.id, keyBase64);
 
-      // Upload all files to the same Send
-      for (const file of selectedFiles) {
-        // Encrypt file content
+      // Upload files to the Send
+      // For multiple files: zip client-side first, then encrypt the zip as a single blob.
+      if (selectedFiles.length === 1) {
+        const file = selectedFiles[0];
         const encryptedBlob = await encryptFile(file, encryptionKey);
-
-        // Encrypt filename (zero-knowledge)
         const encryptedFilename = await encryptText(file.name, encryptionKey);
-
         const encryptedFile = new File([encryptedBlob], encryptedFilename, {
           type: 'application/octet-stream',
         });
-
+        await sendApi.uploadFile(send.id, encryptedFile);
+      } else {
+        const fileEntries: Record<string, Uint8Array> = {};
+        for (const file of selectedFiles) {
+          fileEntries[file.name] = new Uint8Array(await file.arrayBuffer());
+        }
+        const zipped = await zipFilesAsync(fileEntries);
+        const zipBlob = new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
+        const zipFile = new File([zipBlob], 'archive.zip');
+        const encryptedBlob = await encryptFile(zipFile, encryptionKey);
+        const encryptedFilename = await encryptText('archive.zip', encryptionKey);
+        const encryptedFile = new File([encryptedBlob], encryptedFilename, {
+          type: 'application/octet-stream',
+        });
         await sendApi.uploadFile(send.id, encryptedFile);
       }
 

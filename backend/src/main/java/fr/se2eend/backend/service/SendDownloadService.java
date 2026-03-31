@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -29,7 +28,7 @@ public class SendDownloadService {
     private final StorageService storageService;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public DownloadStream downloadByAccessId(String accessId, String password) throws IOException {
         Send send = sendRepository.findByAccessId(accessId)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
@@ -51,9 +50,6 @@ public class SendDownloadService {
             throw new SendDownloadLimitExceededException();
         }
 
-        send.setDownloadCount(send.getDownloadCount() + 1);
-        sendRepository.save(send);
-
         List<FileMetadata> files = send.getFiles();
         if (files == null || files.isEmpty()) {
             throw new ResourceNotFoundException(
@@ -62,30 +58,36 @@ public class SendDownloadService {
             );
         }
 
+        DownloadStream result;
         if (files.size() == 1) {
             FileMetadata file = files.getFirst();
             InputStream inputStream = storageService.read(file.getStoragePath());
-            return new DownloadStream(inputStream, file.getFilename(), file.getSizeBytes());
+            result = new DownloadStream(inputStream, file.getFilename(), file.getSizeBytes());
+        } else {
+            PipedOutputStream pos = new PipedOutputStream();
+            PipedInputStream pis = new PipedInputStream(pos);
+
+            new Thread(() -> {
+                try (ZipOutputStream zos = new ZipOutputStream(pos)) {
+                    for (FileMetadata file : files) {
+                        try (InputStream fis = storageService.read(file.getStoragePath())) {
+                            zos.putNextEntry(new ZipEntry(file.getFilename()));
+                            fis.transferTo(zos);
+                            zos.closeEntry();
+                        }
+                    }
+                } catch (IOException e) {
+                    // stream is cut -> ZIP generation stops
+                }
+            }).start();
+
+            result = new DownloadStream(pis, "send-" + send.getAccessId() + ".zip", null);
         }
 
-        PipedOutputStream pos = new PipedOutputStream();
-        PipedInputStream pis = new PipedInputStream(pos);
+        send.setDownloadCount(send.getDownloadCount() + 1);
+        sendRepository.save(send);
 
-        new Thread(() -> {
-            try (ZipOutputStream zos = new ZipOutputStream(pos)) {
-                for (FileMetadata file : files) {
-                    try (InputStream fis = storageService.read(file.getStoragePath())) {
-                        zos.putNextEntry(new ZipEntry(file.getFilename()));
-                        fis.transferTo(zos);
-                        zos.closeEntry();
-                    }
-                }
-            } catch (IOException e) {
-                // stream is cut => ZIP generation stops
-            }
-        }).start();
-
-        return new DownloadStream(pis, "send-" + send.getAccessId() + ".zip", null);
+        return result;
     }
 
     public record DownloadStream(InputStream stream, String filename, Long sizeBytes) {}

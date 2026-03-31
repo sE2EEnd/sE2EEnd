@@ -81,7 +81,8 @@
     "errors": {
       "selectFile": "Please select at least one file",
       "enterPassword": "Please enter a password",
-      "uploadFailed": "Upload failed. Please try again."
+      "uploadFailed": "Upload failed. Please try again.",
+      "multiFileSizeLimit": "Multi-file sends are limited to {{limit}} MB total. Please split your files into multiple sends."
     },
     "uploading": {
       "title": "Uploading your file...",

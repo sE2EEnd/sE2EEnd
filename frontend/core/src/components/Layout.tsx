@@ -172,7 +172,7 @@ export default function Layout() {
             >
               <GitHubIcon className="w-3.5 h-3.5 flex-shrink-0" />
               <span>Open Source</span>
-              <span className="ml-auto">v{__APP_VERSION__}</span>
+              <span className="ml-auto">{__APP_VERSION__}</span>
             </a>
 
             <div className={cn("p-4 border-t", themeClasses.sidebar.border)}>
