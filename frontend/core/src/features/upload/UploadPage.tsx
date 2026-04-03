@@ -194,7 +194,7 @@ export default function UploadPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold text-gray-900">{t('upload.title')}</h1>
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('upload.title')}</h1>
       </div>
 
       {/* Stepper */}

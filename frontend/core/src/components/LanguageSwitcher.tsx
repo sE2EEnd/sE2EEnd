@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Globe } from 'lucide-react';
+import { Globe, Check, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { cn } from '../lib/utils';
 import 'flag-icons/css/flag-icons.min.css';
 
 const languages = [
@@ -13,7 +14,6 @@ export default function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-
   const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
 
   const changeLanguage = (langCode: string) => {
@@ -21,45 +21,44 @@ export default function LanguageSwitcher() {
     setIsOpen(false);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-        aria-label="Change language"
+        className="flex items-center gap-3 px-4 py-2.5 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm group"
       >
-        <Globe className="w-5 h-5" />
-        <span className={`fi fi-${currentLanguage.countryCode} text-xl`}></span>
-        <span className="hidden sm:inline text-sm font-medium">{currentLanguage.code.toUpperCase()}</span>
+        <Globe className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
+        <span className={cn("fi rounded-sm shadow-sm", `fi-${currentLanguage.countryCode}`)}></span>
+        <span className="text-sm font-bold text-gray-700 uppercase tracking-tight">{currentLanguage.name}</span>
+        <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform duration-200", isOpen ? "rotate-180" : "")} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-[100] animate-in zoom-in-95 fade-in">
           {languages.map((lang) => (
             <button
               key={lang.code}
               onClick={() => changeLanguage(lang.code)}
-              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                lang.code === i18n.language ? 'bg-gray-50 font-medium' : ''
-              }`}
-            >
-              <span className={`fi fi-${lang.countryCode} text-xl`}></span>
-              <span>{lang.name}</span>
-              {lang.code === i18n.language && (
-                <span className="ml-auto text-primary">✓</span>
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
+                lang.code === i18n.language 
+                  ? "bg-primary/5 text-primary font-bold" 
+                  : "text-gray-600 hover:bg-gray-50"
               )}
+            >
+              <span className={cn("fi rounded-sm", `fi-${lang.countryCode}`)}></span>
+              <span className="flex-1 text-left">{lang.name}</span>
+              {lang.code === i18n.language && <Check className="w-4 h-4" />}
             </button>
           ))}
         </div>

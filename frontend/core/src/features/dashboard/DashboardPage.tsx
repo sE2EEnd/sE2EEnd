@@ -162,7 +162,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-semibold text-gray-900">{t('dashboard.title')}</h1>
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('dashboard.title')}</h1>
         <Link
           to="/upload"
           className="px-4 py-2 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium"

@@ -138,37 +138,29 @@
   "admin": {
     "title": "Admin Dashboard",
     "subtitle": "Manage all sends and view statistics",
+    "recentTransfers": "Recent Transfers",
+    "filterBySender": "Filter by sender",
+    "filterByStatus": "Filter by status",
+    "encryptedNameNotice": "The name is end-to-end encrypted. Only the sender or recipient with the key can read it.",
     "stats": {
       "totalSends": "Total Sends",
-      "activeSends": "Active Sends",
-      "revokedSends": "Revoked Sends",
-      "totalFiles": "Total Files"
+      "totalSendsHelp": "A 'send' corresponds to a unique upload (one or more zipped files, or text)."
     },
     "storage": {
-      "title": "Storage Usage",
-      "used": "Used",
-      "free": "Free",
-      "total": "Total",
-      "percentUsed": "used",
-      "filesInStorage": "Files in Storage",
-      "storageSize": "Storage Size",
-      "usableSpace": "Usable Space",
-      "available": "Available",
-      "runCleanup": "Run Cleanup",
-      "running": "Running..."
+      "capacity": "Storage Capacity",
+      "filesInStorage_one": "File in Storage",
+      "filesInStorage_other": "Files in Storage",
+      "runCleanup": "Run Cleanup"
     },
     "table": {
-      "allSends": "All Sends",
       "sendName": "Send Name",
       "owner": "Owner",
       "status": "Status",
-      "downloads": "Downloads",
       "created": "Created",
       "expires": "Expires",
       "actions": "Actions",
       "noSends": "No sends found",
       "unnamedSend": "Unnamed Send",
-      "noFiles": "No files",
       "unknown": "Unknown",
       "never": "Never"
     },
@@ -182,6 +174,12 @@
       "cancel": "Cancel",
       "delete": "Delete"
     },
+    "cleanupDialog": {
+      "title": "Run Cleanup",
+      "message": "This will permanently delete all expired, revoked, and exhausted sends. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Run Cleanup"
+    },
     "errors": {
       "accessDenied": "Access denied. Admin role required.",
       "loadFailed": "Failed to load admin data",
@@ -190,10 +188,8 @@
       "deleteFailed": "Failed to delete send"
     },
     "cleanupSuccess": "Cleanup completed: {{deletedSends}} sends deleted, {{deletedFiles}} files removed, {{freedSpace}} freed",
-    "confirmCleanup": "Run cleanup to delete expired, revoked, and exhausted sends?",
     "settings": {
       "title": "Instance Settings",
-      "subtitle": "Configure the behaviour of this instance",
       "requireAuthForDownload": "Require authentication to download",
       "requireAuthForDownloadDesc": "When enabled, users must be logged in to access download links.",
       "updateFailed": "Failed to update setting"
@@ -203,6 +199,9 @@
     "title": "Profile",
     "userInformation": "User Information",
     "accountStatus": "Account Status",
+    "preferences": "Preferences",
+    "language": "Interface Language",
+    "languageDesc": "Choose your preferred language for the application",
     "username": "Username",
     "email": "Email",
     "firstName": "First Name",

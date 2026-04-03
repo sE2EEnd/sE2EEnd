@@ -138,37 +138,29 @@
   "admin": {
     "title": "Administration",
     "subtitle": "Gérer tous les envois et voir les statistiques",
+    "recentTransfers": "Transferts récents",
+    "filterBySender": "Filtrer par expéditeur",
+    "filterByStatus": "Filtrer par statut",
+    "encryptedNameNotice": "Le nom est chiffré de bout en bout. Seul l'expéditeur ou le destinataire avec la clé peut le lire.",
     "stats": {
-      "totalSends": "Total des envois",
-      "activeSends": "Envois actifs",
-      "revokedSends": "Envois révoqués",
-      "totalFiles": "Total des fichiers"
+      "totalSends": "Nombre de sends",
+      "totalSendsHelp": "Un 'send' correspond à un envoi unique (un ou plusieurs fichiers zipés, ou du texte)."
     },
     "storage": {
-      "title": "Utilisation du stockage",
-      "used": "Utilisé",
-      "free": "Libre",
-      "total": "Total",
-      "percentUsed": "utilisé",
-      "filesInStorage": "Fichiers en stockage",
-      "storageSize": "Taille du stockage",
-      "usableSpace": "Espace utilisable",
-      "available": "Disponible",
-      "runCleanup": "Lancer le nettoyage",
-      "running": "En cours..."
+      "capacity": "Capacité de stockage",
+      "filesInStorage_one": "Fichier en stockage",
+      "filesInStorage_other": "Fichiers en stockage",
+      "runCleanup": "Lancer le nettoyage"
     },
     "table": {
-      "allSends": "Tous les envois",
       "sendName": "Nom de l'envoi",
       "owner": "Propriétaire",
       "status": "Statut",
-      "downloads": "Téléchargements",
       "created": "Créé",
       "expires": "Expire",
       "actions": "Actions",
       "noSends": "Aucun envoi trouvé",
       "unnamedSend": "Envoi sans nom",
-      "noFiles": "Aucun fichier",
       "unknown": "Inconnu",
       "never": "Jamais"
     },
@@ -182,6 +174,12 @@
       "cancel": "Annuler",
       "delete": "Supprimer"
     },
+    "cleanupDialog": {
+      "title": "Lancer le nettoyage",
+      "message": "Cela supprimera définitivement tous les envois expirés, révoqués et épuisés. Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Lancer le nettoyage"
+    },
     "errors": {
       "accessDenied": "Accès refusé. Rôle administrateur requis.",
       "loadFailed": "Échec du chargement des données administrateur",
@@ -190,10 +188,8 @@
       "deleteFailed": "Échec de la suppression de l'envoi"
     },
     "cleanupSuccess": "Nettoyage terminé : {{deletedSends}} envois supprimés, {{deletedFiles}} fichiers retirés, {{freedSpace}} libérés",
-    "confirmCleanup": "Lancer le nettoyage pour supprimer les envois expirés, révoqués et épuisés ?",
     "settings": {
       "title": "Paramètres de l'instance",
-      "subtitle": "Configurez le comportement de cette instance",
       "requireAuthForDownload": "Authentification requise pour télécharger",
       "requireAuthForDownloadDesc": "Quand activé, les utilisateurs doivent être connectés pour accéder aux liens de téléchargement.",
       "updateFailed": "Échec de la mise à jour du paramètre"
@@ -203,6 +199,9 @@
     "title": "Profil",
     "userInformation": "Informations utilisateur",
     "accountStatus": "Statut du compte",
+    "preferences": "Préférences",
+    "language": "Langue de l'interface",
+    "languageDesc": "Choisissez votre langue préférée pour l'application",
     "username": "Nom d'utilisateur",
     "email": "Email",
     "firstName": "Prénom",

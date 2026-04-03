@@ -1,6 +1,8 @@
 import { useKeycloak } from '@react-keycloak/web';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, UserCheck, UserCircle, CheckCircle2 } from 'lucide-react';
+import { User, Mail, UserCheck, UserCircle, CheckCircle2, Languages, ShieldCheck, Clock } from 'lucide-react';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
+import { cn } from '../../lib/utils';
 
 export default function ProfilePage() {
   const { keycloak } = useKeycloak();
@@ -30,73 +32,91 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 pb-10">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold text-gray-900">{t('profile.title')}</h1>
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('profile.title')}</h1>
+        <p className="text-gray-500 text-sm mt-0.5">{t('profile.userInformation')}</p>
       </div>
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* User Information Card */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('profile.userInformation')}</h2>
-
-            <div className="space-y-5">
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {userInfo.map((info) => {
                 const IconComponent = info.icon;
                 return (
-                  <div key={info.label} className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <IconComponent className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                        {t(info.label)}
-                      </p>
-                      <p className="text-base font-medium text-gray-900 truncate">{info.value}</p>
+                  <div key={info.label} className="group">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                      {t(info.label)}
+                    </p>
+                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-transparent group-hover:border-primary/10 group-hover:bg-white transition-all duration-200">
+                      <div className="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0 text-gray-400 group-hover:text-primary transition-colors">
+                        <IconComponent className="w-5 h-5" />
+                      </div>
+                      <p className="text-base font-bold text-gray-900 truncate">{info.value}</p>
                     </div>
                   </div>
                 );
               })}
             </div>
           </div>
+
+          {/* Preferences Section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+              <Languages className="w-4 h-4" />
+              {t('profile.preferences')}
+            </h3>
+            <div className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl">
+              <div>
+                <p className="text-base font-bold text-gray-900">{t('profile.language')}</p>
+                <p className="text-sm text-gray-500">{t('profile.languageDesc')}</p>
+              </div>
+              <LanguageSwitcher />
+            </div>
+          </div>
         </div>
 
         {/* Account Status Card */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">{t('profile.accountStatus')}</h2>
+        <div className="space-y-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+              <ShieldCheck className="w-4 h-4" />
+              {t('profile.accountStatus')}
+            </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Active Status Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
-                <CheckCircle2 className="w-4 h-4" />
-                {t('profile.active')}
+              <div className="flex items-center justify-between p-4 bg-green-50 text-green-700 rounded-2xl border border-green-100">
+                <span className="text-sm font-bold uppercase tracking-tight">{t('profile.active')}</span>
+                <CheckCircle2 className="w-5 h-5" />
               </div>
 
               {/* Email Verification */}
-              <div className="pt-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-medium text-gray-700">{t('profile.emailVerified')}:</span>
-                  <span
-                    className={`font-semibold ${
-                      keycloak.tokenParsed?.email_verified ? 'text-green-600' : 'text-orange-600'
-                    }`}
-                  >
-                    {keycloak.tokenParsed?.email_verified ? t('profile.yes') : t('profile.no')}
-                  </span>
-                </div>
+              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
+                  {t('profile.emailVerified')}
+                </p>
+                <p className={cn(
+                  "text-sm font-bold",
+                  keycloak.tokenParsed?.email_verified ? 'text-green-600' : 'text-orange-600'
+                )}>
+                  {keycloak.tokenParsed?.email_verified ? t('profile.yes') : t('profile.no')}
+                </p>
               </div>
 
-              {/* Account Created (if available) */}
+              {/* Session Info */}
               {keycloak.tokenParsed?.auth_time && (
-                <div className="pt-2 border-t border-gray-200">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    {t('profile.sessionStarted')}
-                  </p>
-                  <p className="text-sm text-gray-900">
+                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-2 text-gray-400 mb-1">
+                    <Clock className="w-3 h-3" />
+                    <p className="text-[10px] font-semibold uppercase tracking-widest">
+                      {t('profile.sessionStarted')}
+                    </p>
+                  </div>
+                  <p className="text-sm font-bold text-gray-900">
                     {new Date((keycloak.tokenParsed.auth_time as number) * 1000).toLocaleString()}
                   </p>
                 </div>
@@ -108,3 +128,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

@@ -22,7 +22,6 @@ function GitHubIcon({ className }: { className?: string }) {
 import { cn } from '../lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { useThemeClasses } from '../hooks/useThemeClasses';
-import LanguageSwitcher from './LanguageSwitcher';
 
 const menuItems = [
   { name: 'layout.dashboard', path: '/dashboard', icon: LayoutDashboard, role: null },
@@ -200,26 +199,26 @@ export default function Layout() {
 
       {/* Main Content */}
       <div className="lg:pl-64">
-        {/* Top Bar */}
-        <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+        {/* Top Bar (Mobile Only) */}
+        <header className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
+          <div className="flex items-center justify-between h-16 px-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-700 lg:hidden"
+              className="text-gray-500 hover:text-gray-700"
             >
               <Menu className="w-6 h-6" />
             </button>
 
-            <h2 className="text-xl font-semibold text-gray-900">
-              {t(visibleMenuItems.find((item) => item.path === location.pathname)?.name || '')}
+            <h2 className="text-lg font-bold text-primary tracking-tight">
+              {theme?.appName}
             </h2>
 
-            <LanguageSwitcher />
+            <div className="w-6" /> {/* Spacer pour centrer le titre */}
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="p-6 lg:p-10 max-w-7xl mx-auto">
           <Outlet />
         </main>
       </div>
