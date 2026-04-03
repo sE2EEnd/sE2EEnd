@@ -65,7 +65,6 @@ class SendDownloadLimitTest {
         // Given: A Send with maxDownloads = 1
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 1,
                 false,
@@ -98,9 +97,7 @@ class SendDownloadLimitTest {
         assertEquals(1, updatedSend.getDownloadCount());
 
         // Then: Second download should fail with SendDownloadLimitExceededException
-        assertThrows(SendDownloadLimitExceededException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendDownloadLimitExceededException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
     }
 
     @Test
@@ -108,7 +105,6 @@ class SendDownloadLimitTest {
         // Given: A Send with maxDownloads = 3
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 3,
                 false,
@@ -142,9 +138,7 @@ class SendDownloadLimitTest {
         assertEquals(3, updatedSend.getDownloadCount());
 
         // Then: Fourth download should fail
-        assertThrows(SendDownloadLimitExceededException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendDownloadLimitExceededException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
     }
 
     @Test
@@ -152,7 +146,6 @@ class SendDownloadLimitTest {
         // Given: A Send with maxDownloads = 5
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 false,
