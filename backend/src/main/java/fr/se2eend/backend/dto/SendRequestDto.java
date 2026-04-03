@@ -11,8 +11,6 @@ public record SendRequestDto(
         @NotNull
         SendType type,
 
-        String encryptedMetadata,
-
         LocalDateTime expiresAt,
 
         @Min(1)

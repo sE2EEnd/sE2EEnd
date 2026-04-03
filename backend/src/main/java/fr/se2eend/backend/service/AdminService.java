@@ -67,8 +67,10 @@ public class AdminService {
         Send send = sendRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
 
-        // Delete associated files first
-        fileRepository.deleteAll(send.getFiles());
+        // Delete associated file first
+        if (send.getFile() != null) {
+            fileRepository.delete(send.getFile());
+        }
 
         // Delete the send
         sendRepository.delete(send);
@@ -117,7 +119,8 @@ public class AdminService {
             if (shouldDelete) {
                 log.info("Deleting send {} (reason: {})", send.getAccessId(), reason);
 
-                for (FileMetadata file : send.getFiles()) {
+                FileMetadata file = send.getFile();
+                if (file != null) {
                     try {
                         storageService.delete(file.getStoragePath());
                         deletedFiles++;

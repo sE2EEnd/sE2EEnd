@@ -19,7 +19,7 @@ public class FileMetadata {
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "send_id", nullable = false)
     @JsonBackReference
     private Send send;
