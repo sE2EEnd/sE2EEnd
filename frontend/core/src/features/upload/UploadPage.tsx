@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { zip } from 'fflate';
@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { isAxiosError } from 'axios';
-import { sendApi } from '../../services/api';
+import { sendApi, configApi } from '../../services/api';
 import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '../../lib/crypto';
 import { storeSendKey } from '../../lib/sendKeysDB';
 
@@ -58,6 +58,16 @@ export default function UploadPage() {
   const [shareLink, setShareLink] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
   const [showQr, setShowQr] = useState<boolean>(false);
+  const [requireSendPassword, setRequireSendPassword] = useState<boolean>(false);
+
+  useEffect(() => {
+    configApi.getSendPolicy().then(policy => {
+      if (policy.requireSendPassword) {
+        setRequireSendPassword(true);
+        setUsePassword(true);
+      }
+    }).catch(() => {/* ignore — policy remains at default */});
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -357,15 +367,19 @@ export default function UploadPage() {
 
                   {/* Password Protection */}
                   <div className="pt-2">
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className={`flex items-center gap-3 ${requireSendPassword ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                       <input
                         type="checkbox"
                         checked={usePassword}
-                        onChange={(e) => setUsePassword(e.target.checked)}
-                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        onChange={(e) => { if (!requireSendPassword) setUsePassword(e.target.checked); }}
+                        disabled={requireSendPassword}
+                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-60"
                       />
                       <span className="text-sm font-medium text-gray-700">
                         {t('upload.form.passwordProtect')}
+                        {requireSendPassword && (
+                          <span className="ml-2 text-xs text-orange-600 font-normal">({t('upload.form.passwordRequired')})</span>
+                        )}
                       </span>
                     </label>
                   </div>

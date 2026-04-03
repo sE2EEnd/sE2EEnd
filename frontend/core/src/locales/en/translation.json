@@ -76,7 +76,8 @@
       "passwordProtect": "Password protect this file",
       "password": "Password",
       "passwordPlaceholder": "Enter password",
-      "passwordHelp": "Recipients will need this password to download"
+      "passwordHelp": "Recipients will need this password to download",
+      "passwordRequired": "required by instance policy"
     },
     "errors": {
       "selectFile": "Please select at least one file",
@@ -196,6 +197,8 @@
       "subtitle": "Configure the behaviour of this instance",
       "requireAuthForDownload": "Require authentication to download",
       "requireAuthForDownloadDesc": "When enabled, users must be logged in to access download links.",
+      "requireSendPassword": "Require password on all sends",
+      "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
       "updateFailed": "Failed to update setting"
     }
   },

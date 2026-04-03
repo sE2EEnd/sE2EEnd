@@ -73,6 +73,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("Bad request (cid={}): {}", cid(), ex.getMessage());
+        ApiError body = ApiError.of(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ErrorCode.VALIDATION_ERROR.name(),
+                ex.getMessage(),
+                cid(),
+                List.of()
+        );
+        return ResponseEntity.badRequest().body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         log.error("Unhandled exception (cid={})", cid(), ex);

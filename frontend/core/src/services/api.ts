@@ -166,9 +166,18 @@ interface ThemeConfig {
   };
 }
 
+interface SendPolicy {
+  requireSendPassword: boolean;
+}
+
 const configApi = {
   getThemeConfig: async (): Promise<ThemeConfig> => {
     const response = await api.get('/config/theme');
+    return response.data;
+  },
+
+  getSendPolicy: async (): Promise<SendPolicy> => {
+    const response = await api.get('/config/send-policy');
     return response.data;
   },
 };
@@ -185,5 +194,5 @@ const settingsApi = {
 };
 
 export { sendApi, adminApi, configApi, settingsApi };
-export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats };
+export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats, SendPolicy };
 export default api;
