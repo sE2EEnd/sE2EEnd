@@ -98,7 +98,9 @@
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez un mot de passe",
       "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger",
-      "passwordRequired": "requis par la politique de l'instance"
+      "passwordRequired": "requis par la politique de l'instance",
+      "passwordWarningTitle": "Attention :",
+      "passwordWarning": "Pour garantir la sécurité, n'envoyez jamais le lien et le mot de passe sur le même canal (ex: dans le même e-mail). Transmettez le mot de passe séparément (ex: SMS, messagerie instantanée)."
     },
     "textForm": {
       "placeholder": "Entrez votre texte, mot de passe, note...",

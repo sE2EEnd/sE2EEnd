@@ -19,6 +19,7 @@ import {
   CloudUpload,
   Loader2,
   AlertCircle,
+  AlertTriangle,
   ArrowLeft,
   Upload as UploadIcon,
   Shield,
@@ -35,9 +36,11 @@ import {
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { isAxiosError } from 'axios';
-import { sendApi, configApi } from '../../services/api';
-import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '../../lib/crypto';
-import { storeSendKey } from '../../lib/sendKeysDB';
+import { sendApi, configApi } from '@/services/api.ts';
+import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '@/lib/crypto.ts';
+import { storeSendKey } from '@/lib/sendKeysDB.ts';
+
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function UploadPage() {
   const { t } = useTranslation();
@@ -531,18 +534,27 @@ export default function UploadPage() {
                   </div>
 
                   {usePassword && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('upload.form.password')}</label>
-                      <input
-                        type="password"
-                        ref={passwordRef}
-                        autoComplete="new-password"
-                        placeholder={t('upload.form.passwordPlaceholder')}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                      <p className="mt-1 text-sm text-gray-500">
-                        {t('upload.form.passwordHelp')}
-                      </p>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('upload.form.password')}</label>
+                        <input
+                          type="password"
+                          ref={passwordRef}
+                          autoComplete="new-password"
+                          placeholder={t('upload.form.passwordPlaceholder')}
+                          className="peer w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                        <p className="mt-1 text-sm text-gray-500">
+                          {t('upload.form.passwordHelp')}
+                        </p>
+                        <Alert className="mt-4 hidden peer-[:not(:placeholder-shown)]:block bg-amber-50 border-amber-200 text-amber-800 animate-in fade-in slide-in-from-top-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-600" />
+                          <AlertTitle>{t('upload.form.passwordWarningTitle')}</AlertTitle>
+                          <AlertDescription>
+                            {t('upload.form.passwordWarning')}
+                          </AlertDescription>
+                        </Alert>
+                      </div>
                     </div>
                   )}
 
