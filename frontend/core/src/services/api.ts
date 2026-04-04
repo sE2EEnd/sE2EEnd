@@ -24,7 +24,6 @@ api.interceptors.request.use(
 interface SendCreateRequest {
   name?: string;
   type: 'FILE' | 'TEXT';
-  encryptedMetadata?: string;
   expiresAt?: string;
   maxDownloads?: number;
   passwordProtected?: boolean;
@@ -39,14 +38,13 @@ interface SendResponse {
   ownerName?: string;
   name?: string;
   type: string;
-  encryptedMetadata?: string;
   expiresAt?: string;
   maxDownloads: number;
   downloadCount: number;
   passwordProtected: boolean;
   revoked: boolean;
   createdAt: string;
-  files: FileMetadata[];
+  file?: FileMetadata;
 }
 
 interface FileMetadata {
@@ -195,9 +193,18 @@ interface ThemeConfig {
   };
 }
 
+interface SendPolicy {
+  requireSendPassword: boolean;
+}
+
 const configApi = {
   getThemeConfig: async (): Promise<ThemeConfig> => {
     const response = await api.get('/config/theme');
+    return response.data;
+  },
+
+  getSendPolicy: async (): Promise<SendPolicy> => {
+    const response = await api.get('/config/send-policy');
     return response.data;
   },
 };
@@ -214,5 +221,5 @@ const settingsApi = {
 };
 
 export { sendApi, adminApi, configApi, settingsApi };
-export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats, DeletedSend, PagedResponse };
+export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats, SendPolicy, DeletedSend, PagedResponse };
 export default api;

@@ -117,7 +117,11 @@ public class AdminService {
         Send send = sendRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
 
-        auditAndDelete(send, DeleteReason.MANUAL);
+        // Delete associated files first
+        fileRepository.deleteAll(send.getFiles());
+
+        // Delete the send
+        sendRepository.delete(send);
     }
 
     /**

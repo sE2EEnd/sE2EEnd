@@ -445,7 +445,26 @@ export default function AdminPage() {
                 {t('admin.settings.saveChanges')}
               </button>
             </div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <p className="text-sm font-medium text-gray-900">{t('admin.settings.requireSendPassword')}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('admin.settings.requireSendPasswordDesc')}</p>
+            </div>
+            <button
+              onClick={() => handleSettingToggle('require_send_password', settings['require_send_password'] ?? 'false')}
+              disabled={settingsLoading}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                settings['require_send_password'] === 'true' ? 'bg-primary' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  settings['require_send_password'] === 'true' ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
+        </div>
         )}
       </div>
 

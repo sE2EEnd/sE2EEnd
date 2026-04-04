@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,9 +40,6 @@ public class Send {
     @Column(nullable = false)
     private SendType type;
 
-    @Column(name = "encrypted_metadata", columnDefinition = "TEXT")
-    private String encryptedMetadata;
-
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
@@ -65,7 +61,7 @@ public class Send {
     @Column(nullable = false)
     private boolean revoked = false;
 
-    @OneToMany(mappedBy = "send", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "send", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<FileMetadata> files;
+    private FileMetadata file;
 }

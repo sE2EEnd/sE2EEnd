@@ -72,12 +72,12 @@ export default function DashboardPage() {
             const decryptedFilenames: Record<string, string> = {};
             for (const file of send.files) {
               try {
-                decryptedFilenames[file.filename] = await decryptText(file.filename, encryptionKey);
+                decryptedFilenames[send.file.filename] = await decryptText(send.file.filename, encryptionKey);
               } catch {
-                decryptedFilenames[file.filename] = file.filename;
+                decryptedFilenames[send.file.filename] = send.file.filename;
               }
+              decryptedSend.decryptedFilenames = decryptedFilenames;
             }
-            decryptedSend.decryptedFilenames = decryptedFilenames;
 
             return decryptedSend;
           } catch {

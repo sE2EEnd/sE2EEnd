@@ -2,7 +2,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import {isAxiosError} from 'axios';
-import {AlertCircle, ArrowDownToLine, Clock, Download, Loader2, Shield, QrCode} from 'lucide-react';
+import {AlertCircle, ArrowDownToLine, Check, Clock, Copy, Download, Eye, EyeOff, FileText, Loader2, Shield, QrCode} from 'lucide-react';
 import {QRCodeCanvas} from 'qrcode.react';
 import type {SendResponse} from '../../services/api';
 import {sendApi} from '../../services/api';
@@ -15,6 +15,9 @@ function DownloadPage() {
   const [sendInfo, setSendInfo] = useState<SendResponse | null>(null);
   const [decryptedSendName, setDecryptedSendName] = useState<string | null>(null);
   const [decryptedFilenames, setDecryptedFilenames] = useState<Record<string, string>>({});
+  const [decryptedText, setDecryptedText] = useState<string | null>(null);
+  const [hideText, setHideText] = useState(() => new URLSearchParams(window.location.search).get('h') === '1');
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [downloading, setDownloading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -43,17 +46,15 @@ function DownloadPage() {
             }
           }
 
-          // Decrypt file names
-          const decryptedNames: Record<string, string> = {};
-          for (const file of info.files || []) {
+          // Decrypt file name
+          if (info.type !== 'TEXT' && info.file) {
             try {
-              decryptedNames[file.filename] = await decryptText(file.filename, encryptionKey);
+              const decrypted = await decryptText(info.file.filename, encryptionKey);
+              setDecryptedFilenames({ [info.file.filename]: decrypted });
             } catch {
-              // Filename might not be encrypted (old send), use as is
-              decryptedNames[file.filename] = file.filename;
+              setDecryptedFilenames({ [info.file.filename]: info.file.filename });
             }
           }
-          setDecryptedFilenames(decryptedNames);
         } catch (e) {
           console.warn('Could not decrypt names:', e);
         }
@@ -90,28 +91,34 @@ function DownloadPage() {
       // Import encryption key
       const encryptionKey = await importKeyFromBase64(keyBase64);
 
-      // Download encrypted file
+      // Download encrypted content
       const password = passwordRef.current?.value || undefined;
       const encryptedBlob = await sendApi.downloadSend(accessId, password);
 
-      // Decrypt file
-      const decryptedBlob = await decryptBlob(encryptedBlob, encryptionKey);
+      if (sendInfo?.type === 'TEXT') {
+        // For text sends: decrypt the blob then read it as a string
+        const decryptedBlob = await decryptBlob(encryptedBlob, encryptionKey);
+        const plaintext = await decryptedBlob.text();
+        setDecryptedText(plaintext);
+      } else {
+        // For file sends: decrypt blob and trigger browser download
+        const decryptedBlob = await decryptBlob(encryptedBlob, encryptionKey);
 
-      // Create download link with decrypted filename
-      const url = window.URL.createObjectURL(decryptedBlob);
-      const a = document.createElement('a');
-      a.href = url;
+        const url = window.URL.createObjectURL(decryptedBlob);
+        const a = document.createElement('a');
+        a.href = url;
 
-      // Use decrypted filename if available, otherwise fall back to encrypted name or default
-      const encryptedFilename = sendInfo?.files?.[0]?.filename;
-      a.download = encryptedFilename
-          ? (decryptedFilenames[encryptedFilename] || encryptedFilename)
-          : 'download.zip';
+        // Use decrypted filename if available, otherwise fall back to encrypted name or default
+        const encryptedFilename = sendInfo?.file?.filename;
+        a.download = encryptedFilename
+            ? (decryptedFilenames[encryptedFilename] || encryptedFilename)
+            : 'download';
 
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
 
       // Reload info to update download count
       await loadSendInfo();
@@ -138,6 +145,8 @@ function DownloadPage() {
     );
   }
 
+  const isText = sendInfo?.type === 'TEXT';
+
   return (
     <div className="min-h-screen bg-gradient-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -158,19 +167,60 @@ function DownloadPage() {
                 </div>
               )}
 
-              {/* File List */}
-              {sendInfo.files && sendInfo.files.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">
-                    {sendInfo.files.length === 1 ? t('download.file') : t('download.files')} ({sendInfo.files.length}):
-                  </p>
-                  <div className="space-y-1">
-                    {sendInfo.files.map((file, index) => (
-                      <div key={index} className="text-sm text-gray-600 truncate">
-                        📄 {decryptedFilenames[file.filename] || file.filename}
-                      </div>
-                    ))}
+              {/* File name (FILE sends only) */}
+              {!isText && sendInfo.file && (
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-gray-700">{t('download.file')} :</p>
+                  <div className="text-sm text-gray-600 truncate">
+                    📄 {decryptedFilenames[sendInfo.file.filename] || sendInfo.file.filename}
                   </div>
+                </div>
+              )}
+
+              {/* Text type indicator (before reveal) */}
+              {isText && decryptedText === null && (
+                <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  <p className="text-sm text-blue-800 font-medium">{t('download.textContent')}</p>
+                </div>
+              )}
+
+              {/* Decrypted text area */}
+              {isText && decryptedText !== null && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-gray-700">{t('download.textContent')}</label>
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(decryptedText);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }}
+                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all text-xs font-medium"
+                      >
+                        {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copied ? t('common.copied') : t('common.copy')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHideText(v => !v)}
+                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all text-xs font-medium"
+                      >
+                        {hideText ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        {hideText ? t('download.showText') : t('download.hideText')}
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    readOnly
+                    value={decryptedText}
+                    rows={6}
+                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm resize-none focus:outline-none ${
+                      hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
+                    }`}
+                  />
                 </div>
               )}
 
@@ -241,16 +291,21 @@ function DownloadPage() {
                 </div>
               )}
 
-              {/* Download Button */}
+              {/* Action Button */}
               <button
                 onClick={handleDownload}
-                disabled={downloading || sendInfo.downloadCount >= sendInfo.maxDownloads}
+                disabled={downloading || sendInfo.downloadCount >= sendInfo.maxDownloads || (isText && decryptedText !== null)}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-primary text-white text-lg font-semibold rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed "
               >
                 {downloading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    {t('download.downloading')}
+                    {isText ? t('download.viewing') : t('download.downloading')}
+                  </>
+                ) : isText ? (
+                  <>
+                    <FileText className="w-5 h-5" />
+                    {t('download.viewText')}
                   </>
                 ) : (
                   <>
