@@ -29,6 +29,9 @@ import {
   CheckCircle,
   Copy,
   QrCode,
+  FileText,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { isAxiosError } from 'axios';
@@ -39,8 +42,14 @@ import { storeSendKey } from '../../lib/sendKeysDB';
 export default function UploadPage() {
   const { t } = useTranslation();
   useNavigate();
+
+  const [mode, setMode] = useState<'file' | 'text'>('file');
+  const [textContent, setTextContent] = useState('');
+  const [hideText, setHideText] = useState(false);
+  const [hideByDefault, setHideByDefault] = useState(false);
+
   const steps = [
-    t('upload.steps.selectFiles'),
+    mode === 'file' ? t('upload.steps.selectFiles') : t('upload.steps.writeText'),
     t('upload.steps.configure'),
     t('upload.steps.upload'),
     t('upload.steps.share')
@@ -102,22 +111,37 @@ export default function UploadPage() {
     }
   };
 
-  const handleUpload = async () => {
-    if (selectedFiles.length === 0) {
-      setError(t('upload.errors.selectFile'));
+  const handleTextNext = () => {
+    if (!textContent.trim()) {
+      setError(t('upload.textForm.empty'));
       return;
     }
+    setError('');
+    setActiveStep(1);
+  };
 
+  const handleUpload = async () => {
     const password = passwordRef.current?.value ?? '';
     if (usePassword && !password) {
       setError(t('upload.errors.enterPassword'));
       return;
     }
 
-    if (selectedFiles.length > 1) {
-      const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
-      if (totalSize > MULTI_FILE_ZIP_SIZE_LIMIT) {
-        setError(t('upload.errors.multiFileSizeLimit', { limit: Math.floor(MULTI_FILE_ZIP_SIZE_LIMIT / 1024 / 1024) }));
+    if (mode === 'file') {
+      if (selectedFiles.length === 0) {
+        setError(t('upload.errors.selectFile'));
+        return;
+      }
+      if (selectedFiles.length > 1) {
+        const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+        if (totalSize > MULTI_FILE_ZIP_SIZE_LIMIT) {
+          setError(t('upload.errors.multiFileSizeLimit', { limit: Math.floor(MULTI_FILE_ZIP_SIZE_LIMIT / 1024 / 1024) }));
+          return;
+        }
+      }
+    } else {
+      if (!textContent.trim()) {
+        setError(t('upload.textForm.empty'));
         return;
       }
     }
@@ -127,7 +151,7 @@ export default function UploadPage() {
     setActiveStep(2);
 
     try {
-      // Generate encryption key (same key for all files)
+      // Generate encryption key
       const encryptionKey = await generateKey();
       const keyBase64 = await exportKeyToBase64(encryptionKey);
 
@@ -147,51 +171,78 @@ export default function UploadPage() {
         ? await encryptText(sendName, encryptionKey)
         : undefined;
 
-      const sendData = {
-        name: encryptedSendName,
-        type: 'FILE' as const,
-        expiresAt: expiresAtStr,
-        maxDownloads: maxDownloads,
-        passwordProtected: usePassword,
-        ...(usePassword && password ? { password: password } : {}),
-      };
-
-      // Create the Send container
-      const send = await sendApi.createSend(sendData);
-
-      // Store the encryption key locally for the owner to decrypt later
-      await storeSendKey(send.id, keyBase64);
-
-      // Upload files to the Send
-      // For multiple files: zip client-side first, then encrypt the zip as a single blob.
-      if (selectedFiles.length === 1) {
-        const file = selectedFiles[0];
-        const encryptedBlob = await encryptFile(file, encryptionKey);
-        const encryptedFilename = await encryptText(file.name, encryptionKey);
+      if (mode === 'text') {
+        // Convert text to a File, encrypt it client-side and upload like a regular file.
+        // The backend stays agnostic — type: TEXT only tells the frontend to render as textarea.
+        const textBytes = new TextEncoder().encode(textContent);
+        const textFile = new File([textBytes], 'text.txt', { type: 'text/plain' });
+        const encryptedBlob = await encryptFile(textFile, encryptionKey);
+        const encryptedFilename = await encryptText('text.txt', encryptionKey);
         const encryptedFile = new File([encryptedBlob], encryptedFilename, {
           type: 'application/octet-stream',
         });
+
+        const sendData = {
+          name: encryptedSendName,
+          type: 'TEXT' as const,
+          expiresAt: expiresAtStr,
+          maxDownloads: maxDownloads,
+          passwordProtected: usePassword,
+          ...(usePassword && password ? { password: password } : {}),
+        };
+        const send = await sendApi.createSend(sendData);
+        await storeSendKey(send.id, keyBase64);
         await sendApi.uploadFile(send.id, encryptedFile);
+        const hideParam = hideByDefault ? '?h=1' : '';
+        const link = `${window.location.origin}/download/${send.accessId}${hideParam}#${keyBase64}`;
+        setShareLink(link);
+        setActiveStep(3);
       } else {
-        const fileEntries: Record<string, Uint8Array> = {};
-        for (const file of selectedFiles) {
-          fileEntries[file.name] = new Uint8Array(await file.arrayBuffer());
-        }
-        const zipped = await zipFilesAsync(fileEntries);
-        const zipBlob = new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
-        const zipFile = new File([zipBlob], 'archive.zip');
-        const encryptedBlob = await encryptFile(zipFile, encryptionKey);
-        const encryptedFilename = await encryptText('archive.zip', encryptionKey);
-        const encryptedFile = new File([encryptedBlob], encryptedFilename, {
-          type: 'application/octet-stream',
-        });
-        await sendApi.uploadFile(send.id, encryptedFile);
-      }
+        const sendData = {
+          name: encryptedSendName,
+          type: 'FILE' as const,
+          expiresAt: expiresAtStr,
+          maxDownloads: maxDownloads,
+          passwordProtected: usePassword,
+          ...(usePassword && password ? { password: password } : {}),
+        };
 
-      // Create share link with encryption key in fragment
-      const link = `${window.location.origin}/download/${send.accessId}#${keyBase64}`;
-      setShareLink(link);
-      setActiveStep(3);
+        // Create the Send container
+        const send = await sendApi.createSend(sendData);
+
+        // Store the encryption key locally for the owner to decrypt later
+        await storeSendKey(send.id, keyBase64);
+
+        // For multiple files: zip client-side first, then encrypt the zip as a single blob.
+        if (selectedFiles.length === 1) {
+          const file = selectedFiles[0];
+          const encryptedBlob = await encryptFile(file, encryptionKey);
+          const encryptedFilename = await encryptText(file.name, encryptionKey);
+          const encryptedFile = new File([encryptedBlob], encryptedFilename, {
+            type: 'application/octet-stream',
+          });
+          await sendApi.uploadFile(send.id, encryptedFile);
+        } else {
+          const fileEntries: Record<string, Uint8Array> = {};
+          for (const file of selectedFiles) {
+            fileEntries[file.name] = new Uint8Array(await file.arrayBuffer());
+          }
+          const zipped = await zipFilesAsync(fileEntries);
+          const zipBlob = new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
+          const zipFile = new File([zipBlob], 'archive.zip');
+          const encryptedBlob = await encryptFile(zipFile, encryptionKey);
+          const encryptedFilename = await encryptText('archive.zip', encryptionKey);
+          const encryptedFile = new File([encryptedBlob], encryptedFilename, {
+            type: 'application/octet-stream',
+          });
+          await sendApi.uploadFile(send.id, encryptedFile);
+        }
+
+        // Create share link with encryption key in fragment
+        const link = `${window.location.origin}/download/${send.accessId}#${keyBase64}`;
+        setShareLink(link);
+        setActiveStep(3);
+      }
     } catch (err) {
       setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : 'Upload failed. Please try again.');
       setActiveStep(1);
@@ -252,65 +303,160 @@ export default function UploadPage() {
         {/* Left Column - Main Form */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            {/* Step 1: File Selection */}
+            {/* Step 1: Content Selection */}
             {activeStep === 0 && (
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
-                  isDragging
-                    ? 'border-primary bg-primary/10'
-                    : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-primary/10'
-                }`}
-              >
-                {isDragging ? (
-                  <div className="flex flex-col items-center">
-                    <CloudUpload className="w-20 h-20 text-primary mb-4" />
-                    <h3 className="text-xl font-semibold text-primary">{t('upload.dropZone.dropHere')}</h3>
+              <div className="space-y-4">
+                {/* Mode Tabs */}
+                <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                  <button
+                    onClick={() => { setMode('file'); setError(''); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors ${
+                      mode === 'file'
+                        ? 'bg-primary text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <UploadIcon className="w-4 h-4" />
+                    {t('upload.tabs.file')}
+                  </button>
+                  <button
+                    onClick={() => { setMode('text'); setError(''); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors ${
+                      mode === 'text'
+                        ? 'bg-primary text-white'
+                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4" />
+                    {t('upload.tabs.text')}
+                  </button>
+                </div>
+
+                {/* File mode — dropzone */}
+                {mode === 'file' && (
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
+                      isDragging
+                        ? 'border-primary bg-primary/10'
+                        : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-primary/10'
+                    }`}
+                  >
+                    {isDragging ? (
+                      <div className="flex flex-col items-center">
+                        <CloudUpload className="w-20 h-20 text-primary mb-4" />
+                        <h3 className="text-xl font-semibold text-primary">{t('upload.dropZone.dropHere')}</h3>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <CloudUpload className="w-20 h-20 text-gray-400 mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          {t('upload.dropZone.dragDrop')}
+                        </h3>
+                        <p className="text-gray-600 mb-6">{t('upload.dropZone.or')}</p>
+                        <label className="px-6 py-2.5 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium cursor-pointer">
+                          {t('upload.dropZone.browseFiles')}
+                          <input type="file" multiple className="hidden" onChange={handleFileChange} />
+                        </label>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <CloudUpload className="w-20 h-20 text-gray-400 mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {t('upload.dropZone.dragDrop')}
-                    </h3>
-                    <p className="text-gray-600 mb-6">{t('upload.dropZone.or')}</p>
-                    <label className="px-6 py-2.5 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium cursor-pointer">
-                      {t('upload.dropZone.browseFiles')}
-                      <input type="file" multiple className="hidden" onChange={handleFileChange} />
+                )}
+
+                {/* Text mode — textarea */}
+                {mode === 'text' && (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <textarea
+                        value={textContent}
+                        onChange={e => setTextContent(e.target.value)}
+                        placeholder={t('upload.textForm.placeholder')}
+                        rows={8}
+                        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-mono text-sm ${
+                          hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setHideText(v => !v)}
+                        className="absolute top-2 right-2 p-1.5 rounded-md bg-white/80 backdrop-blur-sm text-gray-400 hover:text-gray-700 hover:bg-white shadow-sm transition-all"
+                        title={hideText ? t('upload.textForm.showText') : t('upload.textForm.hideText')}
+                      >
+                        {hideText ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400">
+                        {t('upload.textForm.summary', { count: textContent.length })}
+                      </span>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer w-fit">
+                      <input
+                        type="checkbox"
+                        checked={hideByDefault}
+                        onChange={e => setHideByDefault(e.target.checked)}
+                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                      />
+                      <span className="text-sm text-gray-600">{t('upload.textForm.hideByDefault')}</span>
                     </label>
+
+                    {error && (
+                      <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <span className="text-sm font-medium">{error}</span>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleTextNext}
+                      className="w-full px-6 py-2.5 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium"
+                    >
+                      {t('upload.steps.configure')} →
+                    </button>
                   </div>
                 )}
               </div>
             )}
 
             {/* Step 2: Configuration */}
-            {activeStep === 1 && selectedFiles.length > 0 && (
+            {activeStep === 1 && (
               <div className="space-y-6">
-                {/* Selected Files List */}
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-gray-700">
-                    {t('upload.form.selectedFiles')} ({selectedFiles.length})
-                  </h3>
-                  {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <UploadIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                {/* Content summary */}
+                {mode === 'file' && selectedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-medium text-gray-700">
+                      {t('upload.form.selectedFiles')} ({selectedFiles.length})
+                    </h3>
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <UploadIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => removeFile(index)}
+                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
                       </div>
-                      <button
-                        onClick={() => removeFile(index)}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
+
+                {mode === 'text' && (
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                    <p className="text-sm font-medium text-gray-700">
+                      {t('upload.textForm.summary', { count: textContent.length })}
+                    </p>
+                  </div>
+                )}
 
                 {/* Form Fields */}
                 <div className="space-y-4">
@@ -436,8 +582,12 @@ export default function UploadPage() {
             {activeStep === 2 && (
               <div className="text-center py-12">
                 <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('upload.uploading.title')}</h3>
-                <p className="text-gray-600">{t('upload.uploading.message')}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {mode === 'text' ? t('upload.uploading.titleText') : t('upload.uploading.title')}
+                </h3>
+                <p className="text-gray-600">
+                  {mode === 'text' ? t('upload.uploading.messageText') : t('upload.uploading.message')}
+                </p>
               </div>
             )}
 
@@ -448,8 +598,12 @@ export default function UploadPage() {
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="w-10 h-10 text-green-600" />
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">{t('upload.success.title')}</h3>
-                  <p className="text-gray-600">{t('upload.success.message')}</p>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                    {mode === 'text' ? t('upload.success.titleText') : t('upload.success.title')}
+                  </h3>
+                  <p className="text-gray-600">
+                    {mode === 'text' ? t('upload.success.messageText') : t('upload.success.message')}
+                  </p>
                 </div>
 
                 {/* QR Code */}
@@ -527,6 +681,9 @@ export default function UploadPage() {
                       setActiveStep(0);
                       setSelectedFiles([]);
                       setShareLink('');
+                      setTextContent('');
+                      setHideText(false);
+                      setHideByDefault(false);
                       if (passwordRef.current) passwordRef.current.value = '';
                       setUsePassword(false);
                     }}

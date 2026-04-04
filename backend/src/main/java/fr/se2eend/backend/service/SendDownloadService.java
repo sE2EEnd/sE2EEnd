@@ -14,11 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -50,44 +48,20 @@ public class SendDownloadService {
             throw new SendDownloadLimitExceededException();
         }
 
-        List<FileMetadata> files = send.getFiles();
-        if (files == null || files.isEmpty()) {
+        FileMetadata file = send.getFile();
+        if (file == null) {
             throw new ResourceNotFoundException(
                     fr.se2eend.backend.exception.enums.ErrorCode.FILE_NOT_FOUND,
-                    "No files attached to this send"
+                    "No file attached to this send"
             );
         }
 
-        DownloadStream result;
-        if (files.size() == 1) {
-            FileMetadata file = files.getFirst();
-            InputStream inputStream = storageService.read(file.getStoragePath());
-            result = new DownloadStream(inputStream, file.getFilename(), file.getSizeBytes());
-        } else {
-            PipedOutputStream pos = new PipedOutputStream();
-            PipedInputStream pis = new PipedInputStream(pos);
-
-            new Thread(() -> {
-                try (ZipOutputStream zos = new ZipOutputStream(pos)) {
-                    for (FileMetadata file : files) {
-                        try (InputStream fis = storageService.read(file.getStoragePath())) {
-                            zos.putNextEntry(new ZipEntry(file.getFilename()));
-                            fis.transferTo(zos);
-                            zos.closeEntry();
-                        }
-                    }
-                } catch (IOException e) {
-                    // stream is cut -> ZIP generation stops
-                }
-            }).start();
-
-            result = new DownloadStream(pis, "send-" + send.getAccessId() + ".zip", null);
-        }
+        InputStream inputStream = storageService.read(file.getStoragePath());
 
         send.setDownloadCount(send.getDownloadCount() + 1);
         sendRepository.save(send);
 
-        return result;
+        return new DownloadStream(inputStream, file.getFilename(), file.getSizeBytes());
     }
 
     public record DownloadStream(InputStream stream, String filename, Long sizeBytes) {}

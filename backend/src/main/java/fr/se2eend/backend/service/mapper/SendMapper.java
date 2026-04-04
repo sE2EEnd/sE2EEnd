@@ -7,9 +7,6 @@ import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class SendMapper {
@@ -24,7 +21,6 @@ public class SendMapper {
         return Send.builder()
                 .name(dto.name())
                 .type(dto.type())
-                .encryptedMetadata(dto.encryptedMetadata())
                 .expiresAt(dto.expiresAt())
                 .maxDownloads(dto.maxDownloads() != null ? dto.maxDownloads() : 1)
                 .passwordProtected(Boolean.TRUE.equals(dto.passwordProtected()))
@@ -38,11 +34,7 @@ public class SendMapper {
     public SendResponseDto toDto(Send entity) {
         if (entity == null) return null;
 
-        List<FileMetadataDto> fileDtos = entity.getFiles() == null
-                ? Collections.emptyList()
-                : entity.getFiles().stream()
-                .map(this::toFileDto)
-                .collect(Collectors.toList());
+        FileMetadataDto fileDto = entity.getFile() != null ? toFileDto(entity.getFile()) : null;
 
         return new SendResponseDto(
                 entity.getId(),
@@ -52,14 +44,13 @@ public class SendMapper {
                 entity.getOwnerEmail(),
                 entity.getName(),
                 entity.getType(),
-                entity.getEncryptedMetadata(),
                 entity.getExpiresAt(),
                 entity.getMaxDownloads(),
                 entity.getDownloadCount(),
                 entity.isPasswordProtected(),
                 entity.isRevoked(),
                 entity.getCreatedAt(),
-                fileDtos
+                fileDto
         );
     }
 

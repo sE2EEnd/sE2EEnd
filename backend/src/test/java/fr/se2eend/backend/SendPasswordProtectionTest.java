@@ -64,7 +64,6 @@ class SendPasswordProtectionTest {
         String password = "my-secure-password-123";
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 true,
@@ -106,7 +105,6 @@ class SendPasswordProtectionTest {
         String correctPassword = "correct-password";
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 true,
@@ -130,9 +128,7 @@ class SendPasswordProtectionTest {
         fileRepository.save(file);
 
         // When/Then: Download with wrong password should fail
-        assertThrows(SendPasswordInvalidException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), "wrong-password");
-        });
+        assertThrows(SendPasswordInvalidException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), "wrong-password"));
     }
 
     @Test
@@ -140,7 +136,6 @@ class SendPasswordProtectionTest {
         // Given: A password-protected Send
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 true,
@@ -164,18 +159,12 @@ class SendPasswordProtectionTest {
         fileRepository.save(file);
 
         // When/Then: Download without password should fail
-        assertThrows(SendPasswordInvalidException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendPasswordInvalidException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
 
         // When/Then: Download with blank password should fail
-        assertThrows(SendPasswordInvalidException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), "");
-        });
+        assertThrows(SendPasswordInvalidException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), ""));
 
-        assertThrows(SendPasswordInvalidException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), "   ");
-        });
+        assertThrows(SendPasswordInvalidException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), "   "));
     }
 
     @Test
@@ -183,7 +172,6 @@ class SendPasswordProtectionTest {
         // Given: A Send WITHOUT password protection
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 false,
@@ -223,7 +211,6 @@ class SendPasswordProtectionTest {
         // Given: passwordProtected=true but no password provided
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 true,

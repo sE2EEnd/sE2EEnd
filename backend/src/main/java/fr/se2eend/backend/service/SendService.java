@@ -62,7 +62,6 @@ public class SendService {
         entity.setCreatedAt(LocalDateTime.now());
         entity.setDownloadCount(0);
         entity.setRevoked(false);
-        entity.setFiles(List.of());
 
         entity.setAccessId(generateAccessId());
 

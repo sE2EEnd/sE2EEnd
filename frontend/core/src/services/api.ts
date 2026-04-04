@@ -24,7 +24,6 @@ api.interceptors.request.use(
 interface SendCreateRequest {
   name?: string;
   type: 'FILE' | 'TEXT';
-  encryptedMetadata?: string;
   expiresAt?: string;
   maxDownloads?: number;
   passwordProtected?: boolean;
@@ -39,14 +38,13 @@ interface SendResponse {
   ownerName?: string;
   name?: string;
   type: string;
-  encryptedMetadata?: string;
   expiresAt?: string;
   maxDownloads: number;
   downloadCount: number;
   passwordProtected: boolean;
   revoked: boolean;
   createdAt: string;
-  files: FileMetadata[];
+  file?: FileMetadata;
 }
 
 interface FileMetadata {
