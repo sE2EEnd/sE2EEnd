@@ -70,7 +70,6 @@ class SendPolicyEnforcementTest {
         SendRequestDto request = new SendRequestDto(
                 "Test",
                 SendType.FILE,
-                "metadata",
                 null,
                 5,
                 false,
@@ -89,7 +88,6 @@ class SendPolicyEnforcementTest {
         SendRequestDto request = new SendRequestDto(
                 "Test",
                 SendType.FILE,
-                "metadata",
                 null,
                 5,
                 false,
@@ -110,7 +108,6 @@ class SendPolicyEnforcementTest {
         SendRequestDto request = new SendRequestDto(
                 "Test",
                 SendType.FILE,
-                "metadata",
                 null,
                 5,
                 true,
