@@ -38,7 +38,7 @@ import {
 
 export default function AdminPage() {
   const { t } = useTranslation();
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 10;
 
   const [sends, setSends] = useState<SendResponse[]>([]);
   const [totalPages, setTotalPages] = useState(0);

@@ -33,6 +33,7 @@ import {
   FileText,
   Eye,
   EyeOff,
+  Dices,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { isAxiosError } from 'axios';
@@ -71,6 +72,46 @@ export default function UploadPage() {
   const [copied, setCopied] = useState<boolean>(false);
   const [showQr, setShowQr] = useState<boolean>(false);
   const [requireSendPassword, setRequireSendPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [passwordCopied, setPasswordCopied] = useState<boolean>(false);
+  const [passwordHasValue, setPasswordHasValue] = useState<boolean>(false);
+  const [usedPassword, setUsedPassword] = useState<string>('');
+  const [showUsedPassword, setShowUsedPassword] = useState<boolean>(false);
+  const [usedPasswordCopied, setUsedPasswordCopied] = useState<boolean>(false);
+
+  const generatePassword = () => {
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const digits = '0123456789';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const all = upper + lower + digits + symbols;
+
+    const raw = new Uint32Array(20);
+    window.crypto.getRandomValues(raw);
+
+    // Guarantee at least one character from each class
+    const chars: string[] = [
+      upper[raw[0] % upper.length],
+      lower[raw[1] % lower.length],
+      digits[raw[2] % digits.length],
+      symbols[raw[3] % symbols.length],
+    ];
+    for (let i = 4; i < 20; i++) {
+      chars.push(all[raw[i] % all.length]);
+    }
+
+    // Fisher-Yates shuffle using fresh random values
+    const shuffle = new Uint32Array(20);
+    window.crypto.getRandomValues(shuffle);
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = shuffle[i] % (i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    const password = chars.join('');
+    if (passwordRef.current) passwordRef.current.value = password;
+    setPasswordHasValue(true);
+  };
 
   useEffect(() => {
     configApi.getSendPolicy().then(policy => {
@@ -129,6 +170,7 @@ export default function UploadPage() {
       setError(t('upload.errors.enterPassword'));
       return;
     }
+    if (usePassword && password) setUsedPassword(password);
 
     if (mode === 'file') {
       if (selectedFiles.length === 0) {
@@ -537,17 +579,52 @@ export default function UploadPage() {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">{t('upload.form.password')}</label>
-                        <input
-                          type="password"
-                          ref={passwordRef}
-                          autoComplete="new-password"
-                          placeholder={t('upload.form.passwordPlaceholder')}
-                          className="peer w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
+                        <div className="relative flex items-center">
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            ref={passwordRef}
+                            autoComplete="new-password"
+                            placeholder={t('upload.form.passwordPlaceholder')}
+                            onChange={e => setPasswordHasValue(e.target.value.length > 0)}
+                            className="w-full px-4 py-2 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                          />
+                          <div className="absolute right-2 flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={generatePassword}
+                              title={t('upload.form.generatePassword')}
+                              className="p-1.5 rounded-md text-gray-400 hover:text-primary hover:bg-gray-100 transition-all"
+                            >
+                              <Dices className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(v => !v)}
+                              title={showPassword ? t('upload.form.hidePassword') : t('upload.form.showPassword')}
+                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+                            >
+                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const val = passwordRef.current?.value ?? '';
+                                if (!val) return;
+                                navigator.clipboard.writeText(val);
+                                setPasswordCopied(true);
+                                setTimeout(() => setPasswordCopied(false), 2000);
+                              }}
+                              title={t('upload.form.copyPassword')}
+                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+                            >
+                              {passwordCopied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
                         <p className="mt-1 text-sm text-gray-500">
                           {t('upload.form.passwordHelp')}
                         </p>
-                        <Alert className="mt-4 hidden peer-[:not(:placeholder-shown)]:block bg-amber-50 border-amber-200 text-amber-800 animate-in fade-in slide-in-from-top-2">
+                        <Alert className={`mt-4 bg-amber-50 border-amber-200 text-amber-800 animate-in fade-in slide-in-from-top-2 ${passwordHasValue ? 'block' : 'hidden'}`}>
                           <AlertTriangle className="h-4 w-4 text-amber-600" />
                           <AlertTitle>{t('upload.form.passwordWarningTitle')}</AlertTitle>
                           <AlertDescription>
@@ -681,6 +758,49 @@ export default function UploadPage() {
                   </p>
                 </div>
 
+                {usedPassword && (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                      <label className="text-sm font-medium text-amber-800">
+                        {t('upload.success.passwordLabel')}
+                      </label>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type={showUsedPassword ? 'text' : 'password'}
+                        value={usedPassword}
+                        readOnly
+                        className="flex-1 px-4 py-2 border border-amber-200 rounded-lg bg-white text-sm font-mono"
+                      />
+                      <button
+                        onClick={() => setShowUsedPassword(v => !v)}
+                        className="px-3 py-2 border border-amber-200 bg-white rounded-lg text-amber-700 hover:bg-amber-100 transition-colors"
+                        title={showUsedPassword ? t('upload.form.hidePassword') : t('upload.form.showPassword')}
+                      >
+                        {showUsedPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(usedPassword);
+                          setUsedPasswordCopied(true);
+                          setTimeout(() => setUsedPasswordCopied(false), 2000);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                      >
+                        {usedPasswordCopied ? (
+                          <><CheckCircle className="w-4 h-4" />{t('common.copied')}</>
+                        ) : (
+                          <><Copy className="w-4 h-4" />{t('common.copy')}</>
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-amber-700">
+                      {t('upload.form.passwordWarning')}
+                    </p>
+                  </div>
+                )}
+
                 <div className="flex gap-3">
                   <Link
                     to="/dashboard"
@@ -698,6 +818,10 @@ export default function UploadPage() {
                       setHideByDefault(false);
                       if (passwordRef.current) passwordRef.current.value = '';
                       setUsePassword(false);
+                      setShowPassword(false);
+                      setPasswordHasValue(false);
+                      setUsedPassword('');
+                      setShowUsedPassword(false);
                     }}
                     className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                   >

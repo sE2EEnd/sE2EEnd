@@ -16,7 +16,10 @@
     "active": "Actif",
     "revoked": "Révoqué",
     "expired": "Expiré",
-    "exhausted": "Épuisé"
+    "exhausted": "Épuisé",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "morePages": "Plus de pages"
   },
   "layout": {
     "dashboard": "Tableau de bord",
@@ -27,7 +30,7 @@
   },
   "dashboard": {
     "welcome": "Bonjour, {{name}}.",
-    "subtitle": "Vos transferts sont chiffrés de bout en bout — seuls vous et vos destinataires peuvent y accéder.",
+    "subtitle": "Vos transferts sont chiffrés de bout en bout — accessibles uniquement par vous et vos destinataires.",
     "stats": {
       "active": "Actifs",
       "transfers": "transferts",
@@ -100,7 +103,11 @@
       "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger",
       "passwordRequired": "requis par la politique de l'instance",
       "passwordWarningTitle": "Attention :",
-      "passwordWarning": "Pour garantir la sécurité, n'envoyez jamais le lien et le mot de passe sur le même canal (ex: dans le même e-mail). Transmettez le mot de passe séparément (ex: SMS, messagerie instantanée)."
+      "passwordWarning": "Pour garantir la sécurité, n'envoyez jamais le lien et le mot de passe sur le même canal (ex: dans le même e-mail). Transmettez le mot de passe séparément (ex: SMS, messagerie instantanée).",
+      "generatePassword": "Générer un mot de passe sécurisé",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "copyPassword": "Copier le mot de passe"
     },
     "textForm": {
       "placeholder": "Entrez votre texte, mot de passe, note...",
@@ -131,6 +138,7 @@
       "qrCodeDesc": "Scannez ce QR code avec votre téléphone pour accéder au lien de téléchargement",
       "shareLink": "Lien de partage (inclut la clé de chiffrement)",
       "goToDashboard": "Aller au tableau de bord",
+      "passwordLabel": "Mot de passe — à transmettre séparément à votre destinataire",
       "uploadAnother": "Téléverser un autre"
     },
     "security": {

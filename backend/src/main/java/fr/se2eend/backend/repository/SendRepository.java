@@ -18,4 +18,6 @@ public interface SendRepository extends JpaRepository<Send, UUID>, JpaSpecificat
     List<Send> findByExpiresAtBefore(LocalDateTime dateTime);
 
     List<Send> findByOwnerId(UUID ownerId);
+
+    List<Send> findByOwnerIdOrderByCreatedAtDesc(UUID ownerId);
 }

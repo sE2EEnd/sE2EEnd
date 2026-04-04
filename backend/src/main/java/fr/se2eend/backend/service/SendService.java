@@ -43,7 +43,7 @@ public class SendService {
         if (ownerId == null) {
             return List.of();
         }
-        return sendRepository.findByOwnerId(ownerId)
+        return sendRepository.findByOwnerIdOrderByCreatedAtDesc(ownerId)
                 .stream()
                 .map(sendMapper::toDto)
                 .toList();
