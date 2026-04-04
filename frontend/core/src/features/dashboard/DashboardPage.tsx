@@ -44,8 +44,8 @@ export default function DashboardPage() {
     || '';
 
   useEffect(() => {
-    loadSends();
-  }, []);
+    void loadSends();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadSends = async () => {
     try {

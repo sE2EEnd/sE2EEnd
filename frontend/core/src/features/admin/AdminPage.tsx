@@ -88,12 +88,12 @@ export default function AdminPage() {
   }, [hasPendingChanges]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    void loadData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    loadSends(currentPage, debouncedSender, filterStatus);
-  }, [currentPage, debouncedSender, filterStatus]);
+    void loadSends(currentPage, debouncedSender, filterStatus);
+  }, [currentPage, debouncedSender, filterStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     try {
