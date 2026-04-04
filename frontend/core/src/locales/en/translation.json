@@ -264,7 +264,7 @@
       "leaveConfirm": "Leave anyway",
       "leaveCancel": "Stay",
       "requireSendPassword": "Require password on all sends",
-      "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
+      "requireSendPasswordDesc": "When enabled, every send must be protected by a password."
     }
   },
   "profile": {

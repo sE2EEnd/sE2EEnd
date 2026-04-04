@@ -380,6 +380,29 @@ export default function AdminPage() {
             </button>
           </div>
 
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition-all">
+            <div>
+              <p className="text-base font-semibold text-gray-900">{t('admin.settings.requireSendPassword')}</p>
+              <p className="text-sm text-gray-500">{t('admin.settings.requireSendPasswordDesc')}</p>
+            </div>
+            <button
+              onClick={() => {
+                const cur = pendingSettings['require_send_password'] ?? settings['require_send_password'] ?? 'false';
+                setPendingSetting('require_send_password', cur === 'true' ? 'false' : 'true');
+              }}
+              disabled={settingsLoading}
+              className={cn(
+                "relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50",
+                (pendingSettings['require_send_password'] ?? settings['require_send_password']) === 'true' ? 'bg-primary' : 'bg-gray-200'
+              )}
+            >
+              <span className={cn(
+                "inline-block h-6 w-6 transform rounded-full bg-white transition-transform",
+                (pendingSettings['require_send_password'] ?? settings['require_send_password']) === 'true' ? 'translate-x-7' : 'translate-x-1'
+              )} />
+            </button>
+          </div>
+
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 group hover:shadow-md transition-all space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -445,26 +468,7 @@ export default function AdminPage() {
                 {t('admin.settings.saveChanges')}
               </button>
             </div>
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p className="text-sm font-medium text-gray-900">{t('admin.settings.requireSendPassword')}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{t('admin.settings.requireSendPasswordDesc')}</p>
-            </div>
-            <button
-              onClick={() => handleSettingToggle('require_send_password', settings['require_send_password'] ?? 'false')}
-              disabled={settingsLoading}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                settings['require_send_password'] === 'true' ? 'bg-primary' : 'bg-gray-300'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  settings['require_send_password'] === 'true' ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
           </div>
-        </div>
         )}
       </div>
 
@@ -556,7 +560,7 @@ export default function AdminPage() {
                               }
                               </div>
                               <div className="text-xs text-gray-400 mt-0.5 truncate">
-                                {send.files?.length || 0} {send.files?.length === 1 ? t('common.file') : t('common.files')} • {send.accessId}
+                                {send.file ? `1 ${t('common.file')}` : `0 ${t('common.file')}`} • {send.accessId}
                               </div>
                             </div>
                           </div>

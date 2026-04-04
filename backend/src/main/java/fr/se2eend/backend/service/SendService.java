@@ -151,7 +151,8 @@ public class SendService {
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
 
         long totalSize = 0L;
-        for (FileMetadata file : send.getFiles()) {
+        FileMetadata file = send.getFile();
+        if (file != null) {
             try {
                 storageService.delete(file.getStoragePath());
                 totalSize += file.getSizeBytes();
@@ -169,7 +170,6 @@ public class SendService {
                 .sendCreatedAt(send.getCreatedAt())
                 .deletedAt(LocalDateTime.now())
                 .deleteReason(DeleteReason.USER)
-                .fileCount(send.getFiles().size())
                 .totalSizeBytes(totalSize)
                 .build();
 

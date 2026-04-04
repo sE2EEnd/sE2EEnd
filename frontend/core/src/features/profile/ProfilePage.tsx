@@ -1,6 +1,6 @@
 import { useKeycloak } from '@react-keycloak/web';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, UserCheck, UserCircle, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
+import { User, Mail, ShieldCheck, Clock, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 
 export default function ProfilePage() {
@@ -18,16 +18,6 @@ export default function ProfilePage() {
       value: keycloak.tokenParsed?.email || t('profile.notAvailable'),
       icon: Mail,
     },
-    {
-      label: 'profile.firstName',
-      value: keycloak.tokenParsed?.given_name || t('profile.notAvailable'),
-      icon: UserCheck,
-    },
-    {
-      label: 'profile.lastName',
-      value: keycloak.tokenParsed?.family_name || t('profile.notAvailable'),
-      icon: UserCircle,
-    },
   ];
 
   return (
@@ -35,26 +25,27 @@ export default function ProfilePage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('profile.title')}</h1>
-        <p className="text-gray-500 text-sm mt-0.5">{t('profile.userInformation')}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* User Information Card */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="space-y-8">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+              <UserCircle className="w-4 h-4" />
+              {t('profile.userInformation')}
+            </h3>
+            <div className="space-y-6">
               {userInfo.map((info) => {
                 const IconComponent = info.icon;
                 return (
-                  <div key={info.label} className="group">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2 px-1">
+                  <div key={info.label} className="group p-4 bg-gray-50 rounded-2xl border border-transparent group-hover:border-primary/10 group-hover:bg-white transition-all duration-200">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
                       {t(info.label)}
                     </p>
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-transparent group-hover:border-primary/10 group-hover:bg-white transition-all duration-200">
-                      <div className="w-10 h-10 bg-white shadow-sm rounded-xl flex items-center justify-center flex-shrink-0 text-gray-400 group-hover:text-primary transition-colors">
-                        <IconComponent className="w-5 h-5" />
-                      </div>
-                      <p className="text-base font-bold text-gray-900 truncate">{info.value}</p>
+                    <div className="flex items-center gap-3">
+                      <IconComponent className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors flex-shrink-0" />
+                      <p className="text-sm font-bold text-gray-900 truncate">{info.value}</p>
                     </div>
                   </div>
                 );
@@ -73,12 +64,6 @@ export default function ProfilePage() {
             </h3>
 
             <div className="space-y-6">
-              {/* Active Status Badge */}
-              <div className="flex items-center justify-between p-4 bg-green-50 text-green-700 rounded-2xl border border-green-100">
-                <span className="text-sm font-bold uppercase tracking-tight">{t('profile.active')}</span>
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-
               {/* Email Verification */}
               <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">

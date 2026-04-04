@@ -264,7 +264,7 @@
       "leaveConfirm": "Quitter quand même",
       "leaveCancel": "Rester",
       "requireSendPassword": "Mot de passe obligatoire sur tous les envois",
-      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe.",
+      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe."
     }
   },
   "profile": {

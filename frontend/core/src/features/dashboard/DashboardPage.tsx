@@ -69,8 +69,8 @@ export default function DashboardPage() {
               }
             }
 
-            const decryptedFilenames: Record<string, string> = {};
-            for (const file of send.files) {
+            if (send.file) {
+              const decryptedFilenames: Record<string, string> = {};
               try {
                 decryptedFilenames[send.file.filename] = await decryptText(send.file.filename, encryptionKey);
               } catch {
@@ -239,7 +239,7 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-50">
@@ -255,7 +255,6 @@ export default function DashboardPage() {
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('dashboard.status')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">{t('common.files')}</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">{t('dashboard.downloads')}</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">{t('dashboard.expires')}</th>
                   <th className="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('dashboard.actions')}</th>
@@ -277,10 +276,8 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <div className="text-xs text-gray-400 mt-0.5 truncate max-w-[240px]">
-                          {send.files.length > 0
-                            ? send.files.map((f, i) => (
-                                <span key={i}>{i > 0 && ', '}{send.decryptedFilenames?.[f.filename] || f.filename}</span>
-                              ))
+                          {send.file
+                            ? <span>{send.decryptedFilenames?.[send.file.filename] || send.file.filename}</span>
                             : t('dashboard.noFiles')}
                         </div>
                       </td>
@@ -312,10 +309,6 @@ export default function DashboardPage() {
                             </div>
                           )}
                         </div>
-                      </td>
-
-                      <td className="px-6 py-4 hidden md:table-cell">
-                        <span className="text-sm text-gray-600">{send.files.length}</span>
                       </td>
 
                       <td className="px-6 py-4 hidden sm:table-cell">
