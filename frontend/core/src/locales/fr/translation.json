@@ -81,7 +81,8 @@
       "passwordProtect": "Protégé par mot de passe",
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez un mot de passe",
-      "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger"
+      "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger",
+      "passwordRequired": "requis par la politique de l'instance"
     },
     "textForm": {
       "placeholder": "Entrez votre texte, mot de passe, note...",
@@ -218,6 +219,8 @@
       "subtitle": "Configurez le comportement de cette instance",
       "requireAuthForDownload": "Authentification requise pour télécharger",
       "requireAuthForDownloadDesc": "Quand activé, les utilisateurs doivent être connectés pour accéder aux liens de téléchargement.",
+      "requireSendPassword": "Mot de passe obligatoire sur tous les envois",
+      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe.",
       "updateFailed": "Échec de la mise à jour du paramètre"
     }
   },

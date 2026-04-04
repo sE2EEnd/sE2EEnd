@@ -26,6 +26,7 @@ public class SendService {
     private final SendRepository sendRepository;
     private final SendMapper sendMapper;
     private final PasswordEncoder passwordEncoder;
+    private final InstanceSettingsService instanceSettingsService;
 
     public List<SendResponseDto> findAll() {
         UUID ownerId = extractUserIdFromToken();
@@ -51,6 +52,11 @@ public class SendService {
     }
 
     public SendResponseDto createSend(SendRequestDto dto) {
+        boolean requireSendPassword = instanceSettingsService.getBoolean("require_send_password", false);
+        if (requireSendPassword && (dto.password() == null || dto.password().isBlank())) {
+            throw new IllegalArgumentException("A password is required by this instance's policy");
+        }
+
         Send entity = sendMapper.toEntity(dto);
 
         entity.setCreatedAt(LocalDateTime.now());

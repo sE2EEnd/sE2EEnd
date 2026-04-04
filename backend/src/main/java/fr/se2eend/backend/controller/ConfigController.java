@@ -1,6 +1,8 @@
 package fr.se2eend.backend.controller;
 
+import fr.se2eend.backend.dto.SendPolicyDto;
 import fr.se2eend.backend.dto.ThemeConfigDto;
+import fr.se2eend.backend.service.InstanceSettingsService;
 import fr.se2eend.backend.service.ThemeConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,10 +19,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConfigController {
 
     private final ThemeConfigService themeConfigService;
+    private final InstanceSettingsService instanceSettingsService;
 
     @GetMapping("/theme")
     @Operation(summary = "Get theme configuration", description = "Returns the current theme configuration (colors, branding, etc.)")
     public ResponseEntity<ThemeConfigDto> getThemeConfig() {
         return ResponseEntity.ok(themeConfigService.getThemeConfig());
+    }
+
+    @GetMapping("/send-policy")
+    @Operation(summary = "Get send policy", description = "Returns the send policy for authenticated users (e.g. whether password is required)")
+    public ResponseEntity<SendPolicyDto> getSendPolicy() {
+        boolean requireSendPassword = instanceSettingsService.getBoolean("require_send_password", false);
+        return ResponseEntity.ok(new SendPolicyDto(requireSendPassword));
     }
 }
