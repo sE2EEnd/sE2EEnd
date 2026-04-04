@@ -21,11 +21,22 @@ import type { SendResponse } from '@/services/api.ts';
 import { getSendKey, deleteSendKey } from '@/lib/sendKeysDB.ts';
 import { importKeyFromBase64, decryptText } from '@/lib/crypto.ts';
 import { cn } from '@/lib/utils.ts';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface SendWithDecryptedNames extends SendResponse {
   decryptedName?: string;
   decryptedFilenames?: Record<string, string>;
 }
+
+const PAGE_SIZE = 10;
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -38,6 +49,7 @@ export default function DashboardPage() {
   const [copiedSendId, setCopiedSendId] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
 
   const username = (keycloak.tokenParsed?.given_name as string | undefined)
     || (keycloak.tokenParsed?.preferred_username as string | undefined)
@@ -148,14 +160,18 @@ export default function DashboardPage() {
     return !s.revoked && !isExpired && s.downloadCount < s.maxDownloads;
   }).length;
   const totalDownloads = sends.reduce((sum, s) => sum + s.downloadCount, 0);
+  const totalPages = Math.ceil(sends.length / PAGE_SIZE);
+  const paginatedSends = sends.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
 
-  const formatExpiry = (expiresAt?: string): { label: string; expired: boolean } => {
-    if (!expiresAt) return { label: t('dashboard.never'), expired: false };
-    const diff = new Date(expiresAt).getTime() - Date.now();
-    if (diff <= 0) return { label: '—', expired: true };
-    const hours = Math.floor(diff / 3600000);
-    if (hours < 24) return { label: `${hours}h`, expired: false };
-    return { label: `${Math.floor(hours / 24)}d`, expired: false };
+  const formatExpiry = (expiresAt?: string): { date: string; time: string; expired: boolean } => {
+    if (!expiresAt) return { date: t('dashboard.never'), time: '', expired: false };
+    const d = new Date(expiresAt);
+    const expired = d.getTime() < Date.now();
+    return {
+      date: d.toLocaleDateString(),
+      time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      expired,
+    };
   };
 
   if (loading) {
@@ -261,7 +277,7 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {sends.map((send) => {
+                {paginatedSends.map((send) => {
                   const isExpired = !!(send.expiresAt && new Date(send.expiresAt) < new Date());
                   const isExhausted = send.downloadCount >= send.maxDownloads;
                   const isActive = !send.revoked && !isExpired && !isExhausted;
@@ -320,8 +336,13 @@ export default function DashboardPage() {
 
                       <td className="px-6 py-4 hidden lg:table-cell">
                         <span className={cn("text-sm font-medium", expiry.expired ? "text-gray-300" : "text-gray-600")}>
-                          {expiry.label}
+                          {expiry.date}
                         </span>
+                        {expiry.time && (
+                          <span className={cn("block text-xs", expiry.expired ? "text-gray-200" : "text-gray-400")}>
+                            {expiry.time}
+                          </span>
+                        )}
                       </td>
 
                       <td className="px-6 py-4">
@@ -350,6 +371,59 @@ export default function DashboardPage() {
                 })}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
+                <p className="text-xs text-gray-400">
+                  {t('admin.pagination.showing', {
+                    from: currentPage * PAGE_SIZE + 1,
+                    to: Math.min((currentPage + 1) * PAGE_SIZE, sends.length),
+                    total: sends.length,
+                  })}
+                </p>
+                <Pagination className="w-auto mx-0">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                        aria-disabled={currentPage === 0}
+                        className={currentPage === 0 ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => i)
+                      .filter(i => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
+                      .reduce<(number | string)[]>((acc, i, idx, arr) => {
+                        if (idx > 0 && (i as number) - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
+                        acc.push(i);
+                        return acc;
+                      }, [])
+                      .map((item, idx) =>
+                        item === 'ellipsis' ? (
+                          <PaginationItem key={`e${idx}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={item}>
+                            <PaginationLink
+                              isActive={currentPage === item}
+                              onClick={() => setCurrentPage(item as number)}
+                              className="cursor-pointer"
+                            >
+                              {(item as number) + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      )}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                        aria-disabled={currentPage >= totalPages - 1}
+                        className={currentPage >= totalPages - 1 ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
         )}
       </div>
