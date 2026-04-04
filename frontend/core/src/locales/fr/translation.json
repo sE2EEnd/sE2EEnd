@@ -26,10 +26,22 @@
     "logout": "Déconnexion"
   },
   "dashboard": {
+    "welcome": "Bonjour, {{name}}.",
+    "subtitle": "Vos transferts sont chiffrés de bout en bout — seuls vous et vos destinataires peuvent y accéder.",
+    "stats": {
+      "active": "Actifs",
+      "transfers": "transferts",
+      "downloads": "Téléchargements",
+      "total": "au total"
+    },
+    "newTransfer": "Nouveau transfert",
+    "newTransferDesc": "Partagez des fichiers chiffrés en toute sécurité",
+    "getStarted": "Commencer",
+    "myTransfers": "Mes transferts",
     "title": "Mes Envois",
     "newSend": "Nouvel Envoi",
-    "noSends": "Aucun envoi pour le moment",
-    "createFirst": "Créez votre premier envoi sécurisé !",
+    "noSends": "Aucun transfert pour le moment",
+    "createFirst": "Créez votre premier transfert sécurisé !",
     "sends": "envois",
     "status": "Statut",
     "downloads": "Téléchargements",
@@ -47,8 +59,12 @@
     "close": "Fermer",
     "warningKey": "⚠️ La clé de chiffrement est dans le fragment de l'URL (#). Gardez ce lien en sécurité !",
     "linkCopied": "Lien copié dans le presse-papier !",
+    "encryptedNameHelp": "Le nom peut s'afficher sous forme chiffrée car la clé de chiffrement n'est plus dans votre navigateur (ex : après avoir vidé le stockage).",
     "keyMissing": "Clé de chiffrement non disponible",
-    "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien."
+    "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien.",
+    "loadError": "Échec du chargement des transferts",
+    "deleteError": "Échec de la suppression du transfert",
+    "copyError": "Impossible de copier le lien"
   },
   "upload": {
     "title": "Téléverser un fichier",
@@ -188,20 +204,48 @@
       "deleteFailed": "Échec de la suppression de l'envoi"
     },
     "cleanupSuccess": "Nettoyage terminé : {{deletedSends}} envois supprimés, {{deletedFiles}} fichiers retirés, {{freedSpace}} libérés",
+    "pagination": {
+      "showing": "Affichage de {{from}}–{{to}} sur {{total}}"
+    },
+    "history": {
+      "title": "Historique des suppressions",
+      "reason": "Raison",
+      "createdAt": "Créé le",
+      "deletedAt": "Supprimé le",
+      "size": "Taille",
+      "empty": "Aucun envoi supprimé pour le moment",
+      "reasons": {
+        "expired": "Expiré",
+        "revoked": "Révoqué",
+        "exhausted": "Épuisé",
+        "manual": "Admin",
+        "user": "Utilisateur"
+      }
+    },
     "settings": {
       "title": "Paramètres de l'instance",
       "requireAuthForDownload": "Authentification requise pour télécharger",
       "requireAuthForDownloadDesc": "Quand activé, les utilisateurs doivent être connectés pour accéder aux liens de téléchargement.",
-      "updateFailed": "Échec de la mise à jour du paramètre"
+      "cleanupSchedule": "Nettoyage automatique",
+      "cleanupScheduleDesc": "Supprime automatiquement les envois expirés, révoqués et épuisés. Utilise le format cron Spring (s m h j-mois mois j-semaine).",
+      "cleanupPresetNightly": "Chaque nuit à 2h",
+      "cleanupPresetWeekly": "Chaque dimanche à 2h",
+      "cleanupPresetDisabled": "Désactivé",
+      "cleanupCronHint": "s m h j-mois mois j-sem",
+      "updateFailed": "Échec de la mise à jour du paramètre",
+      "saveSuccess": "Paramètres enregistrés avec succès",
+      "saveChanges": "Enregistrer",
+      "unsavedChanges": "Modifications non enregistrées",
+      "leaveTitle": "Modifications non enregistrées",
+      "leaveMessage": "Tu as des modifications de paramètres non enregistrées. Si tu pars maintenant, elles seront perdues.",
+      "leaveConfirm": "Quitter quand même",
+      "leaveCancel": "Rester"
     }
   },
   "profile": {
     "title": "Profil",
     "userInformation": "Informations utilisateur",
     "accountStatus": "Statut du compte",
-    "preferences": "Préférences",
-    "language": "Langue de l'interface",
-    "languageDesc": "Choisissez votre langue préférée pour l'application",
     "username": "Nom d'utilisateur",
     "email": "Email",
     "firstName": "Prénom",

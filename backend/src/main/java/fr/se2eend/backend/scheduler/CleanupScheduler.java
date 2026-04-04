@@ -1,29 +1,57 @@
 package fr.se2eend.backend.scheduler;
 
 import fr.se2eend.backend.service.AdminService;
+import fr.se2eend.backend.service.InstanceSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "cleanup.scheduler.enabled", havingValue = "true")
 public class CleanupScheduler {
 
     private final AdminService adminService;
+    private final InstanceSettingsService instanceSettingsService;
 
-    @Scheduled(cron = "${cleanup.scheduler.cron:0 0 2 * * *}")
+    /**
+     * Runs every minute and checks whether the cron expression stored in DB matches now.
+     * This allows changing the schedule at runtime without restarting the application.
+     */
+    @Scheduled(fixedRate = 60_000)
     public void scheduledCleanup() {
-        log.info("Starting scheduled cleanup task");
+        String cronExpr = instanceSettingsService.get("cleanup_cron", "").strip();
 
+        if (cronExpr.isBlank() || "disabled".equalsIgnoreCase(cronExpr)) {
+            return;
+        }
+
+        CronExpression cron;
+        try {
+            cron = CronExpression.parse(cronExpr);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid cleanup cron expression '{}': {}", cronExpr, e.getMessage());
+            return;
+        }
+
+        // Check if the cron would have fired in the last minute
+        LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
+        LocalDateTime prev = now.minusMinutes(1);
+        LocalDateTime next = cron.next(prev);
+
+        if (next == null || !next.equals(now)) {
+            return;
+        }
+
+        log.info("Running scheduled cleanup (cron={})", cronExpr);
         try {
             Map<String, Object> result = adminService.runCleanup();
-            log.info("Scheduled cleanup completed successfully: {}", result);
+            log.info("Scheduled cleanup completed: {}", result);
         } catch (Exception e) {
             log.error("Scheduled cleanup failed", e);
         }

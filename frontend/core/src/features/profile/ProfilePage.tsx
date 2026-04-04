@@ -1,8 +1,7 @@
 import { useKeycloak } from '@react-keycloak/web';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, UserCheck, UserCircle, CheckCircle2, Languages, ShieldCheck, Clock } from 'lucide-react';
-import LanguageSwitcher from '../../components/LanguageSwitcher';
-import { cn } from '../../lib/utils';
+import { User, Mail, UserCheck, UserCircle, CheckCircle2, ShieldCheck, Clock } from 'lucide-react';
+import { cn } from '@/lib/utils.ts';
 
 export default function ProfilePage() {
   const { keycloak } = useKeycloak();
@@ -63,20 +62,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Preferences Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-6">
-              <Languages className="w-4 h-4" />
-              {t('profile.preferences')}
-            </h3>
-            <div className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl">
-              <div>
-                <p className="text-base font-bold text-gray-900">{t('profile.language')}</p>
-                <p className="text-sm text-gray-500">{t('profile.languageDesc')}</p>
-              </div>
-              <LanguageSwitcher />
-            </div>
-          </div>
         </div>
 
         {/* Account Status Card */}

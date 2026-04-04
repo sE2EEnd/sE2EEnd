@@ -26,10 +26,22 @@
     "logout": "Logout"
   },
   "dashboard": {
+    "welcome": "Welcome back, {{name}}.",
+    "subtitle": "Your transfers are end-to-end encrypted — only you and your recipients can access them.",
+    "stats": {
+      "active": "Active",
+      "transfers": "transfers",
+      "downloads": "Downloads",
+      "total": "total"
+    },
+    "newTransfer": "New Transfer",
+    "newTransferDesc": "Share encrypted files securely",
+    "getStarted": "Get started",
+    "myTransfers": "My Transfers",
     "title": "My Sends",
     "newSend": "New Send",
-    "noSends": "No sends yet",
-    "createFirst": "Create your first secure send!",
+    "noSends": "No transfers yet",
+    "createFirst": "Create your first secure transfer!",
     "sends": "sends",
     "status": "Status",
     "downloads": "Downloads",
@@ -47,8 +59,12 @@
     "close": "Close",
     "warningKey": "⚠️ The encryption key is in the URL fragment (#). Keep this link secure!",
     "linkCopied": "Link copied to clipboard!",
+    "encryptedNameHelp": "The name can appear as ciphertext because the encryption key is no longer in your browser (e.g. after clearing storage).",
     "keyMissing": "Encryption key not available",
-    "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link."
+    "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link.",
+    "loadError": "Failed to load transfers",
+    "deleteError": "Failed to delete transfer",
+    "copyError": "Failed to copy link"
   },
   "upload": {
     "title": "Upload File",
@@ -188,20 +204,48 @@
       "deleteFailed": "Failed to delete send"
     },
     "cleanupSuccess": "Cleanup completed: {{deletedSends}} sends deleted, {{deletedFiles}} files removed, {{freedSpace}} freed",
+    "pagination": {
+      "showing": "Showing {{from}}–{{to}} of {{total}}"
+    },
+    "history": {
+      "title": "Deletion History",
+      "reason": "Reason",
+      "createdAt": "Created At",
+      "deletedAt": "Deleted At",
+      "size": "Size",
+      "empty": "No deleted sends yet",
+      "reasons": {
+        "expired": "Expired",
+        "revoked": "Revoked",
+        "exhausted": "Exhausted",
+        "manual": "Admin",
+        "user": "User"
+      }
+    },
     "settings": {
       "title": "Instance Settings",
       "requireAuthForDownload": "Require authentication to download",
       "requireAuthForDownloadDesc": "When enabled, users must be logged in to access download links.",
-      "updateFailed": "Failed to update setting"
+      "cleanupSchedule": "Automatic cleanup",
+      "cleanupScheduleDesc": "Automatically delete expired, revoked and exhausted sends. Uses Spring cron format (s m h dom mon dow).",
+      "cleanupPresetNightly": "Every night at 2AM",
+      "cleanupPresetWeekly": "Every Sunday at 2AM",
+      "cleanupPresetDisabled": "Disabled",
+      "cleanupCronHint": "s m h dom mon dow",
+      "updateFailed": "Failed to update setting",
+      "saveSuccess": "Settings saved successfully",
+      "saveChanges": "Save changes",
+      "unsavedChanges": "You have unsaved changes",
+      "leaveTitle": "Unsaved changes",
+      "leaveMessage": "You have unsaved settings changes. If you leave now, they will be lost.",
+      "leaveConfirm": "Leave anyway",
+      "leaveCancel": "Stay"
     }
   },
   "profile": {
     "title": "Profile",
     "userInformation": "User Information",
     "accountStatus": "Account Status",
-    "preferences": "Preferences",
-    "language": "Interface Language",
-    "languageDesc": "Choose your preferred language for the application",
     "username": "Username",
     "email": "Email",
     "firstName": "First Name",

@@ -1,9 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useBlocker } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { useTranslation } from 'react-i18next';
-import { adminApi, settingsApi } from '../../services/api';
-import { cn } from '../../lib/utils';
-import type { SendResponse, StorageMetrics, CleanupResult, AdminStats } from '../../services/api';
+import { adminApi, settingsApi } from '@/services/api.ts';
+import { cn } from '@/lib/utils.ts';
+import { getSendKey } from '@/lib/sendKeysDB.ts';
+import { importKeyFromBase64, decryptText } from '@/lib/crypto.ts';
+import type { SendResponse, StorageMetrics, CleanupResult, AdminStats, DeletedSend, PagedResponse } from '@/services/api.ts';
 import {
   Loader2,
   AlertCircle,
@@ -21,11 +24,28 @@ import {
   FileText,
   ShieldCheck,
   Activity,
+  History,
 } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 export default function AdminPage() {
   const { t } = useTranslation();
+  const PAGE_SIZE = 20;
+
   const [sends, setSends] = useState<SendResponse[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [sendsLoading, setSendsLoading] = useState(false);
+
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [storageMetrics, setStorageMetrics] = useState<StorageMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,31 +55,61 @@ export default function AdminPage() {
   const [sendToDelete, setSendToDelete] = useState<string | null>(null);
   const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
   const [cleanupRunning, setCleanupRunning] = useState(false);
+  const [decryptedNames, setDecryptedNames] = useState<Record<string, string>>({});
+  const [deletedSends, setDeletedSends] = useState<DeletedSend[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [pendingSettings, setPendingSettings] = useState<Record<string, string>>({});
   const [settingsLoading, setSettingsLoading] = useState(false);
 
-  // Filtres
   const [filterSender, setFilterSender] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [debouncedSender, setDebouncedSender] = useState('');
+  const [cronInput, setCronInput] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSender(filterSender), 350);
+    return () => clearTimeout(timer);
+  }, [filterSender]);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [debouncedSender, filterStatus]);
+
+  const hasPendingChanges = Object.keys(pendingSettings).length > 0;
+
+  const blocker = useBlocker(hasPendingChanges);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasPendingChanges) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasPendingChanges]);
 
   useEffect(() => {
     loadData();
   }, []);
 
+  useEffect(() => {
+    loadSends(currentPage, debouncedSender, filterStatus);
+  }, [currentPage, debouncedSender, filterStatus]);
+
   const loadData = async () => {
     try {
       setLoading(true);
       setError('');
-      const [sendsData, statsData, storageData, settingsData] = await Promise.all([
-        adminApi.getAllSends(),
+      const [statsData, storageData, settingsData, deletedData] = await Promise.all([
         adminApi.getStats(),
         adminApi.getStorageMetrics(),
         settingsApi.getAll(),
+        adminApi.getDeletedSends(),
       ]);
-      setSends(sendsData);
       setStats(statsData);
       setStorageMetrics(storageData);
       setSettings(settingsData);
+      setCronInput(settingsData['cleanup_cron'] ?? '0 0 2 * * *');
+      setDeletedSends(deletedData);
     } catch (err) {
       if (isAxiosError(err) && err.response?.status === 403) {
         setError(t('admin.errors.accessDenied'));
@@ -71,26 +121,36 @@ export default function AdminPage() {
     }
   };
 
-  const filteredSends = useMemo(() => {
-    return sends.filter(send => {
-      const matchesSender = !filterSender || 
-        (send.ownerEmail?.toLowerCase().includes(filterSender.toLowerCase())) ||
-        (send.ownerName?.toLowerCase().includes(filterSender.toLowerCase())) ||
-        (send.ownerId?.toLowerCase().includes(filterSender.toLowerCase()));
-      
-      const isExpired = !!(send.expiresAt && new Date(send.expiresAt) < new Date());
-      const isExhausted = send.downloadCount >= send.maxDownloads;
-      const isActive = !send.revoked && !isExpired && !isExhausted;
+  const loadSends = async (page: number, ownerSearch: string, status: string) => {
+    try {
+      setSendsLoading(true);
+      const data: PagedResponse<SendResponse> = await adminApi.getAllSends(page, PAGE_SIZE, ownerSearch, status);
+      setSends(data.content);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
 
-      let matchesStatus = true;
-      if (filterStatus === 'active') matchesStatus = isActive;
-      else if (filterStatus === 'expired') matchesStatus = isExpired && !send.revoked;
-      else if (filterStatus === 'revoked') matchesStatus = send.revoked;
-      else if (filterStatus === 'exhausted') matchesStatus = isExhausted && !isExpired && !send.revoked;
+      const names: Record<string, string> = {};
+      await Promise.all(
+        data.content.map(async (send) => {
+          if (!send.name) return;
+          try {
+            const keyBase64 = await getSendKey(send.id);
+            if (!keyBase64) return;
+            const key = await importKeyFromBase64(keyBase64);
+            names[send.id] = await decryptText(send.name, key);
+          } catch {
+            // pas de clé ou nom non chiffré
+          }
+        })
+      );
+      setDecryptedNames(names);
+    } catch {
+      setError(t('admin.errors.loadFailed'));
+    } finally {
+      setSendsLoading(false);
+    }
+  };
 
-      return matchesSender && matchesStatus;
-    });
-  }, [sends, filterSender, filterStatus]);
 
   const handleCleanup = async () => {
     try {
@@ -106,7 +166,8 @@ export default function AdminPage() {
           freedSpace: formatBytes(result.freedSpace)
         })
       );
-      await loadData();
+      await Promise.all([loadData(), loadSends(0, debouncedSender, filterStatus)]);
+      setCurrentPage(0);
     } catch {
       setError(t('admin.errors.cleanupFailed'));
     } finally {
@@ -114,17 +175,30 @@ export default function AdminPage() {
     }
   };
 
-  const handleSettingToggle = async (key: string, currentValue: string) => {
-    const newValue = currentValue === 'true' ? 'false' : 'true';
+  const setPendingSetting = (key: string, value: string) => {
+    setPendingSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveSettings = async () => {
     setSettingsLoading(true);
+    setError('');
     try {
-      await settingsApi.update(key, newValue);
-      setSettings(prev => ({ ...prev, [key]: newValue }));
+      await Promise.all(
+        Object.entries(pendingSettings).map(([key, value]) => settingsApi.update(key, value))
+      );
+      setSettings(prev => ({ ...prev, ...pendingSettings }));
+      setPendingSettings({});
+      setSuccess(t('admin.settings.saveSuccess'));
     } catch {
       setError(t('admin.settings.updateFailed'));
     } finally {
       setSettingsLoading(false);
     }
+  };
+
+  const handleDiscardSettings = () => {
+    setPendingSettings({});
+    setCronInput(settings['cleanup_cron'] ?? '0 0 2 * * *');
   };
 
   const formatBytes = (bytes: number): string => {
@@ -138,7 +212,7 @@ export default function AdminPage() {
   const handleRevoke = async (sendId: string) => {
     try {
       await adminApi.revokeSend(sendId);
-      await loadData();
+      await loadSends(currentPage, debouncedSender, filterStatus);
     } catch {
       setError(t('admin.errors.revokeFailed'));
     }
@@ -154,10 +228,9 @@ export default function AdminPage() {
 
     try {
       await adminApi.deleteSend(sendToDelete);
-      setSends(sends.filter((s) => s.id !== sendToDelete));
       setDeleteDialogOpen(false);
       setSendToDelete(null);
-      await loadData();
+      await loadSends(currentPage, debouncedSender, filterStatus);
     } catch {
       setError(t('admin.errors.deleteFailed'));
     }
@@ -285,28 +358,95 @@ export default function AdminPage() {
         </h3>
         <div className="flex flex-col gap-4">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition-all">
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="text-base font-semibold text-gray-900">{t('admin.settings.requireAuthForDownload')}</p>
-                <p className="text-sm text-gray-500">{t('admin.settings.requireAuthForDownloadDesc')}</p>
-              </div>
+            <div>
+              <p className="text-base font-semibold text-gray-900">{t('admin.settings.requireAuthForDownload')}</p>
+              <p className="text-sm text-gray-500">{t('admin.settings.requireAuthForDownloadDesc')}</p>
             </div>
             <button
-
-              onClick={() => handleSettingToggle('require_auth_for_download', settings['require_auth_for_download'] ?? 'true')}
+              onClick={() => {
+                const cur = pendingSettings['require_auth_for_download'] ?? settings['require_auth_for_download'] ?? 'true';
+                setPendingSetting('require_auth_for_download', cur === 'true' ? 'false' : 'true');
+              }}
               disabled={settingsLoading}
-              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                settings['require_auth_for_download'] === 'true' ? 'bg-primary' : 'bg-gray-200'
-              }`}
+              className={cn(
+                "relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50",
+                (pendingSettings['require_auth_for_download'] ?? settings['require_auth_for_download']) === 'true' ? 'bg-primary' : 'bg-gray-200'
+              )}
             >
-              <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                  settings['require_auth_for_download'] === 'true' ? 'translate-x-7' : 'translate-x-1'
-                }`}
-              />
+              <span className={cn(
+                "inline-block h-6 w-6 transform rounded-full bg-white transition-transform",
+                (pendingSettings['require_auth_for_download'] ?? settings['require_auth_for_download']) === 'true' ? 'translate-x-7' : 'translate-x-1'
+              )} />
             </button>
           </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 group hover:shadow-md transition-all space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-base font-semibold text-gray-900">{t('admin.settings.cleanupSchedule')}</p>
+                <p className="text-sm text-gray-500">{t('admin.settings.cleanupScheduleDesc')}</p>
+              </div>
+            </div>
+            {/* Presets */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: t('admin.settings.cleanupPresetNightly'), value: '0 0 2 * * *' },
+                { label: t('admin.settings.cleanupPresetWeekly'), value: '0 0 2 * * 0' },
+                { label: t('admin.settings.cleanupPresetDisabled'), value: 'disabled' },
+              ].map((preset) => (
+                <button
+                  key={preset.value}
+                  onClick={() => { setCronInput(preset.value); setPendingSetting('cleanup_cron', preset.value); }}
+                  disabled={settingsLoading}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors disabled:opacity-50",
+                    cronInput === preset.value
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-primary/40 hover:text-primary"
+                  )}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+            {/* Cron input */}
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={cronInput}
+                onChange={(e) => { setCronInput(e.target.value); setPendingSetting('cleanup_cron', e.target.value); }}
+                disabled={settingsLoading}
+                placeholder="0 0 2 * * *"
+                className="flex-1 font-mono text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-gray-700"
+              />
+              <span className="text-xs text-gray-400 whitespace-nowrap">{t('admin.settings.cleanupCronHint')}</span>
+            </div>
+          </div>
         </div>
+
+        {/* Barre de confirmation */}
+        {hasPendingChanges && (
+          <div className="flex items-center justify-between gap-4 p-4 bg-amber-50 border border-amber-200 rounded-xl animate-in fade-in slide-in-from-top-2">
+            <span className="text-sm font-medium text-amber-800">{t('admin.settings.unsavedChanges')}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDiscardSettings}
+                disabled={settingsLoading}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors disabled:opacity-50"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={handleSaveSettings}
+                disabled={settingsLoading}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-all disabled:opacity-50"
+              >
+                {settingsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                {t('admin.settings.saveChanges')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tableau des transferts récents */}
@@ -347,7 +487,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className={cn("overflow-x-auto transition-opacity", sendsLoading && "opacity-50")}>
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-50">
@@ -370,14 +510,14 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {filteredSends.length === 0 ? (
+                {sends.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-400 italic">
                       {t('admin.table.noSends')}
                     </td>
                   </tr>
                 ) : (
-                  filteredSends.map((send) => {
+                  sends.map((send) => {
                     const isExpired = !!(send.expiresAt && new Date(send.expiresAt) < new Date());
                     const isExhausted = send.downloadCount >= send.maxDownloads;
                     const isActive = !send.revoked && !isExpired && !isExhausted;
@@ -390,18 +530,13 @@ export default function AdminPage() {
                               <Database className="w-5 h-5" />
                             </div>
                             <div className="max-w-[240px]">
-                              <div className="text-sm font-bold text-gray-900 truncate flex items-center gap-2">
-                                {send.name || <span className="text-gray-400 italic font-normal">{t('admin.table.unnamedSend')}</span>}
-                                {!send.name && (
-                                  <div className="group/note relative">
-                                    <Info className="w-3.5 h-3.5 text-gray-300 cursor-help" />
-                                    <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-[11px] rounded-xl opacity-0 invisible group-hover/note:opacity-100 group-hover/note:visible transition-all z-[60] shadow-xl font-normal">
-                                      {t('admin.encryptedNameNotice')}
-                                    </div>
-                                  </div>
-                                )}
+                              <div className="text-sm font-bold text-gray-900 flex items-center gap-2 min-w-0">
+                                {decryptedNames[send.id] || send.name
+                                ? <span className="truncate">{decryptedNames[send.id] || send.name}</span>
+                                : <span className="text-gray-400 italic font-normal truncate">{t('admin.table.unnamedSend')}</span>
+                              }
                               </div>
-                              <div className="text-xs text-gray-400 mt-0.5">
+                              <div className="text-xs text-gray-400 mt-0.5 truncate">
                                 {send.files?.length || 0} {send.files?.length === 1 ? t('common.file') : t('common.files')} • {send.accessId}
                               </div>
                             </div>
@@ -480,6 +615,143 @@ export default function AdminPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
+              <p className="text-xs text-gray-400">
+                {t('admin.pagination.showing', {
+                  from: currentPage * PAGE_SIZE + 1,
+                  to: Math.min((currentPage + 1) * PAGE_SIZE, totalElements),
+                  total: totalElements,
+                })}
+              </p>
+              <Pagination className="w-auto mx-0">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage(p => p - 1)}
+                      aria-disabled={currentPage === 0 || sendsLoading}
+                      className={currentPage === 0 || sendsLoading ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+
+                  {Array.from({ length: totalPages }, (_, i) => i)
+                    .filter(i => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
+                    .reduce<(number | 'ellipsis')[]>((acc, i, idx, arr) => {
+                      if (idx > 0 && i - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
+                      acc.push(i);
+                      return acc;
+                    }, [])
+                    .map((item, idx) =>
+                      item === 'ellipsis' ? (
+                        <PaginationItem key={`e${idx}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
+                        <PaginationItem key={item}>
+                          <PaginationLink
+                            isActive={currentPage === item}
+                            onClick={() => setCurrentPage(item as number)}
+                            className="cursor-pointer"
+                          >
+                            {(item as number) + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    )}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage(p => p + 1)}
+                      aria-disabled={currentPage >= totalPages - 1 || sendsLoading}
+                      className={currentPage >= totalPages - 1 || sendsLoading ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Historique des suppressions */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
+          <History className="w-4 h-4" />
+          {t('admin.history.title')}
+        </h3>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-50">
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.table.owner')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.reason')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.createdAt')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.deletedAt')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.size')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {deletedSends.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-400 italic">
+                      {t('admin.history.empty')}
+                    </td>
+                  </tr>
+                ) : (
+                  deletedSends.map((d) => (
+                    <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-semibold text-gray-900 truncate max-w-[180px]">
+                          {d.ownerName || d.ownerEmail || t('admin.table.unknown')}
+                        </div>
+                        {d.ownerEmail && d.ownerName && (
+                          <div className="text-xs text-gray-400 truncate max-w-[180px]">{d.ownerEmail}</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
+                          d.deleteReason === 'EXPIRED'   ? "bg-orange-50 text-orange-600" :
+                          d.deleteReason === 'REVOKED'   ? "bg-gray-100 text-gray-500" :
+                          d.deleteReason === 'EXHAUSTED' ? "bg-red-50 text-red-600" :
+                                                           "bg-purple-50 text-purple-600"
+                        )}>
+                          {t(`admin.history.reasons.${d.deleteReason.toLowerCase()}`)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {d.sendCreatedAt ? (
+                          <>
+                            <div className="text-sm font-bold text-gray-600">
+                              {new Date(d.sendCreatedAt).toLocaleDateString()}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {new Date(d.sendCreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-sm text-gray-300">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-bold text-gray-600">
+                          {new Date(d.deletedAt).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(d.deletedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 font-semibold">{formatBytes(d.totalSizeBytes)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -537,6 +809,34 @@ export default function AdminPage() {
                 className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-xl transition-all shadow-lg shadow-orange-200"
               >
                 {t('admin.cleanupDialog.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dialog navigation bloquée - modifications non enregistrées */}
+      {blocker.state === 'blocked' && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
+          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => blocker.reset()} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
+            <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center mb-4">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('admin.settings.leaveTitle')}</h3>
+            <p className="text-gray-500 text-sm mb-6">{t('admin.settings.leaveMessage')}</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => blocker.reset()}
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                {t('admin.settings.leaveCancel')}
+              </button>
+              <button
+                onClick={() => blocker.proceed()}
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl transition-all shadow-lg shadow-amber-200"
+              >
+                {t('admin.settings.leaveConfirm')}
               </button>
             </div>
           </div>

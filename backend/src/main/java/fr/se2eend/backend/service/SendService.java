@@ -3,15 +3,22 @@ package fr.se2eend.backend.service;
 import fr.se2eend.backend.dto.SendRequestDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
+import fr.se2eend.backend.model.DeletedSend;
+import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
+import fr.se2eend.backend.model.enums.DeleteReason;
+import fr.se2eend.backend.repository.DeletedSendRepository;
 import fr.se2eend.backend.repository.SendRepository;
 import fr.se2eend.backend.service.mapper.SendMapper;
+import fr.se2eend.backend.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
@@ -21,11 +28,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SendService {
 
     private final SendRepository sendRepository;
+    private final DeletedSendRepository deletedSendRepository;
     private final SendMapper sendMapper;
     private final PasswordEncoder passwordEncoder;
+    private final StorageService storageService;
 
     public List<SendResponseDto> findAll() {
         UUID ownerId = extractUserIdFromToken();
@@ -79,8 +89,7 @@ public class SendService {
     private UUID extractUserIdFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             String subject = jwt.getSubject();
 
             try {
@@ -96,14 +105,12 @@ public class SendService {
     private String extractOwnerNameFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             String name = jwt.getClaimAsString("name");
             if (name != null && !name.isBlank()) {
                 return name;
             }
-            String username = jwt.getClaimAsString("preferred_username");
-            return username != null ? username : null;
+            return jwt.getClaimAsString("preferred_username");
         }
 
         return null;
@@ -112,8 +119,7 @@ public class SendService {
     private String extractOwnerEmailFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt.getClaimAsString("email");
         }
 
@@ -132,12 +138,37 @@ public class SendService {
     }
 
     /**
-     * Delete a send by ID (cascade will remove linked files automatically).
+     * Delete a send by ID — audits the deletion and removes files from storage.
      */
+    @Transactional
     public void delete(UUID id) {
-        if (!sendRepository.existsById(id)) {
-            throw ResourceNotFoundException.sendNotFound();
+        Send send = sendRepository.findById(id)
+                .orElseThrow(ResourceNotFoundException::sendNotFound);
+
+        long totalSize = 0L;
+        for (FileMetadata file : send.getFiles()) {
+            try {
+                storageService.delete(file.getStoragePath());
+                totalSize += file.getSizeBytes();
+            } catch (Exception e) {
+                log.error("Failed to delete file {} from storage: {}", file.getStoragePath(), e.getMessage());
+            }
         }
-        sendRepository.deleteById(id);
+
+        DeletedSend audit = DeletedSend.builder()
+                .originalSendId(send.getId())
+                .accessId(send.getAccessId())
+                .ownerId(send.getOwnerId())
+                .ownerName(send.getOwnerName())
+                .ownerEmail(send.getOwnerEmail())
+                .sendCreatedAt(send.getCreatedAt())
+                .deletedAt(LocalDateTime.now())
+                .deleteReason(DeleteReason.USER)
+                .fileCount(send.getFiles().size())
+                .totalSizeBytes(totalSize)
+                .build();
+
+        deletedSendRepository.save(audit);
+        sendRepository.delete(send);
     }
 }
