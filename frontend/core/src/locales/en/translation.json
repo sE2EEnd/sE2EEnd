@@ -98,7 +98,9 @@
       "password": "Password",
       "passwordPlaceholder": "Enter password",
       "passwordHelp": "Recipients will need this password to download",
-      "passwordRequired": "required by instance policy"
+      "passwordRequired": "required by instance policy",
+      "passwordWarningTitle": "Warning:",
+      "passwordWarning": "For security, never send the link and the password on the same channel (e.g. in the same email). Send the password separately (e.g. SMS, instant messaging)."
     },
     "textForm": {
       "placeholder": "Enter your text, password, note...",
