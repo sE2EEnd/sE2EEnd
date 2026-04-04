@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { execSync } from 'child_process'
+import path from 'path'
 
 function getVersion(): string {
   try {
@@ -14,6 +15,11 @@ function getVersion(): string {
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(getVersion()),
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   },
   plugins: [react()],
   server: {

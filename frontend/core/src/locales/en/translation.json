@@ -26,10 +26,22 @@
     "logout": "Logout"
   },
   "dashboard": {
+    "welcome": "Welcome back, {{name}}.",
+    "subtitle": "Your transfers are end-to-end encrypted — only you and your recipients can access them.",
+    "stats": {
+      "active": "Active",
+      "transfers": "transfers",
+      "downloads": "Downloads",
+      "total": "total"
+    },
+    "newTransfer": "New Transfer",
+    "newTransferDesc": "Share encrypted files securely",
+    "getStarted": "Get started",
+    "myTransfers": "My Transfers",
     "title": "My Sends",
     "newSend": "New Send",
-    "noSends": "No sends yet",
-    "createFirst": "Create your first secure send!",
+    "noSends": "No transfers yet",
+    "createFirst": "Create your first secure transfer!",
     "sends": "sends",
     "status": "Status",
     "downloads": "Downloads",
@@ -47,8 +59,12 @@
     "close": "Close",
     "warningKey": "⚠️ The encryption key is in the URL fragment (#). Keep this link secure!",
     "linkCopied": "Link copied to clipboard!",
+    "encryptedNameHelp": "The name can appear as ciphertext because the encryption key is no longer in your browser (e.g. after clearing storage).",
     "keyMissing": "Encryption key not available",
-    "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link."
+    "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link.",
+    "loadError": "Failed to load transfers",
+    "deleteError": "Failed to delete transfer",
+    "copyError": "Failed to copy link"
   },
   "upload": {
     "title": "Upload File",
@@ -161,37 +177,29 @@
   "admin": {
     "title": "Admin Dashboard",
     "subtitle": "Manage all sends and view statistics",
+    "recentTransfers": "Recent Transfers",
+    "filterBySender": "Filter by sender",
+    "filterByStatus": "Filter by status",
+    "encryptedNameNotice": "The name is end-to-end encrypted. Only the sender or recipient with the key can read it.",
     "stats": {
       "totalSends": "Total Sends",
-      "activeSends": "Active Sends",
-      "revokedSends": "Revoked Sends",
-      "totalFiles": "Total Files"
+      "totalSendsHelp": "A 'send' corresponds to a unique upload (one or more zipped files, or text)."
     },
     "storage": {
-      "title": "Storage Usage",
-      "used": "Used",
-      "free": "Free",
-      "total": "Total",
-      "percentUsed": "used",
-      "filesInStorage": "Files in Storage",
-      "storageSize": "Storage Size",
-      "usableSpace": "Usable Space",
-      "available": "Available",
-      "runCleanup": "Run Cleanup",
-      "running": "Running..."
+      "capacity": "Storage Capacity",
+      "filesInStorage_one": "File in Storage",
+      "filesInStorage_other": "Files in Storage",
+      "runCleanup": "Run Cleanup"
     },
     "table": {
-      "allSends": "All Sends",
       "sendName": "Send Name",
       "owner": "Owner",
       "status": "Status",
-      "downloads": "Downloads",
       "created": "Created",
       "expires": "Expires",
       "actions": "Actions",
       "noSends": "No sends found",
       "unnamedSend": "Unnamed Send",
-      "noFiles": "No files",
       "unknown": "Unknown",
       "never": "Never"
     },
@@ -205,6 +213,12 @@
       "cancel": "Cancel",
       "delete": "Delete"
     },
+    "cleanupDialog": {
+      "title": "Run Cleanup",
+      "message": "This will permanently delete all expired, revoked, and exhausted sends. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Run Cleanup"
+    },
     "errors": {
       "accessDenied": "Access denied. Admin role required.",
       "loadFailed": "Failed to load admin data",
@@ -213,15 +227,44 @@
       "deleteFailed": "Failed to delete send"
     },
     "cleanupSuccess": "Cleanup completed: {{deletedSends}} sends deleted, {{deletedFiles}} files removed, {{freedSpace}} freed",
-    "confirmCleanup": "Run cleanup to delete expired, revoked, and exhausted sends?",
+    "pagination": {
+      "showing": "Showing {{from}}–{{to}} of {{total}}"
+    },
+    "history": {
+      "title": "Deletion History",
+      "reason": "Reason",
+      "createdAt": "Created At",
+      "deletedAt": "Deleted At",
+      "size": "Size",
+      "empty": "No deleted sends yet",
+      "reasons": {
+        "expired": "Expired",
+        "revoked": "Revoked",
+        "exhausted": "Exhausted",
+        "manual": "Admin",
+        "user": "User"
+      }
+    },
     "settings": {
       "title": "Instance Settings",
-      "subtitle": "Configure the behaviour of this instance",
       "requireAuthForDownload": "Require authentication to download",
       "requireAuthForDownloadDesc": "When enabled, users must be logged in to access download links.",
+      "cleanupSchedule": "Automatic cleanup",
+      "cleanupScheduleDesc": "Automatically delete expired, revoked and exhausted sends. Uses Spring cron format (s m h dom mon dow).",
+      "cleanupPresetNightly": "Every night at 2AM",
+      "cleanupPresetWeekly": "Every Sunday at 2AM",
+      "cleanupPresetDisabled": "Disabled",
+      "cleanupCronHint": "s m h dom mon dow",
+      "updateFailed": "Failed to update setting",
+      "saveSuccess": "Settings saved successfully",
+      "saveChanges": "Save changes",
+      "unsavedChanges": "You have unsaved changes",
+      "leaveTitle": "Unsaved changes",
+      "leaveMessage": "You have unsaved settings changes. If you leave now, they will be lost.",
+      "leaveConfirm": "Leave anyway",
+      "leaveCancel": "Stay",
       "requireSendPassword": "Require password on all sends",
-      "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
-      "updateFailed": "Failed to update setting"
+      "requireSendPasswordDesc": "When enabled, every send must be protected by a password."
     }
   },
   "profile": {

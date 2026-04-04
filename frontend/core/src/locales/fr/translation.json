@@ -26,10 +26,22 @@
     "logout": "Déconnexion"
   },
   "dashboard": {
+    "welcome": "Bonjour, {{name}}.",
+    "subtitle": "Vos transferts sont chiffrés de bout en bout — seuls vous et vos destinataires peuvent y accéder.",
+    "stats": {
+      "active": "Actifs",
+      "transfers": "transferts",
+      "downloads": "Téléchargements",
+      "total": "au total"
+    },
+    "newTransfer": "Nouveau transfert",
+    "newTransferDesc": "Partagez des fichiers chiffrés en toute sécurité",
+    "getStarted": "Commencer",
+    "myTransfers": "Mes transferts",
     "title": "Mes Envois",
     "newSend": "Nouvel Envoi",
-    "noSends": "Aucun envoi pour le moment",
-    "createFirst": "Créez votre premier envoi sécurisé !",
+    "noSends": "Aucun transfert pour le moment",
+    "createFirst": "Créez votre premier transfert sécurisé !",
     "sends": "envois",
     "status": "Statut",
     "downloads": "Téléchargements",
@@ -47,8 +59,12 @@
     "close": "Fermer",
     "warningKey": "⚠️ La clé de chiffrement est dans le fragment de l'URL (#). Gardez ce lien en sécurité !",
     "linkCopied": "Lien copié dans le presse-papier !",
+    "encryptedNameHelp": "Le nom peut s'afficher sous forme chiffrée car la clé de chiffrement n'est plus dans votre navigateur (ex : après avoir vidé le stockage).",
     "keyMissing": "Clé de chiffrement non disponible",
-    "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien."
+    "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien.",
+    "loadError": "Échec du chargement des transferts",
+    "deleteError": "Échec de la suppression du transfert",
+    "copyError": "Impossible de copier le lien"
   },
   "upload": {
     "title": "Téléverser un fichier",
@@ -161,37 +177,29 @@
   "admin": {
     "title": "Administration",
     "subtitle": "Gérer tous les envois et voir les statistiques",
+    "recentTransfers": "Transferts récents",
+    "filterBySender": "Filtrer par expéditeur",
+    "filterByStatus": "Filtrer par statut",
+    "encryptedNameNotice": "Le nom est chiffré de bout en bout. Seul l'expéditeur ou le destinataire avec la clé peut le lire.",
     "stats": {
-      "totalSends": "Total des envois",
-      "activeSends": "Envois actifs",
-      "revokedSends": "Envois révoqués",
-      "totalFiles": "Total des fichiers"
+      "totalSends": "Nombre de sends",
+      "totalSendsHelp": "Un 'send' correspond à un envoi unique (un ou plusieurs fichiers zipés, ou du texte)."
     },
     "storage": {
-      "title": "Utilisation du stockage",
-      "used": "Utilisé",
-      "free": "Libre",
-      "total": "Total",
-      "percentUsed": "utilisé",
-      "filesInStorage": "Fichiers en stockage",
-      "storageSize": "Taille du stockage",
-      "usableSpace": "Espace utilisable",
-      "available": "Disponible",
-      "runCleanup": "Lancer le nettoyage",
-      "running": "En cours..."
+      "capacity": "Capacité de stockage",
+      "filesInStorage_one": "Fichier en stockage",
+      "filesInStorage_other": "Fichiers en stockage",
+      "runCleanup": "Lancer le nettoyage"
     },
     "table": {
-      "allSends": "Tous les envois",
       "sendName": "Nom de l'envoi",
       "owner": "Propriétaire",
       "status": "Statut",
-      "downloads": "Téléchargements",
       "created": "Créé",
       "expires": "Expire",
       "actions": "Actions",
       "noSends": "Aucun envoi trouvé",
       "unnamedSend": "Envoi sans nom",
-      "noFiles": "Aucun fichier",
       "unknown": "Inconnu",
       "never": "Jamais"
     },
@@ -205,6 +213,12 @@
       "cancel": "Annuler",
       "delete": "Supprimer"
     },
+    "cleanupDialog": {
+      "title": "Lancer le nettoyage",
+      "message": "Cela supprimera définitivement tous les envois expirés, révoqués et épuisés. Cette action ne peut pas être annulée.",
+      "cancel": "Annuler",
+      "confirm": "Lancer le nettoyage"
+    },
     "errors": {
       "accessDenied": "Accès refusé. Rôle administrateur requis.",
       "loadFailed": "Échec du chargement des données administrateur",
@@ -213,15 +227,44 @@
       "deleteFailed": "Échec de la suppression de l'envoi"
     },
     "cleanupSuccess": "Nettoyage terminé : {{deletedSends}} envois supprimés, {{deletedFiles}} fichiers retirés, {{freedSpace}} libérés",
-    "confirmCleanup": "Lancer le nettoyage pour supprimer les envois expirés, révoqués et épuisés ?",
+    "pagination": {
+      "showing": "Affichage de {{from}}–{{to}} sur {{total}}"
+    },
+    "history": {
+      "title": "Historique des suppressions",
+      "reason": "Raison",
+      "createdAt": "Créé le",
+      "deletedAt": "Supprimé le",
+      "size": "Taille",
+      "empty": "Aucun envoi supprimé pour le moment",
+      "reasons": {
+        "expired": "Expiré",
+        "revoked": "Révoqué",
+        "exhausted": "Épuisé",
+        "manual": "Admin",
+        "user": "Utilisateur"
+      }
+    },
     "settings": {
       "title": "Paramètres de l'instance",
-      "subtitle": "Configurez le comportement de cette instance",
       "requireAuthForDownload": "Authentification requise pour télécharger",
       "requireAuthForDownloadDesc": "Quand activé, les utilisateurs doivent être connectés pour accéder aux liens de téléchargement.",
+      "cleanupSchedule": "Nettoyage automatique",
+      "cleanupScheduleDesc": "Supprime automatiquement les envois expirés, révoqués et épuisés. Utilise le format cron Spring (s m h j-mois mois j-semaine).",
+      "cleanupPresetNightly": "Chaque nuit à 2h",
+      "cleanupPresetWeekly": "Chaque dimanche à 2h",
+      "cleanupPresetDisabled": "Désactivé",
+      "cleanupCronHint": "s m h j-mois mois j-sem",
+      "updateFailed": "Échec de la mise à jour du paramètre",
+      "saveSuccess": "Paramètres enregistrés avec succès",
+      "saveChanges": "Enregistrer",
+      "unsavedChanges": "Modifications non enregistrées",
+      "leaveTitle": "Modifications non enregistrées",
+      "leaveMessage": "Tu as des modifications de paramètres non enregistrées. Si tu pars maintenant, elles seront perdues.",
+      "leaveConfirm": "Quitter quand même",
+      "leaveCancel": "Rester",
       "requireSendPassword": "Mot de passe obligatoire sur tous les envois",
-      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe.",
-      "updateFailed": "Échec de la mise à jour du paramètre"
+      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe."
     }
   },
   "profile": {

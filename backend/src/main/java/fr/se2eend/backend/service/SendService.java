@@ -3,15 +3,22 @@ package fr.se2eend.backend.service;
 import fr.se2eend.backend.dto.SendRequestDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
+import fr.se2eend.backend.model.DeletedSend;
+import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
+import fr.se2eend.backend.model.enums.DeleteReason;
+import fr.se2eend.backend.repository.DeletedSendRepository;
 import fr.se2eend.backend.repository.SendRepository;
 import fr.se2eend.backend.service.mapper.SendMapper;
+import fr.se2eend.backend.storage.StorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
@@ -21,11 +28,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SendService {
 
     private final SendRepository sendRepository;
+    private final DeletedSendRepository deletedSendRepository;
     private final SendMapper sendMapper;
     private final PasswordEncoder passwordEncoder;
+    private final StorageService storageService;
     private final InstanceSettingsService instanceSettingsService;
 
     public List<SendResponseDto> findAll() {
@@ -133,12 +143,37 @@ public class SendService {
     }
 
     /**
-     * Delete a send by ID (cascade will remove linked files automatically).
+     * Delete a send by ID — audits the deletion and removes files from storage.
      */
+    @Transactional
     public void delete(UUID id) {
-        if (!sendRepository.existsById(id)) {
-            throw ResourceNotFoundException.sendNotFound();
+        Send send = sendRepository.findById(id)
+                .orElseThrow(ResourceNotFoundException::sendNotFound);
+
+        long totalSize = 0L;
+        FileMetadata file = send.getFile();
+        if (file != null) {
+            try {
+                storageService.delete(file.getStoragePath());
+                totalSize += file.getSizeBytes();
+            } catch (Exception e) {
+                log.error("Failed to delete file {} from storage: {}", file.getStoragePath(), e.getMessage());
+            }
         }
-        sendRepository.deleteById(id);
+
+        DeletedSend audit = DeletedSend.builder()
+                .originalSendId(send.getId())
+                .accessId(send.getAccessId())
+                .ownerId(send.getOwnerId())
+                .ownerName(send.getOwnerName())
+                .ownerEmail(send.getOwnerEmail())
+                .sendCreatedAt(send.getCreatedAt())
+                .deletedAt(LocalDateTime.now())
+                .deleteReason(DeleteReason.USER)
+                .totalSizeBytes(totalSize)
+                .build();
+
+        deletedSendRepository.save(audit);
+        sendRepository.delete(send);
     }
 }

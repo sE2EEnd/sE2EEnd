@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { useEffect, useState } from 'react';
 import Layout from './components/Layout';
@@ -12,6 +12,30 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { configApi } from './services/api';
 import type { ThemeConfig } from './services/api';
 import { Loader2 } from 'lucide-react';
+
+const router = createBrowserRouter([
+  {
+    path: '/download/:accessId',
+    element: <DownloadPage />,
+  },
+  {
+    element: <Layout />,
+    children: [
+      { path: '/', element: <Navigate to="/dashboard" replace /> },
+      { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/upload', element: <UploadPage /> },
+      {
+        path: '/admin',
+        element: (
+          <ProtectedAdminRoute>
+            <AdminPage />
+          </ProtectedAdminRoute>
+        ),
+      },
+      { path: '/profile', element: <ProfilePage /> },
+    ],
+  },
+]);
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -40,28 +64,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Router>
-        <Routes>
-          {/* Public route - no layout */}
-          <Route path="/download/:accessId" element={<DownloadPage />} />
-
-          {/* Protected routes - with layout */}
-          <Route element={<Layout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/upload" element={<UploadPage />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedAdminRoute>
-                  <AdminPage />
-                </ProtectedAdminRoute>
-              }
-            />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
-        </Routes>
-      </Router>
+      <RouterProvider router={router} />
     </ThemeProvider>
   );
 }

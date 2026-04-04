@@ -12,7 +12,6 @@ spring:
     basename: messages/messages
     encoding: UTF-8
     fallback-to-system-locale: false
-    default-locale: fr
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/se2eend}
@@ -42,12 +41,6 @@ springdoc:
     enabled: ${SWAGGER_ENABLED:false}
   api-docs:
     enabled: ${SWAGGER_ENABLED:false}
-
-# Cleanup Configuration
-cleanup:
-  scheduler:
-    enabled: ${CLEANUP_SCHEDULER_ENABLED:true}
-    cron: ${CLEANUP_SCHEDULER_CRON:0 0 2 * * *}
 
 # Application Branding
 app:

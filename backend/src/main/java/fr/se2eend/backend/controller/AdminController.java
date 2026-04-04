@@ -1,5 +1,7 @@
 package fr.se2eend.backend.controller;
 
+import fr.se2eend.backend.dto.DeletedSendDto;
+import fr.se2eend.backend.dto.PagedResponse;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.service.AdminService;
 import fr.se2eend.backend.service.InstanceSettingsService;
@@ -29,9 +31,14 @@ public class AdminController {
 
     @GetMapping("/sends")
     @PreAuthorize("hasRole('admin')")
-    @Operation(summary = "Get all sends (admin only)")
-    public ResponseEntity<List<SendResponseDto>> getAllSends() {
-        return ResponseEntity.ok(adminService.getAllSends());
+    @Operation(summary = "Get paginated sends (admin only)")
+    public ResponseEntity<PagedResponse<SendResponseDto>> getAllSends(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String ownerSearch,
+            @RequestParam(required = false) String status
+    ) {
+        return ResponseEntity.ok(adminService.getAllSends(page, size, ownerSearch, status));
     }
 
     @GetMapping("/stats")
@@ -69,6 +76,13 @@ public class AdminController {
     @Operation(summary = "Run cleanup of expired/revoked sends")
     public ResponseEntity<Map<String, Object>> runCleanup() {
         return ResponseEntity.ok(adminService.runCleanup());
+    }
+
+    @GetMapping("/deleted-sends")
+    @PreAuthorize("hasRole('admin')")
+    @Operation(summary = "Get audit log of deleted sends")
+    public ResponseEntity<List<DeletedSendDto>> getDeletedSends() {
+        return ResponseEntity.ok(adminService.getDeletedSends());
     }
 
     @GetMapping("/settings")

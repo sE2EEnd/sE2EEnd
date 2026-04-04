@@ -1,9 +1,14 @@
 package fr.se2eend.backend.service;
 
+import fr.se2eend.backend.dto.DeletedSendDto;
+import fr.se2eend.backend.dto.PagedResponse;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
+import fr.se2eend.backend.model.DeletedSend;
 import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
+import fr.se2eend.backend.model.enums.DeleteReason;
+import fr.se2eend.backend.repository.DeletedSendRepository;
 import fr.se2eend.backend.repository.FileRepository;
 import fr.se2eend.backend.repository.SendRepository;
 import fr.se2eend.backend.service.mapper.SendMapper;
@@ -12,6 +17,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import fr.se2eend.backend.repository.SendSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -26,17 +37,35 @@ public class AdminService {
 
     private final SendRepository sendRepository;
     private final FileRepository fileRepository;
+    private final DeletedSendRepository deletedSendRepository;
     private final SendMapper sendMapper;
     private final StorageService storageService;
 
     /**
-     * Get all sends in the system
+     * Get paginated sends with optional filters
      */
-    public List<SendResponseDto> getAllSends() {
-        return sendRepository.findAll()
-                .stream()
-                .map(sendMapper::toDto)
-                .toList();
+    public PagedResponse<SendResponseDto> getAllSends(int page, int size, String ownerSearch, String status) {
+        Specification<Send> spec = Specification.unrestricted();
+
+        if (ownerSearch != null && !ownerSearch.isBlank()) {
+            spec = spec.and(SendSpecifications.ownerContains(ownerSearch));
+        }
+        if (status != null && !status.equals("all")) {
+            spec = spec.and(SendSpecifications.withStatus(status, LocalDateTime.now()));
+        }
+
+        Page<Send> pageResult = sendRepository.findAll(
+                spec,
+                PageRequest.of(page, size, Sort.by("createdAt").descending())
+        );
+
+        return new PagedResponse<>(
+                pageResult.getContent().stream().map(sendMapper::toDto).toList(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages(),
+                pageResult.getNumber(),
+                pageResult.getSize()
+        );
     }
 
     /**
@@ -60,6 +89,27 @@ public class AdminService {
     }
 
     /**
+     * Get deleted sends audit log
+     */
+    public List<DeletedSendDto> getDeletedSends() {
+        return deletedSendRepository.findAllByOrderByDeletedAtDesc()
+                .stream()
+                .map(d -> new DeletedSendDto(
+                        d.getId(),
+                        d.getOriginalSendId(),
+                        d.getAccessId(),
+                        d.getOwnerId(),
+                        d.getOwnerName(),
+                        d.getOwnerEmail(),
+                        d.getSendCreatedAt(),
+                        d.getDeletedAt(),
+                        d.getDeleteReason(),
+                        d.getTotalSizeBytes()
+                ))
+                .toList();
+    }
+
+    /**
      * Delete a send
      */
     @Transactional
@@ -67,13 +117,7 @@ public class AdminService {
         Send send = sendRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
 
-        // Delete associated file first
-        if (send.getFile() != null) {
-            fileRepository.delete(send.getFile());
-        }
-
-        // Delete the send
-        sendRepository.delete(send);
+        auditAndDelete(send, DeleteReason.MANUAL);
     }
 
     /**
@@ -100,37 +144,21 @@ public class AdminService {
         long freedSpace = 0L;
 
         for (Send send : allSends) {
-            boolean shouldDelete = false;
-            String reason = "";
+            DeleteReason reason = null;
 
             if (send.getExpiresAt() != null && send.getExpiresAt().isBefore(now)) {
-                shouldDelete = true;
-                reason = "expired";
-            }
-            else if (send.isRevoked()) {
-                shouldDelete = true;
-                reason = "revoked";
-            }
-            else if (send.getDownloadCount() >= send.getMaxDownloads()) {
-                shouldDelete = true;
-                reason = "exhausted";
+                reason = DeleteReason.EXPIRED;
+            } else if (send.isRevoked()) {
+                reason = DeleteReason.REVOKED;
+            } else if (send.getDownloadCount() >= send.getMaxDownloads()) {
+                reason = DeleteReason.EXHAUSTED;
             }
 
-            if (shouldDelete) {
+            if (reason != null) {
                 log.info("Deleting send {} (reason: {})", send.getAccessId(), reason);
-
-                FileMetadata file = send.getFile();
-                if (file != null) {
-                    try {
-                        storageService.delete(file.getStoragePath());
-                        deletedFiles++;
-                        freedSpace += file.getSizeBytes();
-                    } catch (Exception e) {
-                        log.error("Failed to delete file {} from storage: {}", file.getStoragePath(), e.getMessage());
-                    }
-                }
-
-                sendRepository.delete(send);
+                long[] stats = auditAndDelete(send, reason);
+                deletedFiles += (int) stats[0];
+                freedSpace += stats[1];
                 deletedSends++;
             }
         }
@@ -145,5 +173,42 @@ public class AdminService {
         result.put("timestamp", LocalDateTime.now());
 
         return result;
+    }
+
+    /**
+     * Save an audit record then hard-delete the send and its files from storage.
+     * Returns [deletedFileCount, freedBytes].
+     */
+    private long[] auditAndDelete(Send send, DeleteReason reason) {
+        int deletedFiles = 0;
+        long freedSpace = 0L;
+
+        FileMetadata file = send.getFile();
+        if (file != null) {
+            try {
+                storageService.delete(file.getStoragePath());
+                deletedFiles++;
+                freedSpace += file.getSizeBytes();
+            } catch (Exception e) {
+                log.error("Failed to delete file {} from storage: {}", file.getStoragePath(), e.getMessage());
+            }
+        }
+
+        DeletedSend audit = DeletedSend.builder()
+                .originalSendId(send.getId())
+                .accessId(send.getAccessId())
+                .ownerId(send.getOwnerId())
+                .ownerName(send.getOwnerName())
+                .ownerEmail(send.getOwnerEmail())
+                .sendCreatedAt(send.getCreatedAt())
+                .deletedAt(LocalDateTime.now())
+                .deleteReason(reason)
+                .totalSizeBytes(freedSpace)
+                .build();
+
+        deletedSendRepository.save(audit);
+        sendRepository.delete(send);
+
+        return new long[]{deletedFiles, freedSpace};
     }
 }

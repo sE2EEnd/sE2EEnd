@@ -113,6 +113,14 @@ interface CleanupResult {
   timestamp: string;
 }
 
+interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
+
 interface AdminStats {
   totalSends: number;
   activeSends: number;
@@ -120,9 +128,25 @@ interface AdminStats {
   totalFiles: number;
 }
 
+interface DeletedSend {
+  id: string;
+  originalSendId: string;
+  accessId?: string;
+  ownerId?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+  sendCreatedAt?: string;
+  deletedAt: string;
+  deleteReason: 'EXPIRED' | 'REVOKED' | 'EXHAUSTED' | 'MANUAL';
+  fileCount: number;
+  totalSizeBytes: number;
+}
+
 const adminApi = {
-  getAllSends: async (): Promise<SendResponse[]> => {
-    const response = await api.get('/admin/sends');
+  getAllSends: async (page = 0, size = 20, ownerSearch?: string, status?: string): Promise<PagedResponse<SendResponse>> => {
+    const response = await api.get('/admin/sends', {
+      params: { page, size, ownerSearch: ownerSearch || undefined, status: status === 'all' ? undefined : status },
+    });
     return response.data;
   },
 
@@ -146,6 +170,11 @@ const adminApi = {
 
   runCleanup: async (): Promise<CleanupResult> => {
     const response = await api.post('/admin/cleanup');
+    return response.data;
+  },
+
+  getDeletedSends: async (): Promise<DeletedSend[]> => {
+    const response = await api.get('/admin/deleted-sends');
     return response.data;
   },
 };
@@ -192,5 +221,5 @@ const settingsApi = {
 };
 
 export { sendApi, adminApi, configApi, settingsApi };
-export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats, SendPolicy };
+export type { SendCreateRequest, SendResponse, FileMetadata, ThemeConfig, StorageMetrics, CleanupResult, AdminStats, SendPolicy, DeletedSend, PagedResponse };
 export default api;
