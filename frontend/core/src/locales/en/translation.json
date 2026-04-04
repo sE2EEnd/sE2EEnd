@@ -52,10 +52,15 @@
   },
   "upload": {
     "title": "Upload File",
+    "tabs": {
+      "file": "File",
+      "text": "Text"
+    },
     "steps": {
       "selectFiles": "Select Files",
+      "writeText": "Write Text",
       "configure": "Configure",
-      "upload": "Upload",
+      "upload": "Encrypting",
       "share": "Share"
     },
     "dropZone": {
@@ -78,6 +83,14 @@
       "passwordPlaceholder": "Enter password",
       "passwordHelp": "Recipients will need this password to download"
     },
+    "textForm": {
+      "placeholder": "Enter your text, password, note...",
+      "hideText": "Hide text",
+      "showText": "Show text",
+      "hideByDefault": "Hide text by default for the recipient",
+      "empty": "Please enter some text",
+      "summary": "Text entered · {{count}} characters"
+    },
     "errors": {
       "selectFile": "Please select at least one file",
       "enterPassword": "Please enter a password",
@@ -86,11 +99,15 @@
     },
     "uploading": {
       "title": "Uploading your file...",
-      "message": "Please wait while we securely upload your file"
+      "titleText": "Sending your text...",
+      "message": "Please wait while we securely upload your file",
+      "messageText": "Please wait while we securely send your text"
     },
     "success": {
       "title": "File uploaded successfully!",
+      "titleText": "Text sent successfully!",
       "message": "Share the link below to allow others to download your file",
+      "messageText": "Share the link below to allow others to view your text",
       "qrCode": "QR Code",
       "qrCodeDesc": "Scan this QR code with your phone to access the download link",
       "shareLink": "Share Link (includes encryption key)",
@@ -123,6 +140,11 @@
     "passwordPlaceholder": "Leave empty if not password protected",
     "downloadFile": "Download File",
     "downloading": "Downloading...",
+    "viewText": "View Text",
+    "viewing": "Decrypting...",
+    "textContent": "Content",
+    "hideText": "Hide text",
+    "showText": "Show text",
     "errors": {
       "keyMissing": "Encryption key missing from URL. Cannot decrypt file.",
       "invalidPassword": "Invalid password",

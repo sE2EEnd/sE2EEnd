@@ -52,10 +52,15 @@
   },
   "upload": {
     "title": "Téléverser un fichier",
+    "tabs": {
+      "file": "Fichier",
+      "text": "Texte"
+    },
     "steps": {
       "selectFiles": "Sélectionner les fichiers",
+      "writeText": "Rédiger le texte",
       "configure": "Configurer",
-      "upload": "Téléverser",
+      "upload": "Chiffrement",
       "share": "Partager"
     },
     "dropZone": {
@@ -78,6 +83,14 @@
       "passwordPlaceholder": "Entrez un mot de passe",
       "passwordHelp": "Les destinataires auront besoin de ce mot de passe pour télécharger"
     },
+    "textForm": {
+      "placeholder": "Entrez votre texte, mot de passe, note...",
+      "hideText": "Masquer le texte",
+      "showText": "Afficher le texte",
+      "hideByDefault": "Masquer le texte par défaut pour le destinataire",
+      "empty": "Veuillez saisir du texte",
+      "summary": "Texte saisi · {{count}} caractères"
+    },
     "errors": {
       "selectFile": "Veuillez sélectionner au moins un fichier",
       "enterPassword": "Veuillez entrer un mot de passe",
@@ -86,11 +99,15 @@
     },
     "uploading": {
       "title": "Téléversement de votre fichier...",
-      "message": "Veuillez patienter pendant que nous téléversons votre fichier en toute sécurité"
+      "titleText": "Envoi de votre texte...",
+      "message": "Veuillez patienter pendant que nous téléversons votre fichier en toute sécurité",
+      "messageText": "Veuillez patienter pendant que nous envoyons votre texte en toute sécurité"
     },
     "success": {
       "title": "Fichier téléversé avec succès !",
+      "titleText": "Texte envoyé avec succès !",
       "message": "Partagez le lien ci-dessous pour permettre aux autres de télécharger votre fichier",
+      "messageText": "Partagez le lien ci-dessous pour permettre aux autres de consulter votre texte",
       "qrCode": "QR Code",
       "qrCodeDesc": "Scannez ce QR code avec votre téléphone pour accéder au lien de téléchargement",
       "shareLink": "Lien de partage (inclut la clé de chiffrement)",
@@ -123,6 +140,11 @@
     "passwordPlaceholder": "Laissez vide si non protégé par mot de passe",
     "downloadFile": "Télécharger le fichier",
     "downloading": "Téléchargement...",
+    "viewText": "Afficher le texte",
+    "viewing": "Déchiffrement...",
+    "textContent": "Contenu",
+    "hideText": "Masquer le texte",
+    "showText": "Afficher le texte",
     "errors": {
       "keyMissing": "Clé de chiffrement manquante dans l'URL. Impossible de déchiffrer le fichier.",
       "invalidPassword": "Mot de passe invalide",

@@ -64,20 +64,16 @@ export default function DashboardPage() {
               }
             }
 
-            // Decrypt file names
-            const decryptedFilenames: Record<string, string> = {};
-            for (const file of send.files || []) {
+            // Decrypt file name
+            if (send.file) {
+              const decryptedFilenames: Record<string, string> = {};
               try {
-                decryptedFilenames[file.filename] = await decryptText(
-                  file.filename,
-                  encryptionKey
-                );
+                decryptedFilenames[send.file.filename] = await decryptText(send.file.filename, encryptionKey);
               } catch {
-                // Filename might not be encrypted
-                decryptedFilenames[file.filename] = file.filename;
+                decryptedFilenames[send.file.filename] = send.file.filename;
               }
+              decryptedSend.decryptedFilenames = decryptedFilenames;
             }
-            decryptedSend.decryptedFilenames = decryptedFilenames;
 
             return decryptedSend;
           } catch (e) {
@@ -218,13 +214,8 @@ export default function DashboardPage() {
                         {send.decryptedName || send.name || t('dashboard.unnamedSend')}
                       </h3>
                       <p className="text-xs text-gray-500 mt-1">
-                        {send.files && send.files.length > 0
-                          ? send.files.map((f, i) => (
-                              <span key={i}>
-                                {i > 0 && ', '}
-                                {send.decryptedFilenames?.[f.filename] || f.filename}
-                              </span>
-                            ))
+                        {send.file
+                          ? (send.decryptedFilenames?.[send.file.filename] || send.file.filename)
                           : t('dashboard.noFiles')}
                       </p>
                     </div>

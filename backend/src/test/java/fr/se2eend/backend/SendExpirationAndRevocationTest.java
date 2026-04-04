@@ -66,7 +66,6 @@ class SendExpirationAndRevocationTest {
         LocalDateTime pastExpiration = LocalDateTime.now().minusHours(1);
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 pastExpiration,
                 5,
                 false,
@@ -90,9 +89,7 @@ class SendExpirationAndRevocationTest {
         fileRepository.save(file);
 
         // When/Then: Download should fail with SendExpiredException
-        assertThrows(SendExpiredException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendExpiredException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
 
         // Verify downloadCount was NOT incremented
         Send updatedSend = sendRepository.findById(response.id()).orElseThrow();
@@ -105,7 +102,6 @@ class SendExpirationAndRevocationTest {
         LocalDateTime futureExpiration = LocalDateTime.now().plusHours(1);
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 futureExpiration,
                 5,
                 false,
@@ -145,7 +141,6 @@ class SendExpirationAndRevocationTest {
         // Given: A Send with no expiration date
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 false,
@@ -181,7 +176,6 @@ class SendExpirationAndRevocationTest {
         // Given: A Send that is revoked
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 false,
@@ -209,9 +203,7 @@ class SendExpirationAndRevocationTest {
         sendRepository.save(send);
 
         // When/Then: Download should fail with SendRevokedException
-        assertThrows(SendRevokedException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendRevokedException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
 
         // Verify downloadCount was NOT incremented
         Send updatedSend = sendRepository.findById(response.id()).orElseThrow();
@@ -223,7 +215,6 @@ class SendExpirationAndRevocationTest {
         // Given: A normal Send
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 null,
                 5,
                 false,
@@ -259,9 +250,7 @@ class SendExpirationAndRevocationTest {
         sendRepository.save(afterFirstDownload);
 
         // Then: Second download should fail
-        assertThrows(SendRevokedException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendRevokedException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
 
         // Verify downloadCount did not increment after revocation
         Send afterSecondAttempt = sendRepository.findById(response.id()).orElseThrow();
@@ -274,7 +263,6 @@ class SendExpirationAndRevocationTest {
         LocalDateTime pastExpiration = LocalDateTime.now().minusHours(1);
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
-                "encrypted-metadata",
                 pastExpiration,
                 5,
                 false,
@@ -301,8 +289,6 @@ class SendExpirationAndRevocationTest {
         fileRepository.save(file);
 
         // When/Then: Should throw SendRevokedException (checked before expiration)
-        assertThrows(SendRevokedException.class, () -> {
-            sendDownloadService.downloadByAccessId(response.accessId(), null);
-        });
+        assertThrows(SendRevokedException.class, () -> sendDownloadService.downloadByAccessId(response.accessId(), null));
     }
 }

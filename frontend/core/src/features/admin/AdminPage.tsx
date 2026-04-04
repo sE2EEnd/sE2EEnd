@@ -396,11 +396,7 @@ export default function AdminPage() {
                           {send.name || <span className="text-gray-400 italic">Unnamed Send</span>}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {send.files && send.files.length > 0 ? (
-                            `${send.files.length} ${send.files.length === 1 ? 'file' : 'files'}`
-                          ) : (
-                            'No files'
-                          )}
+                          {send.file ? '1 file' : 'No files'}
                           {' • '}ID: {send.accessId}
                         </div>
                       </td>

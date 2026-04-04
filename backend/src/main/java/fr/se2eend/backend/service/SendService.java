@@ -56,7 +56,6 @@ public class SendService {
         entity.setCreatedAt(LocalDateTime.now());
         entity.setDownloadCount(0);
         entity.setRevoked(false);
-        entity.setFiles(List.of());
 
         entity.setAccessId(generateAccessId());
 
@@ -79,8 +78,7 @@ public class SendService {
     private UUID extractUserIdFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             String subject = jwt.getSubject();
 
             try {
@@ -96,14 +94,12 @@ public class SendService {
     private String extractOwnerNameFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             String name = jwt.getClaimAsString("name");
             if (name != null && !name.isBlank()) {
                 return name;
             }
-            String username = jwt.getClaimAsString("preferred_username");
-            return username != null ? username : null;
+            return jwt.getClaimAsString("preferred_username");
         }
 
         return null;
@@ -112,8 +108,7 @@ public class SendService {
     private String extractOwnerEmailFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt.getClaimAsString("email");
         }
 
