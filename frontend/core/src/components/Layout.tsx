@@ -17,6 +17,7 @@ import GitHubIcon from './icons/GitHubIcon';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemeClasses } from '@/hooks/useThemeClasses';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ThemeToggle';
 
 const menuItems = [
   { name: 'layout.dashboard', path: '/dashboard', icon: LayoutDashboard, role: null },
@@ -46,7 +47,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar Desktop */}
       <aside className={cn("fixed inset-y-0 left-0 z-50 w-64 shadow-xl transform transition-transform duration-300 lg:translate-x-0 hidden lg:block", themeClasses.sidebar.bg)}>
         <div className="flex flex-col h-full">
@@ -195,11 +196,11 @@ export default function Layout() {
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Top Bar Mobile */}
-        <header className="lg:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <header className="lg:hidden sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between h-16 px-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -210,6 +211,7 @@ export default function Layout() {
 
             {/* Utility controls */}
             <div className="flex items-center gap-1">
+              <ThemeToggle />
               <LanguageSwitcher />
             </div>
           </div>
@@ -217,6 +219,7 @@ export default function Layout() {
 
         {/* Utility bar Desktop */}
         <div className="hidden lg:flex justify-end items-center gap-1 px-10 pt-6">
+          <ThemeToggle />
           <LanguageSwitcher />
         </div>
 

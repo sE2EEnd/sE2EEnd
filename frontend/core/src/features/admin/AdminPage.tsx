@@ -254,8 +254,8 @@ export default function AdminPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('admin.title')}</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{t('admin.subtitle')}</p>
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{t('admin.title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{t('admin.subtitle')}</p>
         </div>
       </div>
 
@@ -280,13 +280,13 @@ export default function AdminPage() {
       {/* Grid Stats et Stockage */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Carte Nombre de Sends - Plus compacte et lisible */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md transition-all">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-5 hover:shadow-md transition-all">
           <div className="p-3 bg-primary/10 rounded-2xl text-primary flex-shrink-0">
             <FileText className="w-8 h-8" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t('admin.stats.totalSends')}</p>
+              <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('admin.stats.totalSends')}</p>
               <div className="group/tooltip relative">
                 <Info className="w-3.5 h-3.5 text-gray-300 hover:text-gray-500 cursor-help transition-colors" />
                 <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all z-10 shadow-xl font-normal">
@@ -294,12 +294,12 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
-            <h2 className="text-4xl font-semibold text-gray-900 mt-1">{stats?.totalSends || 0}</h2>
+            <h2 className="text-4xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{stats?.totalSends || 0}</h2>
           </div>
         </div>
 
         {/* Carte Capacité de Stockage - Plus aérée */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-all">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="relative w-36 h-36 flex-shrink-0">
               <svg className="w-full h-full transform -rotate-90">
@@ -318,16 +318,16 @@ export default function AdminPage() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-semibold text-gray-900">{storageMetrics?.percentageUsed.toFixed(0)}%</span>
+                <span className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{storageMetrics?.percentageUsed.toFixed(0)}%</span>
               </div>
             </div>
 
             <div className="flex-1 w-full space-y-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('admin.storage.capacity')}</h3>
-                  <p className="text-4xl font-semibold text-gray-900 mt-1">
-                    {formatBytes(storageMetrics?.usedSpace || 0)} <span className="text-gray-300 font-medium text-2xl">/ {formatBytes(storageMetrics?.totalSpace || 0)}</span>
+                  <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('admin.storage.capacity')}</h3>
+                  <p className="text-4xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
+                    {formatBytes(storageMetrics?.usedSpace || 0)} <span className="text-gray-300 dark:text-gray-600 font-medium text-2xl">/ {formatBytes(storageMetrics?.totalSpace || 0)}</span>
                   </p>
                 </div>
                 <button
@@ -340,9 +340,9 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500">
                 <Database className="w-4 h-4 flex-shrink-0" />
-                <span className="font-semibold text-gray-900">{storageMetrics?.fileCount || 0}</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">{storageMetrics?.fileCount || 0}</span>
                 <span>{t('admin.storage.filesInStorage', { count: storageMetrics?.fileCount || 0 }).toLowerCase()}</span>
               </div>
             </div>
@@ -352,15 +352,15 @@ export default function AdminPage() {
 
       {/* Paramètres globaux */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
+        <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <ShieldCheck className="w-4 h-4" />
           {t('admin.settings.title')}
         </h3>
         <div className="flex flex-col gap-4">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition-all">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
-              <p className="text-base font-semibold text-gray-900">{t('admin.settings.requireAuthForDownload')}</p>
-              <p className="text-sm text-gray-500">{t('admin.settings.requireAuthForDownloadDesc')}</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.requireAuthForDownload')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.requireAuthForDownloadDesc')}</p>
             </div>
             <button
               onClick={() => {
@@ -370,7 +370,7 @@ export default function AdminPage() {
               disabled={settingsLoading}
               className={cn(
                 "relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50",
-                (pendingSettings['require_auth_for_download'] ?? settings['require_auth_for_download']) === 'true' ? 'bg-primary' : 'bg-gray-200'
+                (pendingSettings['require_auth_for_download'] ?? settings['require_auth_for_download']) === 'true' ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'
               )}
             >
               <span className={cn(
@@ -380,10 +380,10 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center justify-between group hover:shadow-md transition-all">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
-              <p className="text-base font-semibold text-gray-900">{t('admin.settings.requireSendPassword')}</p>
-              <p className="text-sm text-gray-500">{t('admin.settings.requireSendPasswordDesc')}</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.requireSendPassword')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.requireSendPasswordDesc')}</p>
             </div>
             <button
               onClick={() => {
@@ -393,7 +393,7 @@ export default function AdminPage() {
               disabled={settingsLoading}
               className={cn(
                 "relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50",
-                (pendingSettings['require_send_password'] ?? settings['require_send_password']) === 'true' ? 'bg-primary' : 'bg-gray-200'
+                (pendingSettings['require_send_password'] ?? settings['require_send_password']) === 'true' ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'
               )}
             >
               <span className={cn(
@@ -403,11 +403,11 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 group hover:shadow-md transition-all space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 group hover:shadow-md transition-all space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-base font-semibold text-gray-900">{t('admin.settings.cleanupSchedule')}</p>
-                <p className="text-sm text-gray-500">{t('admin.settings.cleanupScheduleDesc')}</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.cleanupSchedule')}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.cleanupScheduleDesc')}</p>
               </div>
             </div>
             {/* Presets */}
@@ -425,7 +425,7 @@ export default function AdminPage() {
                     "px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors disabled:opacity-50",
                     cronInput === preset.value
                       ? "bg-primary text-white border-primary"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-primary/40 hover:text-primary"
+                      : "bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary/40 hover:text-primary"
                   )}
                 >
                   {preset.label}
@@ -440,9 +440,9 @@ export default function AdminPage() {
                 onChange={(e) => { setCronInput(e.target.value); setPendingSetting('cleanup_cron', e.target.value); }}
                 disabled={settingsLoading}
                 placeholder="0 0 2 * * *"
-                className="flex-1 font-mono text-sm border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-gray-700"
+                className="flex-1 font-mono text-sm border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-gray-700 dark:text-gray-300"
               />
-              <span className="text-xs text-gray-400 whitespace-nowrap">{t('admin.settings.cleanupCronHint')}</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{t('admin.settings.cleanupCronHint')}</span>
             </div>
           </div>
         </div>
@@ -475,31 +475,31 @@ export default function AdminPage() {
       {/* Tableau des transferts récents */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
+          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
             <Activity className="w-4 h-4" />
             {t('admin.recentTransfers')}
           </h3>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           {/* Barre de filtres */}
-          <div className="p-4 border-b border-gray-50 flex flex-col sm:flex-row gap-4 bg-gray-50/30">
+          <div className="p-4 border-b border-gray-50 dark:border-gray-700 flex flex-col sm:flex-row gap-4 bg-gray-50/30 dark:bg-gray-700/20">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder={t('admin.filterBySender')}
                 value={filterSender}
                 onChange={(e) => setFilterSender(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl text-sm dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
               />
             </div>
             <div className="relative min-w-[160px]">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full appearance-none pl-10 pr-10 py-2 bg-white border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="w-full appearance-none pl-10 pr-10 py-2 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl text-sm dark:text-gray-100 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
               >
                 <option value="all">{t('admin.filterByStatus')}</option>
                 <option value="active">{t('common.active')}</option>
@@ -513,8 +513,8 @@ export default function AdminPage() {
           <div className={cn("overflow-x-auto transition-opacity", sendsLoading && "opacity-50")}>
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-50">
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <tr className="border-b border-gray-50 dark:border-gray-700">
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       {t('admin.table.sendName')}
                       <div className="group/header-info relative">
@@ -525,17 +525,17 @@ export default function AdminPage() {
                       </div>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.table.owner')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.table.status')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.table.created')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.table.expires')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">{t('admin.table.actions')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.table.owner')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.table.status')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.table.created')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.table.expires')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-right">{t('admin.table.actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                 {sends.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-400 italic">
+                    <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-400 dark:text-gray-500 italic">
                       {t('admin.table.noSends')}
                     </td>
                   </tr>
@@ -546,31 +546,31 @@ export default function AdminPage() {
                     const isActive = !send.revoked && !isExpired && !isExhausted;
 
                     return (
-                      <tr key={send.id} className="group hover:bg-gray-50/50 transition-colors">
+                      <tr key={send.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-4">
-                            <div className="p-2.5 bg-gray-50 rounded-xl text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
+                            <div className="p-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl text-gray-400 dark:text-gray-500 group-hover:text-primary group-hover:bg-primary/10 transition-colors">
                               <Database className="w-5 h-5" />
                             </div>
                             <div className="max-w-[240px]">
-                              <div className="text-sm font-bold text-gray-900 flex items-center gap-2 min-w-0">
+                              <div className="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 min-w-0">
                                 {decryptedNames[send.id] || send.name
                                 ? <span className="truncate">{decryptedNames[send.id] || send.name}</span>
-                                : <span className="text-gray-400 italic font-normal truncate">{t('admin.table.unnamedSend')}</span>
+                                : <span className="text-gray-400 dark:text-gray-500 italic font-normal truncate">{t('admin.table.unnamedSend')}</span>
                               }
                               </div>
-                              <div className="text-xs text-gray-400 mt-0.5 truncate">
+                              <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">
                                 {send.file ? `1 ${t('common.file')}` : `0 ${t('common.file')}`} • {send.accessId}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-5">
-                          <div className="text-sm font-semibold text-gray-900 truncate max-w-[150px]">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[150px]">
                             {send.ownerName || send.ownerEmail || t('admin.table.unknown')}
                           </div>
                           {send.ownerEmail && send.ownerName && (
-                            <div className="text-xs text-gray-500 truncate max-w-[150px]">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
                               {send.ownerEmail}
                             </div>
                           )}
@@ -578,10 +578,10 @@ export default function AdminPage() {
                         <td className="px-6 py-5">
                           <span className={cn(
                             "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
-                            isActive ? "bg-green-50 text-green-600" :
-                            send.revoked ? "bg-gray-100 text-gray-500" :
-                            isExpired ? "bg-orange-50 text-orange-600" :
-                            "bg-red-50 text-red-600"
+                            isActive ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" :
+                            send.revoked ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" :
+                            isExpired ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400" :
+                            "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                           )}>
                             {isActive ? <CheckCircle2 className="w-3.5 h-3.5" /> :
                              send.revoked ? <Ban className="w-3.5 h-3.5" /> :
@@ -594,19 +594,19 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-5">
-                          <div className="text-sm font-bold text-gray-600">
+                          <div className="text-sm font-bold text-gray-600 dark:text-gray-400">
                             {new Date(send.createdAt).toLocaleDateString()}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-gray-400 dark:text-gray-500">
                             {new Date(send.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
                         </td>
                         <td className="px-6 py-5">
-                          <div className="text-sm font-bold text-gray-600">
+                          <div className="text-sm font-bold text-gray-600 dark:text-gray-400">
                             {send.expiresAt ? new Date(send.expiresAt).toLocaleDateString() : t('admin.table.never')}
                           </div>
                           {send.expiresAt && (
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-gray-400 dark:text-gray-500">
                               {new Date(send.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
                           )}
@@ -641,8 +641,8 @@ export default function AdminPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
-              <p className="text-xs text-gray-400">
+            <div className="px-6 py-4 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between">
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 {t('admin.pagination.showing', {
                   from: currentPage * PAGE_SIZE + 1,
                   to: Math.min((currentPage + 1) * PAGE_SIZE, totalElements),
@@ -700,24 +700,24 @@ export default function AdminPage() {
 
       {/* Historique des suppressions */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
+        <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <History className="w-4 h-4" />
           {t('admin.history.title')}
         </h3>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-50">
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.table.owner')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.reason')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.createdAt')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.deletedAt')}</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('admin.history.size')}</th>
+                <tr className="border-b border-gray-50 dark:border-gray-700">
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.table.owner')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.history.reason')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.history.createdAt')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.history.deletedAt')}</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.history.size')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                 {deletedSends.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-400 italic">
@@ -726,22 +726,22 @@ export default function AdminPage() {
                   </tr>
                 ) : (
                   deletedSends.map((d) => (
-                    <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={d.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-6 py-4">
-                        <div className="text-sm font-semibold text-gray-900 truncate max-w-[180px]">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[180px]">
                           {d.ownerName || d.ownerEmail || t('admin.table.unknown')}
                         </div>
                         {d.ownerEmail && d.ownerName && (
-                          <div className="text-xs text-gray-400 truncate max-w-[180px]">{d.ownerEmail}</div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[180px]">{d.ownerEmail}</div>
                         )}
                       </td>
                       <td className="px-6 py-4">
                         <span className={cn(
                           "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
-                          d.deleteReason === 'EXPIRED'   ? "bg-orange-50 text-orange-600" :
-                          d.deleteReason === 'REVOKED'   ? "bg-gray-100 text-gray-500" :
-                          d.deleteReason === 'EXHAUSTED' ? "bg-red-50 text-red-600" :
-                                                           "bg-purple-50 text-purple-600"
+                          d.deleteReason === 'EXPIRED'   ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400" :
+                          d.deleteReason === 'REVOKED'   ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" :
+                          d.deleteReason === 'EXHAUSTED' ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" :
+                                                           "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
                         )}>
                           {t(`admin.history.reasons.${d.deleteReason.toLowerCase()}`)}
                         </span>
@@ -749,26 +749,26 @@ export default function AdminPage() {
                       <td className="px-6 py-4">
                         {d.sendCreatedAt ? (
                           <>
-                            <div className="text-sm font-bold text-gray-600">
+                            <div className="text-sm font-bold text-gray-600 dark:text-gray-400">
                               {new Date(d.sendCreatedAt).toLocaleDateString()}
                             </div>
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-gray-400 dark:text-gray-500">
                               {new Date(d.sendCreatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
                           </>
                         ) : (
-                          <span className="text-sm text-gray-300">—</span>
+                          <span className="text-sm text-gray-300 dark:text-gray-600">—</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-bold text-gray-600">
+                        <div className="text-sm font-bold text-gray-600 dark:text-gray-400">
                           {new Date(d.deletedAt).toLocaleDateString()}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-400 dark:text-gray-500">
                           {new Date(d.deletedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 font-semibold">{formatBytes(d.totalSizeBytes)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 font-semibold">{formatBytes(d.totalSizeBytes)}</td>
                     </tr>
                   ))
                 )}
@@ -782,18 +782,18 @@ export default function AdminPage() {
       {deleteDialogOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
           <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={handleDeleteCancel} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-4">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
+            <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center mb-4">
               <Trash2 className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('admin.deleteDialog.title')}</h3>
-            <p className="text-gray-500 text-sm mb-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('admin.deleteDialog.title')}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               {t('admin.deleteDialog.message')}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleDeleteCancel}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
               >
                 {t('admin.deleteDialog.cancel')}
               </button>
@@ -812,18 +812,18 @@ export default function AdminPage() {
       {cleanupDialogOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
           <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setCleanupDialogOpen(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center mb-4">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
+            <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 rounded-xl flex items-center justify-center mb-4">
               <Trash className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('admin.cleanupDialog.title')}</h3>
-            <p className="text-gray-500 text-sm mb-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('admin.cleanupDialog.title')}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               {t('admin.cleanupDialog.message')}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setCleanupDialogOpen(false)}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
               >
                 {t('admin.cleanupDialog.cancel')}
               </button>
@@ -842,16 +842,16 @@ export default function AdminPage() {
       {blocker.state === 'blocked' && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
           <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => blocker.reset()} />
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center mb-4">
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
+            <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400 rounded-xl flex items-center justify-center mb-4">
               <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('admin.settings.leaveTitle')}</h3>
-            <p className="text-gray-500 text-sm mb-6">{t('admin.settings.leaveMessage')}</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('admin.settings.leaveTitle')}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{t('admin.settings.leaveMessage')}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => blocker.reset()}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
               >
                 {t('admin.settings.leaveCancel')}
               </button>

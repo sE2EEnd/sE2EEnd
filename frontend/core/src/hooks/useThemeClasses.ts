@@ -46,8 +46,8 @@ export const useThemeClasses = () => {
         bg: 'bg-gradient-to-br-primary',
         header: 'bg-black/20',
         item: {
-          active: 'bg-white text-primary-dark shadow-md',
-          inactive: 'text-gray-100 hover:bg-white/10 hover:text-white',
+          active: 'bg-white/20 text-white font-semibold shadow-md',
+          inactive: 'text-gray-300 hover:bg-white/10 hover:text-white',
         },
         border: 'border-white/10',
       },

@@ -186,15 +186,15 @@ export default function DashboardPage() {
     <div className="space-y-8 pb-10">
       {/* Welcome */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
           {t('dashboard.welcome', { name: username })}
         </h1>
-        <p className="text-gray-500 mt-1 text-sm">{t('dashboard.subtitle')}</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{t('dashboard.subtitle')}</p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-800 shadow-sm">
+        <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-800 dark:text-red-300 shadow-sm">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium">{error}</span>
         </div>
@@ -202,16 +202,16 @@ export default function DashboardPage() {
 
       {/* Stats + CTA */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('dashboard.stats.active')}</p>
-          <p className="text-4xl font-bold text-gray-900 mt-2">{activeSends}</p>
-          <p className="text-xs text-gray-400 mt-1">{t('dashboard.stats.transfers')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.stats.active')}</p>
+          <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-2">{activeSends}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('dashboard.stats.transfers')}</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('dashboard.stats.downloads')}</p>
-          <p className="text-4xl font-bold text-gray-900 mt-2">{totalDownloads}</p>
-          <p className="text-xs text-gray-400 mt-1">{t('dashboard.stats.total')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.stats.downloads')}</p>
+          <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-2">{totalDownloads}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('dashboard.stats.total')}</p>
         </div>
 
         {/* CTA */}
@@ -234,9 +234,9 @@ export default function DashboardPage() {
       </div>
 
       {/* My Transfers */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-50">
-          <h2 className="text-base font-semibold text-gray-900">{t('dashboard.myTransfers')}</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-700">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('dashboard.myTransfers')}</h2>
         </div>
 
         {sends.length === 0 ? (
@@ -244,8 +244,8 @@ export default function DashboardPage() {
             <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Upload className="w-7 h-7 text-primary" />
             </div>
-            <p className="text-gray-900 font-semibold">{t('dashboard.noSends')}</p>
-            <p className="text-gray-400 text-sm mt-1 mb-6">{t('dashboard.createFirst')}</p>
+            <p className="text-gray-900 dark:text-gray-100 font-semibold">{t('dashboard.noSends')}</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-1 mb-6">{t('dashboard.createFirst')}</p>
             <Link
               to="/upload"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
@@ -258,25 +258,25 @@ export default function DashboardPage() {
           <div>
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-50">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <tr className="border-b border-gray-50 dark:border-gray-700">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       {t('dashboard.sendName')}
                       <div className="group/header-info relative">
-                        <Info className="w-3.5 h-3.5 cursor-help text-gray-300 hover:text-gray-400 transition-colors" />
+                        <Info className="w-3.5 h-3.5 cursor-help text-gray-300 dark:text-gray-600 hover:text-gray-400 transition-colors" />
                         <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-[11px] rounded-xl opacity-0 invisible group-hover/header-info:opacity-100 group-hover/header-info:visible transition-all z-50 shadow-xl font-normal normal-case tracking-normal">
                           {t('dashboard.encryptedNameHelp')}
                         </div>
                       </div>
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('dashboard.status')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">{t('dashboard.downloads')}</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">{t('dashboard.expires')}</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('dashboard.actions')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.status')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden sm:table-cell">{t('dashboard.downloads')}</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden lg:table-cell">{t('dashboard.expires')}</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                 {paginatedSends.map((send) => {
                   const isExpired = !!(send.expiresAt && new Date(send.expiresAt) < new Date());
                   const isExhausted = send.downloadCount >= send.maxDownloads;
@@ -284,14 +284,14 @@ export default function DashboardPage() {
                   const expiry = formatExpiry(send.expiresAt);
 
                   return (
-                    <tr key={send.id} className="group hover:bg-gray-50/50 transition-colors">
+                    <tr key={send.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-1.5 min-w-0 max-w-[240px]">
-                          <span className={cn("text-sm font-semibold truncate", send.decryptedName || send.name ? "text-gray-900" : "text-gray-400 font-normal italic")}>
+                          <span className={cn("text-sm font-semibold truncate", send.decryptedName || send.name ? "text-gray-900 dark:text-gray-100" : "text-gray-400 dark:text-gray-500 font-normal italic")}>
                             {send.decryptedName || send.name || t('dashboard.unnamedSend')}
                           </span>
                         </div>
-                        <div className="text-xs text-gray-400 mt-0.5 truncate max-w-[240px]">
+                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate max-w-[240px]">
                           {send.file
                             ? <span>{send.decryptedFilenames?.[send.file.filename] || send.file.filename}</span>
                             : t('dashboard.noFiles')}
@@ -302,10 +302,10 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2">
                           <span className={cn(
                             "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
-                            isActive ? "bg-green-50 text-green-600" :
-                            send.revoked ? "bg-gray-100 text-gray-500" :
-                            isExpired ? "bg-orange-50 text-orange-600" :
-                            "bg-red-50 text-red-600"
+                            isActive ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" :
+                            send.revoked ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" :
+                            isExpired ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400" :
+                            "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
                           )}>
                             {isActive ? <CheckCircle2 className="w-3.5 h-3.5" /> :
                              send.revoked ? <Ban className="w-3.5 h-3.5" /> :
@@ -328,18 +328,18 @@ export default function DashboardPage() {
                       </td>
 
                       <td className="px-6 py-4 hidden sm:table-cell">
-                        <span className="text-sm text-gray-600">
-                          <span className="font-semibold text-gray-900">{send.downloadCount}</span>
-                          <span className="text-gray-400"> / {send.maxDownloads}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-semibold text-gray-900 dark:text-gray-100">{send.downloadCount}</span>
+                          <span className="text-gray-400 dark:text-gray-500"> / {send.maxDownloads}</span>
                         </span>
                       </td>
 
                       <td className="px-6 py-4 hidden lg:table-cell">
-                        <span className={cn("text-sm font-medium", expiry.expired ? "text-gray-300" : "text-gray-600")}>
+                        <span className={cn("text-sm font-medium", expiry.expired ? "text-gray-300 dark:text-gray-600" : "text-gray-600 dark:text-gray-400")}>
                           {expiry.date}
                         </span>
                         {expiry.time && (
-                          <span className={cn("block text-xs", expiry.expired ? "text-gray-200" : "text-gray-400")}>
+                          <span className={cn("block text-xs", expiry.expired ? "text-gray-200 dark:text-gray-700" : "text-gray-400 dark:text-gray-500")}>
                             {expiry.time}
                           </span>
                         )}
@@ -359,7 +359,7 @@ export default function DashboardPage() {
                           </button>
                           <button
                             onClick={() => handleDeleteClick(send.id)}
-                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                             title={t('common.delete')}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -372,8 +372,8 @@ export default function DashboardPage() {
               </tbody>
             </table>
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
-                <p className="text-xs text-gray-400">
+              <div className="px-6 py-4 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   {t('admin.pagination.showing', {
                     from: currentPage * PAGE_SIZE + 1,
                     to: Math.min((currentPage + 1) * PAGE_SIZE, sends.length),
@@ -432,13 +432,13 @@ export default function DashboardPage() {
       {deleteDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={handleDeleteCancel} />
-          <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('common.delete')}</h3>
-            <p className="text-gray-600 mb-6">{t('admin.deleteDialog.message')}</p>
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('common.delete')}</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t('admin.deleteDialog.message')}</p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleDeleteCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 {t('common.cancel')}
               </button>
