@@ -42,6 +42,7 @@ import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '@/lib/
 import { storeSendKey } from '@/lib/sendKeysDB.ts';
 
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Card } from '@/components/ui/card';
 
 export default function UploadPage() {
   const { t } = useTranslation();
@@ -304,7 +305,7 @@ export default function UploadPage() {
       </div>
 
       {/* Stepper */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <Card className="p-6">
         <div className="flex items-start justify-between">
           {steps.map((step, index) => (
             <div key={step} className="flex items-center flex-1">
@@ -341,13 +342,13 @@ export default function UploadPage() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Form */}
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <Card className="p-6">
             {/* Step 1: Content Selection */}
             {activeStep === 0 && (
               <div className="space-y-4">
@@ -830,12 +831,12 @@ export default function UploadPage() {
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         {/* Right Column - Security Features */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <Card className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('upload.security.title')}</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
@@ -888,7 +889,7 @@ export default function UploadPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

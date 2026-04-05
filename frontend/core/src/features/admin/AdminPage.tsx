@@ -35,6 +35,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { Card } from '@/components/ui/card';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -280,7 +281,7 @@ export default function AdminPage() {
       {/* Grid Stats et Stockage */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Carte Nombre de Sends - Plus compacte et lisible */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-5 hover:shadow-md transition-all">
+        <Card className="p-6 flex items-center gap-5 hover:shadow-md transition-all">
           <div className="p-3 bg-primary/10 rounded-2xl text-primary flex-shrink-0">
             <FileText className="w-8 h-8" />
           </div>
@@ -296,10 +297,10 @@ export default function AdminPage() {
             </div>
             <h2 className="text-4xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{stats?.totalSends || 0}</h2>
           </div>
-        </div>
+        </Card>
 
         {/* Carte Capacité de Stockage - Plus aérée */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">
+        <Card className="lg:col-span-2 p-8 hover:shadow-md transition-all">
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="relative w-36 h-36 flex-shrink-0">
               <svg className="w-full h-full transform -rotate-90">
@@ -347,7 +348,7 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Paramètres globaux */}
@@ -357,7 +358,7 @@ export default function AdminPage() {
           {t('admin.settings.title')}
         </h3>
         <div className="flex flex-col gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
+          <Card className="p-6 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
               <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.requireAuthForDownload')}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.requireAuthForDownloadDesc')}</p>
@@ -378,9 +379,9 @@ export default function AdminPage() {
                 (pendingSettings['require_auth_for_download'] ?? settings['require_auth_for_download']) === 'true' ? 'translate-x-7' : 'translate-x-1'
               )} />
             </button>
-          </div>
+          </Card>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between group hover:shadow-md transition-all">
+          <Card className="p-6 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
               <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.requireSendPassword')}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.requireSendPasswordDesc')}</p>
@@ -401,9 +402,9 @@ export default function AdminPage() {
                 (pendingSettings['require_send_password'] ?? settings['require_send_password']) === 'true' ? 'translate-x-7' : 'translate-x-1'
               )} />
             </button>
-          </div>
+          </Card>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 group hover:shadow-md transition-all space-y-4">
+          <Card className="p-6 group hover:shadow-md transition-all space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.cleanupSchedule')}</p>
@@ -444,7 +445,7 @@ export default function AdminPage() {
               />
               <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{t('admin.settings.cleanupCronHint')}</span>
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* Barre de confirmation */}
@@ -481,7 +482,7 @@ export default function AdminPage() {
           </h3>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <Card className="overflow-hidden">
           {/* Barre de filtres */}
           <div className="p-4 border-b border-gray-50 dark:border-gray-700 flex flex-col sm:flex-row gap-4 bg-gray-50/30 dark:bg-gray-700/20">
             <div className="relative flex-1">
@@ -695,7 +696,7 @@ export default function AdminPage() {
               </Pagination>
             </div>
           )}
-        </div>
+        </Card>
       </div>
 
       {/* Historique des suppressions */}
@@ -705,7 +706,7 @@ export default function AdminPage() {
           {t('admin.history.title')}
         </h3>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
@@ -775,7 +776,7 @@ export default function AdminPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Boîte de dialogue de confirmation de suppression */}

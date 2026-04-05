@@ -2,6 +2,7 @@ import { useKeycloak } from '@react-keycloak/web';
 import { useTranslation } from 'react-i18next';
 import { User, Mail, ShieldCheck, Clock, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
+import { Card } from '@/components/ui/card';
 
 export default function ProfilePage() {
   const { keycloak } = useKeycloak();
@@ -30,7 +31,7 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* User Information Card */}
         <div className="space-y-8">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+          <Card className="p-8">
             <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-6">
               <UserCircle className="w-4 h-4" />
               {t('profile.userInformation')}
@@ -51,13 +52,13 @@ export default function ProfilePage() {
                 );
               })}
             </div>
-          </div>
+          </Card>
 
         </div>
 
         {/* Account Status Card */}
         <div className="space-y-8">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+          <Card className="p-8">
             <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-6">
               <ShieldCheck className="w-4 h-4" />
               {t('profile.accountStatus')}
@@ -92,7 +93,7 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

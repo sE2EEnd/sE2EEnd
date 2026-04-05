@@ -30,6 +30,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { Card } from '@/components/ui/card';
 
 interface SendWithDecryptedNames extends SendResponse {
   decryptedName?: string;
@@ -202,17 +203,17 @@ export default function DashboardPage() {
 
       {/* Stats + CTA */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+        <Card className="p-6">
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.stats.active')}</p>
           <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-2">{activeSends}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('dashboard.stats.transfers')}</p>
-        </div>
+        </Card>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+        <Card className="p-6">
           <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.stats.downloads')}</p>
           <p className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-2">{totalDownloads}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('dashboard.stats.total')}</p>
-        </div>
+        </Card>
 
         {/* CTA */}
         <Link
@@ -234,7 +235,7 @@ export default function DashboardPage() {
       </div>
 
       {/* My Transfers */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+      <Card className="overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-700">
           <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('dashboard.myTransfers')}</h2>
         </div>
@@ -426,7 +427,7 @@ export default function DashboardPage() {
             )}
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Delete Dialog */}
       {deleteDialogOpen && (
