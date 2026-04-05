@@ -31,6 +31,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface SendWithDecryptedNames extends SendResponse {
@@ -264,12 +265,14 @@ export default function DashboardPage() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       {t('dashboard.sendName')}
-                      <div className="group/header-info relative">
-                        <Info className="w-3.5 h-3.5 cursor-help text-gray-300 dark:text-gray-600 hover:text-gray-400 transition-colors" />
-                        <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-[11px] rounded-xl opacity-0 invisible group-hover/header-info:opacity-100 group-hover/header-info:visible transition-all z-50 shadow-xl font-normal normal-case tracking-normal">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 cursor-help text-gray-300 dark:text-gray-600 hover:text-gray-400 transition-colors" />
+                        </TooltipTrigger>
+                        <TooltipContent className="w-64 font-normal normal-case tracking-normal">
                           {t('dashboard.encryptedNameHelp')}
-                        </div>
-                      </div>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('dashboard.status')}</th>
@@ -319,12 +322,12 @@ export default function DashboardPage() {
                              t('common.exhausted')}
                           </span>
                           {send.passwordProtected && (
-                            <div className="group/shield relative flex-shrink-0">
-                              <Shield className="w-3.5 h-3.5 text-blue-400 cursor-default" />
-                              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2.5 py-1.5 bg-gray-900 text-white text-[11px] rounded-lg opacity-0 invisible group-hover/shield:opacity-100 group-hover/shield:visible transition-all z-50 shadow-xl whitespace-nowrap">
-                                {t('upload.form.passwordProtect')}
-                              </div>
-                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Shield className="w-3.5 h-3.5 text-blue-400 cursor-default flex-shrink-0" />
+                              </TooltipTrigger>
+                              <TooltipContent>{t('upload.form.passwordProtect')}</TooltipContent>
+                            </Tooltip>
                           )}
                         </div>
                       </td>

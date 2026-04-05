@@ -10,6 +10,7 @@ import DownloadPage from './features/download/DownloadPage';
 import AdminPage from './features/admin/AdminPage';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
+import { TooltipProvider } from './components/ui/tooltip';
 import { configApi } from './services/api';
 import type { ThemeConfig } from './services/api';
 import { Loader2 } from 'lucide-react';
@@ -66,7 +67,9 @@ function App() {
   return (
     <DarkModeProvider>
       <ThemeProvider>
-        <RouterProvider router={router} />
+        <TooltipProvider>
+          <RouterProvider router={router} />
+        </TooltipProvider>
       </ThemeProvider>
     </DarkModeProvider>
   );

@@ -38,6 +38,7 @@ import {
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function AdminPage() {
@@ -291,12 +292,12 @@ export default function AdminPage() {
           <div>
             <div className="flex items-center gap-2">
               <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{t('admin.stats.totalSends')}</p>
-              <div className="group/tooltip relative">
-                <Info className="w-3.5 h-3.5 text-gray-300 hover:text-gray-500 cursor-help transition-colors" />
-                <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-xl opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all z-10 shadow-xl font-normal">
-                  {t('admin.stats.totalSendsHelp')}
-                </div>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-3.5 h-3.5 text-gray-300 hover:text-gray-500 cursor-help transition-colors" />
+                </TooltipTrigger>
+                <TooltipContent className="w-64">{t('admin.stats.totalSendsHelp')}</TooltipContent>
+              </Tooltip>
             </div>
             <h2 className="text-4xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{stats?.totalSends || 0}</h2>
           </div>
@@ -522,12 +523,14 @@ export default function AdminPage() {
                   <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center gap-2">
                       {t('admin.table.sendName')}
-                      <div className="group/header-info relative">
-                        <Info className="w-3.5 h-3.5 cursor-help text-gray-300 hover:text-gray-400 transition-colors" />
-                        <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-[11px] rounded-xl opacity-0 invisible group-hover/header-info:opacity-100 group-hover/header-info:visible transition-all z-[60] shadow-xl font-normal normal-case tracking-normal">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-3.5 h-3.5 cursor-help text-gray-300 hover:text-gray-400 transition-colors" />
+                        </TooltipTrigger>
+                        <TooltipContent className="w-64 font-normal normal-case tracking-normal">
                           {t('admin.encryptedNameNotice')}
-                        </div>
-                      </div>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                   </th>
                   <th className="px-6 py-4 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('admin.table.owner')}</th>
