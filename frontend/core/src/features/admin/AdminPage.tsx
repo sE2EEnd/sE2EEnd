@@ -42,6 +42,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import StatusBadge, { deleteReasonToStatus } from '@/components/StatusBadge';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -70,13 +71,8 @@ export default function AdminPage() {
 
   const [filterSender, setFilterSender] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [debouncedSender, setDebouncedSender] = useState('');
+  const debouncedSender = useDebounce(filterSender, 350);
   const [cronInput, setCronInput] = useState('');
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSender(filterSender), 350);
-    return () => clearTimeout(timer);
-  }, [filterSender]);
 
   useEffect(() => {
     setCurrentPage(0);

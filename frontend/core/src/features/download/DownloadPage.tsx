@@ -9,6 +9,7 @@ import {sendApi} from '@/services/api.ts';
 import {decryptBlob, decryptText, importKeyFromBase64} from '@/lib/crypto.ts';
 import { Input } from '@/components/ui/input';
 import { Alert } from '@/components/ui/alert';
+import { getApiErrorMessage } from '@/lib/errors';
 
 function DownloadPage() {
   const { t } = useTranslation();
@@ -64,7 +65,7 @@ function DownloadPage() {
 
       setError('');
     } catch (err) {
-      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : t('download.errors.loadFailed'));
+      setError(getApiErrorMessage(err, t('download.errors.loadFailed')));
     } finally {
       setLoading(false);
     }
@@ -132,7 +133,7 @@ function DownloadPage() {
       } else if (err instanceof Error && (err.name === 'OperationError' || err.message?.includes('decrypt'))) {
         setError(t('download.errors.decryptionFailed'));
       } else {
-        setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : t('download.errors.downloadFailed'));
+        setError(getApiErrorMessage(err, t('download.errors.downloadFailed')));
       }
     } finally {
       setDownloading(false);

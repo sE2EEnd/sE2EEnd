@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useKeycloak } from '@react-keycloak/web';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +34,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import ConfirmDialog from '@/components/ConfirmDialog';
 import StatusBadge from '@/components/StatusBadge';
 import PageHeader from '@/components/PageHeader';
+import { useAsync } from '@/hooks/useAsync';
 
 interface SendWithDecryptedNames extends SendResponse {
   decryptedName?: string;
@@ -45,9 +46,7 @@ const PAGE_SIZE = 10;
 export default function DashboardPage() {
   const { t } = useTranslation();
   const { keycloak } = useKeycloak();
-  const [sends, setSends] = useState<SendWithDecryptedNames[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [deleteError, setDeleteError] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sendToDelete, setSendToDelete] = useState<string | null>(null);
   const [copiedSendId, setCopiedSendId] = useState<string | null>(null);
@@ -59,56 +58,46 @@ export default function DashboardPage() {
     || (keycloak.tokenParsed?.preferred_username as string | undefined)
     || '';
 
-  useEffect(() => {
-    void loadSends();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const fetchSends = useCallback(async (): Promise<SendWithDecryptedNames[]> => {
+    const response = await sendApi.getAllSends();
+    return Promise.all(
+      response.map(async (send) => {
+        try {
+          const keyBase64 = await getSendKey(send.id);
+          if (!keyBase64) return send;
 
-  const loadSends = async () => {
-    try {
-      setLoading(true);
-      const response = await sendApi.getAllSends();
+          const encryptionKey = await importKeyFromBase64(keyBase64);
+          const decryptedSend: SendWithDecryptedNames = { ...send };
 
-      const sendsWithDecryptedNames = await Promise.all(
-        response.map(async (send) => {
-          try {
-            const keyBase64 = await getSendKey(send.id);
-            if (!keyBase64) return send;
-
-            const encryptionKey = await importKeyFromBase64(keyBase64);
-            const decryptedSend: SendWithDecryptedNames = { ...send };
-
-            if (send.name) {
-              try {
-                decryptedSend.decryptedName = await decryptText(send.name, encryptionKey);
-              } catch {
-                // not encrypted or decryption failed
-              }
+          if (send.name) {
+            try {
+              decryptedSend.decryptedName = await decryptText(send.name, encryptionKey);
+            } catch {
+              // not encrypted or decryption failed
             }
-
-            if (send.file) {
-              const decryptedFilenames: Record<string, string> = {};
-              try {
-                decryptedFilenames[send.file.filename] = await decryptText(send.file.filename, encryptionKey);
-              } catch {
-                decryptedFilenames[send.file.filename] = send.file.filename;
-              }
-              decryptedSend.decryptedFilenames = decryptedFilenames;
-            }
-
-            return decryptedSend;
-          } catch {
-            return send;
           }
-        })
-      );
 
-      setSends(sendsWithDecryptedNames);
-    } catch {
-      setError(t('dashboard.loadError'));
-    } finally {
-      setLoading(false);
-    }
-  };
+          if (send.file) {
+            const decryptedFilenames: Record<string, string> = {};
+            try {
+              decryptedFilenames[send.file.filename] = await decryptText(send.file.filename, encryptionKey);
+            } catch {
+              decryptedFilenames[send.file.filename] = send.file.filename;
+            }
+            decryptedSend.decryptedFilenames = decryptedFilenames;
+          }
+
+          return decryptedSend;
+        } catch {
+          return send;
+        }
+      })
+    );
+  }, []);
+
+  const { loading, error: loadError, data, refetch: reloadSends } = useAsync(fetchSends, () => t('dashboard.loadError'));
+  const sends = data ?? [];
+  const error = loadError ?? deleteError;
 
   const handleDeleteClick = (sendId: string) => {
     setSendToDelete(sendId);
@@ -120,11 +109,12 @@ export default function DashboardPage() {
     try {
       await sendApi.deleteSend(sendToDelete);
       await deleteSendKey(sendToDelete);
-      setSends(sends.filter((s) => s.id !== sendToDelete));
       setDeleteDialogOpen(false);
       setSendToDelete(null);
+      setDeleteError('');
+      await reloadSends();
     } catch {
-      setError(t('dashboard.deleteError'));
+      setDeleteError(t('dashboard.deleteError'));
     }
   };
 
@@ -170,7 +160,7 @@ export default function DashboardPage() {
   const formatExpiry = (expiresAt?: string): { date: string; time: string; expired: boolean } => {
     if (!expiresAt) return { date: t('dashboard.never'), time: '', expired: false };
     const d = new Date(expiresAt);
-    const expired = d.getTime() < Date.now();
+    const expired = d < new Date();
     return {
       date: d.toLocaleDateString(),
       time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

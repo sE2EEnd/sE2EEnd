@@ -36,8 +36,8 @@ import {
   Dices,
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { isAxiosError } from 'axios';
 import { sendApi, configApi } from '@/services/api.ts';
+import { getApiErrorMessage } from '@/lib/errors';
 import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '@/lib/crypto.ts';
 import { storeSendKey } from '@/lib/sendKeysDB.ts';
 
@@ -293,7 +293,7 @@ export default function UploadPage() {
         setActiveStep(3);
       }
     } catch (err) {
-      setError(isAxiosError(err) && err.response?.data?.message ? err.response.data.message : 'Upload failed. Please try again.');
+      setError(getApiErrorMessage(err, t('upload.errors.uploadFailed')));
       setActiveStep(1);
     } finally {
       setUploading(false);
