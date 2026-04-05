@@ -9,6 +9,7 @@ import ProfilePage from './features/profile/ProfilePage';
 import DownloadPage from './features/download/DownloadPage';
 import AdminPage from './features/admin/AdminPage';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { DarkModeProvider } from './contexts/DarkModeContext';
 import { configApi } from './services/api';
 import type { ThemeConfig } from './services/api';
 import { Loader2 } from 'lucide-react';
@@ -63,9 +64,11 @@ function App() {
   }
 
   return (
-    <ThemeProvider>
-      <RouterProvider router={router} />
-    </ThemeProvider>
+    <DarkModeProvider>
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </DarkModeProvider>
   );
 }
 

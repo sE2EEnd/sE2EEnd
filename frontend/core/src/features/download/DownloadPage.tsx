@@ -4,9 +4,9 @@ import {useTranslation} from 'react-i18next';
 import {isAxiosError} from 'axios';
 import {AlertCircle, ArrowDownToLine, Check, Clock, Copy, Download, Eye, EyeOff, FileText, Loader2, Shield, QrCode} from 'lucide-react';
 import {QRCodeCanvas} from 'qrcode.react';
-import type {SendResponse} from '../../services/api';
-import {sendApi} from '../../services/api';
-import {decryptBlob, decryptText, importKeyFromBase64} from '../../lib/crypto';
+import type {SendResponse} from '@/services/api.ts';
+import {sendApi} from '@/services/api.ts';
+import {decryptBlob, decryptText, importKeyFromBase64} from '@/lib/crypto.ts';
 
 function DownloadPage() {
   const { t } = useTranslation();
@@ -157,21 +157,21 @@ function DownloadPage() {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
           {sendInfo ? (
             <div className="space-y-6">
               {/* Send Name (if available) */}
               {decryptedSendName && (
-                <div className="text-center pb-4 border-b border-gray-200">
-                  <h2 className="text-2xl font-semibold text-gray-900">{decryptedSendName}</h2>
+                <div className="text-center pb-4 border-b border-gray-200 dark:border-gray-700">
+                  <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{decryptedSendName}</h2>
                 </div>
               )}
 
               {/* File name (FILE sends only) */}
               {!isText && sendInfo.file && (
                 <div className="space-y-1">
-                  <p className="text-sm font-medium text-gray-700">{t('download.file')} :</p>
-                  <div className="text-sm text-gray-600 truncate">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('download.file')} :</p>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
                     📄 {decryptedFilenames[sendInfo.file.filename] || sendInfo.file.filename}
                   </div>
                 </div>
@@ -179,9 +179,9 @@ function DownloadPage() {
 
               {/* Text type indicator (before reveal) */}
               {isText && decryptedText === null && (
-                <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                  <p className="text-sm text-blue-800 font-medium">{t('download.textContent')}</p>
+                <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                  <p className="text-sm text-blue-800 dark:text-blue-300 font-medium">{t('download.textContent')}</p>
                 </div>
               )}
 
@@ -189,7 +189,7 @@ function DownloadPage() {
               {isText && decryptedText !== null && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-gray-700">{t('download.textContent')}</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('download.textContent')}</label>
                     <div className="flex gap-1">
                       <button
                         type="button"
@@ -198,7 +198,7 @@ function DownloadPage() {
                           setCopied(true);
                           setTimeout(() => setCopied(false), 2000);
                         }}
-                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all text-xs font-medium"
+                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all text-xs font-medium"
                       >
                         {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
                         {copied ? t('common.copied') : t('common.copy')}
@@ -206,7 +206,7 @@ function DownloadPage() {
                       <button
                         type="button"
                         onClick={() => setHideText(v => !v)}
-                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-200 transition-all text-xs font-medium"
+                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all text-xs font-medium"
                       >
                         {hideText ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                         {hideText ? t('download.showText') : t('download.hideText')}
@@ -217,7 +217,7 @@ function DownloadPage() {
                     readOnly
                     value={decryptedText}
                     rows={6}
-                    className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm resize-none focus:outline-none ${
+                    className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-100 font-mono text-sm resize-none focus:outline-none ${
                       hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
                     }`}
                   />
@@ -243,10 +243,10 @@ function DownloadPage() {
               </div>
 
               {/* QR Code */}
-              <div className="flex flex-col items-center p-4 bg-white border border-gray-200 rounded-lg">
+              <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
                 <button
                   onClick={() => setShowQr(v => !v)}
-                  className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+                  className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                 >
                   <QrCode className="w-4 h-4" />
                   <span className="text-sm font-semibold">{t('download.qrCode')}</span>
@@ -261,7 +261,7 @@ function DownloadPage() {
                         marginSize={4}
                       />
                     </div>
-                    <p className="mt-2 text-xs text-gray-600 text-center">
+                    <p className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center">
                       {t('download.qrCodeDesc')}
                     </p>
                   </>
@@ -270,7 +270,7 @@ function DownloadPage() {
 
               {/* Password Input */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {t('download.password')}
                 </label>
                 <input
@@ -279,13 +279,13 @@ function DownloadPage() {
                   ref={passwordRef}
                   autoComplete="current-password"
                   placeholder={t('download.passwordPlaceholder')}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
               {/* Error Alert */}
               {error && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
                   <AlertCircle className="w-5 h-5 flex-shrink-0" />
                   <span className="text-sm font-medium">{error}</span>
                 </div>
@@ -317,7 +317,7 @@ function DownloadPage() {
 
               {/* Download Limit Warning */}
               {sendInfo.downloadCount >= sendInfo.maxDownloads && (
-                <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-800">
+                <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg text-orange-800 dark:text-orange-300">
                   <AlertCircle className="w-5 h-5 flex-shrink-0" />
                   <span className="text-sm font-medium">
                     {t('download.errors.limitReached')}
@@ -327,7 +327,7 @@ function DownloadPage() {
             </div>
           ) : (
             /* Error State */
-            <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+            <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <span className="text-sm font-medium">{error || t('download.errors.sendNotFound')}</span>
             </div>

@@ -300,30 +300,30 @@ export default function UploadPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{t('upload.title')}</h1>
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{t('upload.title')}</h1>
       </div>
 
       {/* Stepper */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="flex items-start justify-between">
           {steps.map((step, index) => (
             <div key={step} className="flex items-center flex-1">
-              {/* Step Circle */}
-              <div className="flex flex-col items-center">
+              {/* Step + Label */}
+              <div className="flex flex-col items-center flex-shrink-0 min-w-0">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-medium transition-colors ${
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-medium transition-colors flex-shrink-0 ${
                     index < activeStep
                       ? 'bg-green-500 text-white'
                       : index === activeStep
                       ? 'bg-primary text-white'
-                      : 'bg-gray-200 text-gray-500'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {index < activeStep ? '✓' : index + 1}
                 </div>
                 <span
-                  className={`mt-2 text-sm font-medium ${
-                    index <= activeStep ? 'text-gray-900' : 'text-gray-500'
+                  className={`mt-2 text-[10px] sm:text-xs font-medium text-center leading-tight max-w-[64px] sm:max-w-[80px] ${
+                    index <= activeStep ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'
                   }`}
                 >
                   {step}
@@ -333,8 +333,8 @@ export default function UploadPage() {
               {/* Connector Line */}
               {index < steps.length - 1 && (
                 <div
-                  className={`flex-1 h-1 mx-4 rounded transition-colors ${
-                    index < activeStep ? 'bg-green-500' : 'bg-gray-200'
+                  className={`flex-1 h-1 mx-2 sm:mx-4 rounded transition-colors mb-6 ${
+                    index < activeStep ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
                   }`}
                 />
               )}
@@ -347,18 +347,18 @@ export default function UploadPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Form */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             {/* Step 1: Content Selection */}
             {activeStep === 0 && (
               <div className="space-y-4">
                 {/* Mode Tabs */}
-                <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <button
                     onClick={() => { setMode('file'); setError(''); }}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors ${
                       mode === 'file'
                         ? 'bg-primary text-white'
-                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     <UploadIcon className="w-4 h-4" />
@@ -369,7 +369,7 @@ export default function UploadPage() {
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors ${
                       mode === 'text'
                         ? 'bg-primary text-white'
-                        : 'bg-white text-gray-600 hover:bg-gray-50'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     <FileText className="w-4 h-4" />
@@ -386,7 +386,7 @@ export default function UploadPage() {
                     className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
                       isDragging
                         ? 'border-primary bg-primary/10'
-                        : 'border-gray-300 bg-gray-50 hover:border-primary hover:bg-primary/10'
+                        : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 hover:border-primary hover:bg-primary/10'
                     }`}
                   >
                     {isDragging ? (
@@ -396,11 +396,11 @@ export default function UploadPage() {
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
-                        <CloudUpload className="w-20 h-20 text-gray-400 mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        <CloudUpload className="w-20 h-20 text-gray-400 dark:text-gray-500 mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                           {t('upload.dropZone.dragDrop')}
                         </h3>
-                        <p className="text-gray-600 mb-6">{t('upload.dropZone.or')}</p>
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">{t('upload.dropZone.or')}</p>
                         <label className="px-6 py-2.5 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium cursor-pointer">
                           {t('upload.dropZone.browseFiles')}
                           <input type="file" multiple className="hidden" onChange={handleFileChange} />
@@ -419,21 +419,21 @@ export default function UploadPage() {
                         onChange={e => setTextContent(e.target.value)}
                         placeholder={t('upload.textForm.placeholder')}
                         rows={8}
-                        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-mono text-sm ${
+                        className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-mono text-sm ${
                           hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
                         }`}
                       />
                       <button
                         type="button"
                         onClick={() => setHideText(v => !v)}
-                        className="absolute top-2 right-2 p-1.5 rounded-md bg-white/80 backdrop-blur-sm text-gray-400 hover:text-gray-700 hover:bg-white shadow-sm transition-all"
+                        className="absolute top-2 right-2 p-1.5 rounded-md bg-white/80 dark:bg-gray-600/80 backdrop-blur-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600 shadow-sm transition-all"
                         title={hideText ? t('upload.textForm.showText') : t('upload.textForm.hideText')}
                       >
                         {hideText ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                       </button>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
                         {t('upload.textForm.summary', { count: textContent.length })}
                       </span>
                     </div>
@@ -442,13 +442,13 @@ export default function UploadPage() {
                         type="checkbox"
                         checked={hideByDefault}
                         onChange={e => setHideByDefault(e.target.checked)}
-                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        className="w-4 h-4 text-primary border-gray-300 dark:border-gray-600 rounded focus:ring-primary"
                       />
-                      <span className="text-sm text-gray-600">{t('upload.textForm.hideByDefault')}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{t('upload.textForm.hideByDefault')}</span>
                     </label>
 
                     {error && (
-                      <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                      <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
                         <AlertCircle className="w-5 h-5 flex-shrink-0" />
                         <span className="text-sm font-medium">{error}</span>
                       </div>
@@ -471,15 +471,15 @@ export default function UploadPage() {
                 {/* Content summary */}
                 {mode === 'file' && selectedFiles.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-gray-700">
+                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {t('upload.form.selectedFiles')} ({selectedFiles.length})
                     </h3>
                     {selectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <UploadIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      <div key={index} className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <UploadIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {(file.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         </div>
@@ -495,9 +495,9 @@ export default function UploadPage() {
                 )}
 
                 {mode === 'text' && (
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                    <p className="text-sm font-medium text-gray-700">
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {t('upload.textForm.summary', { count: textContent.length })}
                     </p>
                   </div>
@@ -507,7 +507,7 @@ export default function UploadPage() {
                 <div className="space-y-4">
                   {/* Send Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {t('upload.form.sendName')}
                     </label>
                     <input
@@ -515,16 +515,16 @@ export default function UploadPage() {
                       value={sendName}
                       onChange={(e) => setSendName(e.target.value)}
                       placeholder={t('upload.form.sendNamePlaceholder')}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       {t('upload.form.sendNameHelp')}
                     </p>
                   </div>
 
                   {/* Max Downloads */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {t('upload.form.maxDownloads')}
                     </label>
                     <input
@@ -533,16 +533,16 @@ export default function UploadPage() {
                       onChange={(e) => setMaxDownloads(parseInt(e.target.value) || 1)}
                       min="1"
                       max="50"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       {t('upload.form.maxDownloadsHelp')}
                     </p>
                   </div>
 
                   {/* Expiration */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {t('upload.form.expiration')}
                     </label>
                     <input
@@ -551,9 +551,9 @@ export default function UploadPage() {
                       onChange={(e) => setExpirationHours(parseInt(e.target.value) || 1)}
                       min="1"
                       max="168"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
-                    <p className="mt-1 text-sm text-gray-500">{t('upload.form.expirationHelp')}</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('upload.form.expirationHelp')}</p>
                   </div>
 
                   {/* Password Protection */}
@@ -564,9 +564,9 @@ export default function UploadPage() {
                         checked={usePassword}
                         onChange={(e) => { if (!requireSendPassword) setUsePassword(e.target.checked); }}
                         disabled={requireSendPassword}
-                        className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary disabled:opacity-60"
+                        className="w-4 h-4 text-primary border-gray-300 dark:border-gray-600 rounded focus:ring-primary disabled:opacity-60"
                       />
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {t('upload.form.passwordProtect')}
                         {requireSendPassword && (
                           <span className="ml-2 text-xs text-orange-600 font-normal">({t('upload.form.passwordRequired')})</span>
@@ -578,7 +578,7 @@ export default function UploadPage() {
                   {usePassword && (
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('upload.form.password')}</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('upload.form.password')}</label>
                         <div className="relative flex items-center">
                           <input
                             type={showPassword ? 'text' : 'password'}
@@ -586,14 +586,14 @@ export default function UploadPage() {
                             autoComplete="new-password"
                             placeholder={t('upload.form.passwordPlaceholder')}
                             onChange={e => setPasswordHasValue(e.target.value.length > 0)}
-                            className="w-full px-4 py-2 pr-24 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full px-4 py-2 pr-24 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                           <div className="absolute right-2 flex items-center gap-1">
                             <button
                               type="button"
                               onClick={generatePassword}
                               title={t('upload.form.generatePassword')}
-                              className="p-1.5 rounded-md text-gray-400 hover:text-primary hover:bg-gray-100 transition-all"
+                              className="p-1.5 rounded-md text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
                             >
                               <Dices className="w-4 h-4" />
                             </button>
@@ -601,7 +601,7 @@ export default function UploadPage() {
                               type="button"
                               onClick={() => setShowPassword(v => !v)}
                               title={showPassword ? t('upload.form.hidePassword') : t('upload.form.showPassword')}
-                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
                             >
                               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
@@ -615,17 +615,17 @@ export default function UploadPage() {
                                 setTimeout(() => setPasswordCopied(false), 2000);
                               }}
                               title={t('upload.form.copyPassword')}
-                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all"
+                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
                             >
                               {passwordCopied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                             </button>
                           </div>
                         </div>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                           {t('upload.form.passwordHelp')}
                         </p>
-                        <Alert className={`mt-4 bg-amber-50 border-amber-200 text-amber-800 animate-in fade-in slide-in-from-top-2 ${passwordHasValue ? 'block' : 'hidden'}`}>
-                          <AlertTriangle className="h-4 w-4 text-amber-600" />
+                        <Alert className={`mt-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 animate-in fade-in slide-in-from-top-2 ${passwordHasValue ? 'block' : 'hidden'}`}>
+                          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                           <AlertTitle>{t('upload.form.passwordWarningTitle')}</AlertTitle>
                           <AlertDescription>
                             {t('upload.form.passwordWarning')}
@@ -637,7 +637,7 @@ export default function UploadPage() {
 
                   {/* Error Message */}
                   {error && (
-                    <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                    <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
                       <AlertCircle className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">{error}</span>
                     </div>
@@ -650,7 +650,7 @@ export default function UploadPage() {
                         setSelectedFiles([]);
                         setActiveStep(0);
                       }}
-                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                      className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       {t('common.back')}
@@ -671,10 +671,10 @@ export default function UploadPage() {
             {activeStep === 2 && (
               <div className="text-center py-12">
                 <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {mode === 'text' ? t('upload.uploading.titleText') : t('upload.uploading.title')}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   {mode === 'text' ? t('upload.uploading.messageText') : t('upload.uploading.message')}
                 </p>
               </div>
@@ -684,22 +684,22 @@ export default function UploadPage() {
             {activeStep === 3 && shareLink && (
               <div className="space-y-6">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-10 h-10 text-green-600" />
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                     {mode === 'text' ? t('upload.success.titleText') : t('upload.success.title')}
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-400">
                     {mode === 'text' ? t('upload.success.messageText') : t('upload.success.message')}
                   </p>
                 </div>
 
                 {/* QR Code */}
-                <div className="flex flex-col items-center p-6 bg-white border-2 border-gray-200 rounded-xl">
+                <div className="flex flex-col items-center p-6 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl">
                   <button
                     onClick={() => setShowQr(v => !v)}
-                    className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                   >
                     <QrCode className="w-5 h-5" />
                     <span className="text-lg font-semibold">{t('upload.success.qrCode')}</span>
@@ -714,7 +714,7 @@ export default function UploadPage() {
                           marginSize={4}
                         />
                       </div>
-                      <p className="mt-3 text-sm text-gray-600 text-center">
+                      <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 text-center">
                         {t('upload.success.qrCodeDesc')}
                       </p>
                     </>
@@ -759,10 +759,10 @@ export default function UploadPage() {
                 </div>
 
                 {usedPassword && (
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg space-y-3">
                     <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                      <label className="text-sm font-medium text-amber-800">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                      <label className="text-sm font-medium text-amber-800 dark:text-amber-300">
                         {t('upload.success.passwordLabel')}
                       </label>
                     </div>
@@ -771,11 +771,11 @@ export default function UploadPage() {
                         type={showUsedPassword ? 'text' : 'password'}
                         value={usedPassword}
                         readOnly
-                        className="flex-1 px-4 py-2 border border-amber-200 rounded-lg bg-white text-sm font-mono"
+                        className="flex-1 px-4 py-2 border border-amber-200 dark:border-amber-700 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 text-sm font-mono"
                       />
                       <button
                         onClick={() => setShowUsedPassword(v => !v)}
-                        className="px-3 py-2 border border-amber-200 bg-white rounded-lg text-amber-700 hover:bg-amber-100 transition-colors"
+                        className="px-3 py-2 border border-amber-200 dark:border-amber-700 bg-white dark:bg-gray-700 rounded-lg text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
                         title={showUsedPassword ? t('upload.form.hidePassword') : t('upload.form.showPassword')}
                       >
                         {showUsedPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -795,7 +795,7 @@ export default function UploadPage() {
                         )}
                       </button>
                     </div>
-                    <p className="text-xs text-amber-700">
+                    <p className="text-xs text-amber-700 dark:text-amber-400">
                       {t('upload.form.passwordWarning')}
                     </p>
                   </div>
@@ -823,7 +823,7 @@ export default function UploadPage() {
                       setUsedPassword('');
                       setShowUsedPassword(false);
                     }}
-                    className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                    className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
                   >
                     {t('upload.success.uploadAnother')}
                   </button>
@@ -835,56 +835,56 @@ export default function UploadPage() {
 
         {/* Right Column - Security Features */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('upload.security.title')}</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{t('upload.security.title')}</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Shield className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{t('upload.security.endToEnd')}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">{t('upload.security.endToEndDesc')}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('upload.security.endToEnd')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{t('upload.security.endToEndDesc')}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Zap className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{t('upload.security.zeroKnowledge')}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">{t('upload.security.zeroKnowledgeDesc')}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('upload.security.zeroKnowledge')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{t('upload.security.zeroKnowledgeDesc')}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Clock className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{t('upload.security.autoDeletion')}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">{t('upload.security.autoDeletionDesc')}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('upload.security.autoDeletion')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{t('upload.security.autoDeletionDesc')}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Lock className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{t('upload.security.passwordProtection')}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">{t('upload.security.passwordProtectionDesc')}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('upload.security.passwordProtection')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{t('upload.security.passwordProtectionDesc')}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Download className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{t('upload.security.downloadLimits')}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">{t('upload.security.downloadLimitsDesc')}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t('upload.security.downloadLimits')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{t('upload.security.downloadLimitsDesc')}</p>
                 </div>
               </div>
             </div>
