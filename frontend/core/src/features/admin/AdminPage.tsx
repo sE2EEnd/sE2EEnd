@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function AdminPage() {
@@ -497,19 +498,20 @@ export default function AdminPage() {
                 className="pl-10"
               />
             </div>
-            <div className="relative min-w-[160px]">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full appearance-none pl-10 pr-10 py-2 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl text-sm dark:text-gray-100 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-              >
-                <option value="all">{t('admin.filterByStatus')}</option>
-                <option value="active">{t('common.active')}</option>
-                <option value="expired">{t('common.expired')}</option>
-                <option value="revoked">{t('common.revoked')}</option>
-                <option value="exhausted">{t('common.exhausted')}</option>
-              </select>
+            <div className="min-w-[160px]">
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <Filter className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('admin.filterByStatus')}</SelectItem>
+                  <SelectItem value="active">{t('common.active')}</SelectItem>
+                  <SelectItem value="expired">{t('common.expired')}</SelectItem>
+                  <SelectItem value="revoked">{t('common.revoked')}</SelectItem>
+                  <SelectItem value="exhausted">{t('common.exhausted')}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
