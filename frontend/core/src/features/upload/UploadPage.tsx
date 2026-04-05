@@ -44,6 +44,7 @@ import { storeSendKey } from '@/lib/sendKeysDB.ts';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export default function UploadPage() {
   const { t } = useTranslation();
@@ -352,35 +353,20 @@ export default function UploadPage() {
           <Card className="p-6">
             {/* Step 1: Content Selection */}
             {activeStep === 0 && (
-              <div className="space-y-4">
-                {/* Mode Tabs */}
-                <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  <button
-                    onClick={() => { setMode('file'); setError(''); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors ${
-                      mode === 'file'
-                        ? 'bg-primary text-white'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
+              <Tabs value={mode} onValueChange={(v) => { setMode(v as 'file' | 'text'); setError(''); }}>
+                <TabsList>
+                  <TabsTrigger value="file">
                     <UploadIcon className="w-4 h-4" />
                     {t('upload.tabs.file')}
-                  </button>
-                  <button
-                    onClick={() => { setMode('text'); setError(''); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium transition-colors ${
-                      mode === 'text'
-                        ? 'bg-primary text-white'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    }`}
-                  >
+                  </TabsTrigger>
+                  <TabsTrigger value="text">
                     <FileText className="w-4 h-4" />
                     {t('upload.tabs.text')}
-                  </button>
-                </div>
+                  </TabsTrigger>
+                </TabsList>
 
                 {/* File mode — dropzone */}
-                {mode === 'file' && (
+                <TabsContent value="file" className="mt-4">
                   <div
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -410,61 +396,59 @@ export default function UploadPage() {
                       </div>
                     )}
                   </div>
-                )}
+                </TabsContent>
 
                 {/* Text mode — textarea */}
-                {mode === 'text' && (
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <textarea
-                        value={textContent}
-                        onChange={e => setTextContent(e.target.value)}
-                        placeholder={t('upload.textForm.placeholder')}
-                        rows={8}
-                        className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-mono text-sm ${
-                          hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
-                        }`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setHideText(v => !v)}
-                        className="absolute top-2 right-2 p-1.5 rounded-md bg-white/80 dark:bg-gray-600/80 backdrop-blur-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600 shadow-sm transition-all"
-                        title={hideText ? t('upload.textForm.showText') : t('upload.textForm.hideText')}
-                      >
-                        {hideText ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
-                        {t('upload.textForm.summary', { count: textContent.length })}
-                      </span>
-                    </div>
-                    <label className="flex items-center gap-2 cursor-pointer w-fit">
-                      <input
-                        type="checkbox"
-                        checked={hideByDefault}
-                        onChange={e => setHideByDefault(e.target.checked)}
-                        className="w-4 h-4 text-primary border-gray-300 dark:border-gray-600 rounded focus:ring-primary"
-                      />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{t('upload.textForm.hideByDefault')}</span>
-                    </label>
-
-                    {error && (
-                      <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
-                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                        <span className="text-sm font-medium">{error}</span>
-                      </div>
-                    )}
-
+                <TabsContent value="text" className="mt-4 space-y-3">
+                  <div className="relative">
+                    <textarea
+                      value={textContent}
+                      onChange={e => setTextContent(e.target.value)}
+                      placeholder={t('upload.textForm.placeholder')}
+                      rows={8}
+                      className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent resize-none font-mono text-sm ${
+                        hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
+                      }`}
+                    />
                     <button
-                      onClick={handleTextNext}
-                      className="w-full px-6 py-2.5 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium"
+                      type="button"
+                      onClick={() => setHideText(v => !v)}
+                      className="absolute top-2 right-2 p-1.5 rounded-md bg-white/80 dark:bg-gray-600/80 backdrop-blur-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600 shadow-sm transition-all"
+                      title={hideText ? t('upload.textForm.showText') : t('upload.textForm.hideText')}
                     >
-                      {t('upload.steps.configure')} →
+                      {hideText ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </button>
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {t('upload.textForm.summary', { count: textContent.length })}
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer w-fit">
+                    <input
+                      type="checkbox"
+                      checked={hideByDefault}
+                      onChange={e => setHideByDefault(e.target.checked)}
+                      className="w-4 h-4 text-primary border-gray-300 dark:border-gray-600 rounded focus:ring-primary"
+                    />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('upload.textForm.hideByDefault')}</span>
+                  </label>
+
+                  {error && (
+                    <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
+                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm font-medium">{error}</span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleTextNext}
+                    className="w-full px-6 py-2.5 bg-gradient-primary text-white rounded-lg hover:bg-gradient-primary-reverse transition-all shadow-md hover:shadow-lg font-medium"
+                  >
+                    {t('upload.steps.configure')} →
+                  </button>
+                </TabsContent>
+              </Tabs>
             )}
 
             {/* Step 2: Configuration */}
