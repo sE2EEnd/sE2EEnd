@@ -45,6 +45,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import PageHeader from '@/components/PageHeader';
 
 export default function UploadPage() {
   const { t } = useTranslation();
@@ -302,9 +303,7 @@ export default function UploadPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{t('upload.title')}</h1>
-      </div>
+      <PageHeader title={t('upload.title')} />
 
       {/* Stepper */}
       <Card className="p-6">

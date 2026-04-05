@@ -40,6 +40,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import StatusBadge, { deleteReasonToStatus } from '@/components/StatusBadge';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -257,12 +259,7 @@ export default function AdminPage() {
   return (
     <div className="space-y-8 pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{t('admin.title')}</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{t('admin.subtitle')}</p>
-        </div>
-      </div>
+      <PageHeader title={t('admin.title')} subtitle={t('admin.subtitle')} />
 
       {/* Alertes Erreur/Succès */}
       {(error || success) && (
@@ -357,10 +354,7 @@ export default function AdminPage() {
 
       {/* Paramètres globaux */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4" />
-          {t('admin.settings.title')}
-        </h3>
+        <SectionHeader label={t('admin.settings.title')} icon={<ShieldCheck className="w-4 h-4" />} />
         <div className="flex flex-col gap-4">
           <Card className="p-6 flex items-center justify-between group hover:shadow-md transition-all">
             <div>
@@ -480,10 +474,7 @@ export default function AdminPage() {
       {/* Tableau des transferts récents */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
-            <Activity className="w-4 h-4" />
-            {t('admin.recentTransfers')}
-          </h3>
+          <SectionHeader label={t('admin.recentTransfers')} icon={<Activity className="w-4 h-4" />} />
         </div>
 
         <Card className="overflow-hidden">
@@ -695,10 +686,7 @@ export default function AdminPage() {
 
       {/* Historique des suppressions */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
-          <History className="w-4 h-4" />
-          {t('admin.history.title')}
-        </h3>
+        <SectionHeader label={t('admin.history.title')} icon={<History className="w-4 h-4" />} />
 
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">

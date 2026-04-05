@@ -33,6 +33,7 @@ import { Alert } from '@/components/ui/alert';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import StatusBadge from '@/components/StatusBadge';
+import PageHeader from '@/components/PageHeader';
 
 interface SendWithDecryptedNames extends SendResponse {
   decryptedName?: string;
@@ -188,12 +189,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 pb-10">
       {/* Welcome */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-          {t('dashboard.welcome', { name: username })}
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{t('dashboard.subtitle')}</p>
-      </div>
+      <PageHeader title={t('dashboard.welcome', { name: username })} subtitle={t('dashboard.subtitle')} />
 
       {/* Error */}
       {error && (

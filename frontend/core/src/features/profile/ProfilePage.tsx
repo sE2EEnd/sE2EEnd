@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { User, Mail, ShieldCheck, Clock, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { Card } from '@/components/ui/card';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 export default function ProfilePage() {
   const { keycloak } = useKeycloak();
@@ -24,18 +26,13 @@ export default function ProfilePage() {
   return (
     <div className="space-y-10 pb-10">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">{t('profile.title')}</h1>
-      </div>
+      <PageHeader title={t('profile.title')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* User Information Card */}
         <div className="space-y-8">
           <Card className="p-8">
-            <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-6">
-              <UserCircle className="w-4 h-4" />
-              {t('profile.userInformation')}
-            </h3>
+            <SectionHeader color="muted" label={t('profile.userInformation')} icon={<UserCircle className="w-4 h-4" />} className="mb-6" />
             <div className="space-y-6">
               {userInfo.map((info) => {
                 const IconComponent = info.icon;
@@ -59,10 +56,7 @@ export default function ProfilePage() {
         {/* Account Status Card */}
         <div className="space-y-8">
           <Card className="p-8">
-            <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 mb-6">
-              <ShieldCheck className="w-4 h-4" />
-              {t('profile.accountStatus')}
-            </h3>
+            <SectionHeader color="muted" label={t('profile.accountStatus')} icon={<ShieldCheck className="w-4 h-4" />} className="mb-6" />
 
             <div className="space-y-6">
               {/* Email Verification */}
