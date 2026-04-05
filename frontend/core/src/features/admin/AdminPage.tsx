@@ -13,9 +13,7 @@ import {
   Database,
   Ban,
   Trash2,
-  ShieldAlert,
   CheckCircle2,
-  Clock,
   Trash,
   RefreshCw,
   Info,
@@ -40,6 +38,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import StatusBadge, { deleteReasonToStatus } from '@/components/StatusBadge';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -584,22 +583,9 @@ export default function AdminPage() {
                           )}
                         </td>
                         <td className="px-6 py-5">
-                          <span className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
-                            isActive ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" :
-                            send.revoked ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" :
-                            isExpired ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400" :
-                            "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
-                          )}>
-                            {isActive ? <CheckCircle2 className="w-3.5 h-3.5" /> :
-                             send.revoked ? <Ban className="w-3.5 h-3.5" /> :
-                             isExpired ? <Clock className="w-3.5 h-3.5" /> :
-                             <ShieldAlert className="w-3.5 h-3.5" />}
-                            {isActive ? t('common.active') :
-                             send.revoked ? t('common.revoked') :
-                             isExpired ? t('common.expired') :
-                             t('common.exhausted')}
-                          </span>
+                          <StatusBadge
+                            status={isActive ? 'active' : send.revoked ? 'revoked' : isExpired ? 'expired' : 'exhausted'}
+                          />
                         </td>
                         <td className="px-6 py-5">
                           <div className="text-sm font-bold text-gray-600 dark:text-gray-400">
@@ -744,15 +730,10 @@ export default function AdminPage() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
-                          d.deleteReason === 'EXPIRED'   ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400" :
-                          d.deleteReason === 'REVOKED'   ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" :
-                          d.deleteReason === 'EXHAUSTED' ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400" :
-                                                           "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
-                        )}>
-                          {t(`admin.history.reasons.${d.deleteReason.toLowerCase()}`)}
-                        </span>
+                        <StatusBadge
+                          status={deleteReasonToStatus(d.deleteReason)}
+                          label={t(`admin.history.reasons.${d.deleteReason.toLowerCase()}`)}
+                        />
                       </td>
                       <td className="px-6 py-4">
                         {d.sendCreatedAt ? (

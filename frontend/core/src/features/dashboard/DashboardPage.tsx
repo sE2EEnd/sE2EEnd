@@ -7,13 +7,11 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
-  Clock,
   Shield,
   Copy,
   Check,
   Info,
   ArrowRight,
-  Ban,
   Upload,
 } from 'lucide-react';
 import { sendApi } from '@/services/api.ts';
@@ -33,6 +31,7 @@ import {
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import StatusBadge from '@/components/StatusBadge';
 
 interface SendWithDecryptedNames extends SendResponse {
   decryptedName?: string;
@@ -305,22 +304,9 @@ export default function DashboardPage() {
 
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <span className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight",
-                            isActive ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" :
-                            send.revoked ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400" :
-                            isExpired ? "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400" :
-                            "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
-                          )}>
-                            {isActive ? <CheckCircle2 className="w-3.5 h-3.5" /> :
-                             send.revoked ? <Ban className="w-3.5 h-3.5" /> :
-                             isExpired ? <Clock className="w-3.5 h-3.5" /> :
-                             <AlertCircle className="w-3.5 h-3.5" />}
-                            {isActive ? t('common.active') :
-                             send.revoked ? t('common.revoked') :
-                             isExpired ? t('common.expired') :
-                             t('common.exhausted')}
-                          </span>
+                          <StatusBadge
+                            status={isActive ? 'active' : send.revoked ? 'revoked' : isExpired ? 'expired' : 'exhausted'}
+                          />
                           {send.passwordProtected && (
                             <Tooltip>
                               <TooltipTrigger asChild>
