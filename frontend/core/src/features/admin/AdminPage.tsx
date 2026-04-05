@@ -34,6 +34,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
+import { Alert } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -267,16 +268,16 @@ export default function AdminPage() {
       {(error || success) && (
         <div className="space-y-2">
           {error && (
-            <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-800 shadow-sm animate-in fade-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <Alert variant="error" className="animate-in fade-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5" />
               <span className="text-sm font-medium">{error}</span>
-            </div>
+            </Alert>
           )}
           {success && (
-            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-100 rounded-xl text-green-800 shadow-sm animate-in fade-in slide-in-from-top-2">
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+            <Alert variant="success" className="animate-in fade-in slide-in-from-top-2">
+              <CheckCircle2 className="w-5 h-5" />
               <span className="text-sm font-medium">{success}</span>
-            </div>
+            </Alert>
           )}
         </div>
       )}

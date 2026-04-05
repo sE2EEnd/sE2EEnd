@@ -29,6 +29,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
+import { Alert } from '@/components/ui/alert';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import StatusBadge from '@/components/StatusBadge';
@@ -196,10 +197,10 @@ export default function DashboardPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-800 dark:text-red-300 shadow-sm">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <Alert variant="error">
+          <AlertCircle className="w-5 h-5" />
           <span className="text-sm font-medium">{error}</span>
-        </div>
+        </Alert>
       )}
 
       {/* Stats + CTA */}

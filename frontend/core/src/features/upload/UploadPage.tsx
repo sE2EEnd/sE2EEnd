@@ -435,10 +435,10 @@ export default function UploadPage() {
                   </label>
 
                   {error && (
-                    <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
-                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <Alert variant="error">
+                      <AlertCircle className="w-5 h-5" />
                       <span className="text-sm font-medium">{error}</span>
-                    </div>
+                    </Alert>
                   )}
 
                   <button
@@ -607,7 +607,7 @@ export default function UploadPage() {
                         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                           {t('upload.form.passwordHelp')}
                         </p>
-                        <Alert className={`mt-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 animate-in fade-in slide-in-from-top-2 ${passwordHasValue ? 'block' : 'hidden'}`}>
+                        <Alert variant="warning" className={`mt-4 animate-in fade-in slide-in-from-top-2 ${passwordHasValue ? 'block' : 'hidden'}`}>
                           <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                           <AlertTitle>{t('upload.form.passwordWarningTitle')}</AlertTitle>
                           <AlertDescription>
@@ -620,10 +620,10 @@ export default function UploadPage() {
 
                   {/* Error Message */}
                   {error && (
-                    <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
-                      <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <Alert variant="error">
+                      <AlertCircle className="w-5 h-5" />
                       <span className="text-sm font-medium">{error}</span>
-                    </div>
+                    </Alert>
                   )}
 
                   {/* Action Buttons */}

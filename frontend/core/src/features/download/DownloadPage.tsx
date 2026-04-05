@@ -8,6 +8,7 @@ import type {SendResponse} from '@/services/api.ts';
 import {sendApi} from '@/services/api.ts';
 import {decryptBlob, decryptText, importKeyFromBase64} from '@/lib/crypto.ts';
 import { Input } from '@/components/ui/input';
+import { Alert } from '@/components/ui/alert';
 
 function DownloadPage() {
   const { t } = useTranslation();
@@ -180,10 +181,10 @@ function DownloadPage() {
 
               {/* Text type indicator (before reveal) */}
               {isText && decryptedText === null && (
-                <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <p className="text-sm text-blue-800 dark:text-blue-300 font-medium">{t('download.textContent')}</p>
-                </div>
+                <Alert variant="info">
+                  <FileText className="w-5 h-5" />
+                  <span className="text-sm font-medium">{t('download.textContent')}</span>
+                </Alert>
               )}
 
               {/* Decrypted text area */}
@@ -285,10 +286,10 @@ function DownloadPage() {
 
               {/* Error Alert */}
               {error && (
-                <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <Alert variant="error">
+                  <AlertCircle className="w-5 h-5" />
                   <span className="text-sm font-medium">{error}</span>
-                </div>
+                </Alert>
               )}
 
               {/* Action Button */}
@@ -317,20 +318,18 @@ function DownloadPage() {
 
               {/* Download Limit Warning */}
               {sendInfo.downloadCount >= sendInfo.maxDownloads && (
-                <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg text-orange-800 dark:text-orange-300">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm font-medium">
-                    {t('download.errors.limitReached')}
-                  </span>
-                </div>
+                <Alert variant="warning">
+                  <AlertCircle className="w-5 h-5" />
+                  <span className="text-sm font-medium">{t('download.errors.limitReached')}</span>
+                </Alert>
               )}
             </div>
           ) : (
             /* Error State */
-            <div className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <Alert variant="error">
+              <AlertCircle className="w-5 h-5" />
               <span className="text-sm font-medium">{error || t('download.errors.sendNotFound')}</span>
-            </div>
+            </Alert>
           )}
         </div>
 
