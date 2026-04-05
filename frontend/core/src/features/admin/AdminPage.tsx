@@ -36,6 +36,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function AdminPage() {
@@ -436,13 +437,13 @@ export default function AdminPage() {
             </div>
             {/* Cron input */}
             <div className="flex items-center gap-3">
-              <input
+              <Input
                 type="text"
                 value={cronInput}
                 onChange={(e) => { setCronInput(e.target.value); setPendingSetting('cleanup_cron', e.target.value); }}
                 disabled={settingsLoading}
                 placeholder="0 0 2 * * *"
-                className="flex-1 font-mono text-sm border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-2.5 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 text-gray-700 dark:text-gray-300"
+                className="flex-1 font-mono"
               />
               <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{t('admin.settings.cleanupCronHint')}</span>
             </div>
@@ -488,12 +489,12 @@ export default function AdminPage() {
           <div className="p-4 border-b border-gray-50 dark:border-gray-700 flex flex-col sm:flex-row gap-4 bg-gray-50/30 dark:bg-gray-700/20">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-              <input
+              <Input
                 type="text"
                 placeholder={t('admin.filterBySender')}
                 value={filterSender}
                 onChange={(e) => setFilterSender(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-xl text-sm dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="pl-10"
               />
             </div>
             <div className="relative min-w-[160px]">

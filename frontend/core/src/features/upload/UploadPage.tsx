@@ -43,6 +43,7 @@ import { storeSendKey } from '@/lib/sendKeysDB.ts';
 
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 export default function UploadPage() {
   const { t } = useTranslation();
@@ -511,12 +512,11 @@ export default function UploadPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {t('upload.form.sendName')}
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={sendName}
                       onChange={(e) => setSendName(e.target.value)}
                       placeholder={t('upload.form.sendNamePlaceholder')}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       {t('upload.form.sendNameHelp')}
@@ -528,13 +528,12 @@ export default function UploadPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {t('upload.form.maxDownloads')}
                     </label>
-                    <input
+                    <Input
                       type="number"
                       value={maxDownloads}
                       onChange={(e) => setMaxDownloads(parseInt(e.target.value) || 1)}
                       min="1"
                       max="50"
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       {t('upload.form.maxDownloadsHelp')}
@@ -546,13 +545,12 @@ export default function UploadPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       {t('upload.form.expiration')}
                     </label>
-                    <input
+                    <Input
                       type="number"
                       value={expirationHours}
                       onChange={(e) => setExpirationHours(parseInt(e.target.value) || 1)}
                       min="1"
                       max="168"
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('upload.form.expirationHelp')}</p>
                   </div>
@@ -581,13 +579,13 @@ export default function UploadPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('upload.form.password')}</label>
                         <div className="relative flex items-center">
-                          <input
+                          <Input
                             type={showPassword ? 'text' : 'password'}
                             ref={passwordRef}
                             autoComplete="new-password"
                             placeholder={t('upload.form.passwordPlaceholder')}
                             onChange={e => setPasswordHasValue(e.target.value.length > 0)}
-                            className="w-full px-4 py-2 pr-24 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="pr-24"
                           />
                           <div className="absolute right-2 flex items-center gap-1">
                             <button
@@ -727,11 +725,11 @@ export default function UploadPage() {
                     {t('upload.success.shareLink')}
                   </label>
                   <div className="flex gap-2">
-                    <input
+                    <Input
                       type="text"
                       value={shareLink}
                       readOnly
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm font-mono"
+                      className="flex-1 font-mono"
                     />
                     <button
                       onClick={() => {
@@ -768,11 +766,11 @@ export default function UploadPage() {
                       </label>
                     </div>
                     <div className="flex gap-2">
-                      <input
+                      <Input
                         type={showUsedPassword ? 'text' : 'password'}
                         value={usedPassword}
                         readOnly
-                        className="flex-1 px-4 py-2 border border-amber-200 dark:border-amber-700 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 text-sm font-mono"
+                        className="flex-1 border-amber-200 dark:border-amber-700 font-mono"
                       />
                       <button
                         onClick={() => setShowUsedPassword(v => !v)}

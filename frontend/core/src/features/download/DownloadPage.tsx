@@ -7,6 +7,7 @@ import {QRCodeCanvas} from 'qrcode.react';
 import type {SendResponse} from '@/services/api.ts';
 import {sendApi} from '@/services/api.ts';
 import {decryptBlob, decryptText, importKeyFromBase64} from '@/lib/crypto.ts';
+import { Input } from '@/components/ui/input';
 
 function DownloadPage() {
   const { t } = useTranslation();
@@ -273,13 +274,12 @@ function DownloadPage() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   {t('download.password')}
                 </label>
-                <input
+                <Input
                   id="password"
                   type="password"
                   ref={passwordRef}
                   autoComplete="current-password"
                   placeholder={t('download.passwordPlaceholder')}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
 
