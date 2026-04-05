@@ -277,6 +277,11 @@
       "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe."
     }
   },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "Oups ! La page que vous cherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
   "profile": {
     "title": "Profil",
     "userInformation": "Informations utilisateur",

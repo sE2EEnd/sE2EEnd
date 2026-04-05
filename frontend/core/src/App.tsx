@@ -8,6 +8,7 @@ import UploadPage from './features/upload/UploadPage';
 import ProfilePage from './features/profile/ProfilePage';
 import DownloadPage from './features/download/DownloadPage';
 import AdminPage from './features/admin/AdminPage';
+import NotFoundPage from './features/not-found/NotFoundPage';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: '/profile', element: <ProfilePage /> },
     ],
   },
+  { path: '*', element: <NotFoundPage /> },
 ]);
 
 function App() {

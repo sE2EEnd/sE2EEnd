@@ -277,6 +277,11 @@
       "requireSendPasswordDesc": "When enabled, every send must be protected by a password."
     }
   },
+  "notFound": {
+    "title": "Page not found",
+    "description": "Oops! The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home"
+  },
   "profile": {
     "title": "Profile",
     "userInformation": "User Information",
