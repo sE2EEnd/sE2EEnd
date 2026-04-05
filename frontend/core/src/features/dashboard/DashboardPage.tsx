@@ -31,6 +31,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 interface SendWithDecryptedNames extends SendResponse {
   decryptedName?: string;
@@ -430,29 +431,17 @@ export default function DashboardPage() {
       </Card>
 
       {/* Delete Dialog */}
-      {deleteDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={handleDeleteCancel} />
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('common.delete')}</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">{t('admin.deleteDialog.message')}</p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={handleDeleteCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm"
-              >
-                {t('common.delete')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        icon={<Trash2 className="w-6 h-6" />}
+        iconVariant="danger"
+        title={t('common.delete')}
+        description={t('admin.deleteDialog.message')}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+      />
 
       {/* Toast */}
       {showToast && (

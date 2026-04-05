@@ -36,6 +36,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -780,92 +781,43 @@ export default function AdminPage() {
       </div>
 
       {/* Boîte de dialogue de confirmation de suppression */}
-      {deleteDialogOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
-          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={handleDeleteCancel} />
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl flex items-center justify-center mb-4">
-              <Trash2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('admin.deleteDialog.title')}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-              {t('admin.deleteDialog.message')}
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={handleDeleteCancel}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
-              >
-                {t('admin.deleteDialog.cancel')}
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all shadow-lg shadow-red-200"
-              >
-                {t('admin.deleteDialog.delete')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        icon={<Trash2 className="w-6 h-6" />}
+        iconVariant="danger"
+        title={t('admin.deleteDialog.title')}
+        description={t('admin.deleteDialog.message')}
+        confirmLabel={t('admin.deleteDialog.delete')}
+        cancelLabel={t('admin.deleteDialog.cancel')}
+      />
 
       {/* Dialog de confirmation du cleanup */}
-      {cleanupDialogOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
-          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setCleanupDialogOpen(false)} />
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 text-orange-500 dark:text-orange-400 rounded-xl flex items-center justify-center mb-4">
-              <Trash className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('admin.cleanupDialog.title')}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-              {t('admin.cleanupDialog.message')}
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setCleanupDialogOpen(false)}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
-              >
-                {t('admin.cleanupDialog.cancel')}
-              </button>
-              <button
-                onClick={handleCleanup}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-xl transition-all shadow-lg shadow-orange-200"
-              >
-                {t('admin.cleanupDialog.confirm')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={cleanupDialogOpen}
+        onConfirm={handleCleanup}
+        onCancel={() => setCleanupDialogOpen(false)}
+        icon={<Trash className="w-6 h-6" />}
+        iconVariant="warning"
+        title={t('admin.cleanupDialog.title')}
+        description={t('admin.cleanupDialog.message')}
+        confirmLabel={t('admin.cleanupDialog.confirm')}
+        cancelLabel={t('admin.cleanupDialog.cancel')}
+      />
 
       {/* Dialog navigation bloquée - modifications non enregistrées */}
-      {blocker.state === 'blocked' && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in">
-          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => blocker.reset()} />
-          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95">
-            <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-400 rounded-xl flex items-center justify-center mb-4">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('admin.settings.leaveTitle')}</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{t('admin.settings.leaveMessage')}</p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => blocker.reset()}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
-              >
-                {t('admin.settings.leaveCancel')}
-              </button>
-              <button
-                onClick={() => blocker.proceed()}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-xl transition-all shadow-lg shadow-amber-200"
-              >
-                {t('admin.settings.leaveConfirm')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={blocker.state === 'blocked'}
+        onConfirm={() => blocker.proceed?.()}
+        onCancel={() => blocker.reset?.()}
+        icon={<AlertCircle className="w-6 h-6" />}
+        iconVariant="info"
+        title={t('admin.settings.leaveTitle')}
+        description={t('admin.settings.leaveMessage')}
+        confirmLabel={t('admin.settings.leaveConfirm')}
+        cancelLabel={t('admin.settings.leaveCancel')}
+      />
     </div>
   );
 }
