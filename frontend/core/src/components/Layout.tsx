@@ -15,7 +15,6 @@ import {
 import { cn } from '@/lib/utils';
 import GitHubIcon from './icons/GitHubIcon';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useThemeClasses } from '@/hooks/useThemeClasses';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
 
@@ -32,7 +31,6 @@ export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme } = useTheme();
-  const themeClasses = useThemeClasses();
 
   // Check if user has admin role
   const isAdmin = keycloak.tokenParsed?.realm_access?.roles?.includes('admin') || false;
@@ -49,9 +47,9 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar Desktop */}
-      <aside className={cn("fixed inset-y-0 left-0 z-50 w-64 shadow-xl transform transition-transform duration-300 lg:translate-x-0 hidden lg:block", themeClasses.sidebar.bg)}>
+      <aside className={cn("fixed inset-y-0 left-0 z-50 w-64 shadow-xl transform transition-transform duration-300 lg:translate-x-0 hidden lg:block", "bg-gradient-to-br-primary")}>
         <div className="flex flex-col h-full">
-          <div className={cn("flex items-center justify-center h-16 px-4", themeClasses.sidebar.header)}>
+          <div className={cn("flex items-center justify-center h-16 px-4", "bg-black/20")}>
             {theme?.logoUrl ? (
               <img src={theme.logoUrl} alt={theme.appName} className="h-10 rounded" />
             ) : (
@@ -70,8 +68,8 @@ export default function Layout() {
                   className={cn(
                     'flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                     isActive
-                      ? themeClasses.sidebar.item.active
-                      : themeClasses.sidebar.item.inactive
+                      ? 'bg-white/20 text-white font-semibold shadow-md'
+                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
                   )}
                 >
                   <Icon className="w-5 h-5 mr-3" />
@@ -92,14 +90,14 @@ export default function Layout() {
             <span className="ml-auto">{__APP_VERSION__}</span>
           </a>
 
-          <div className={cn("p-4 border-t", themeClasses.sidebar.border)}>
+          <div className={cn("p-4 border-t", "border-white/10")}>
             <div className="flex items-center gap-3 px-2 py-2">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-semibold text-white">
                   {(keycloak.tokenParsed?.preferred_username as string)?.[0]?.toUpperCase()}
                 </span>
               </div>
-              <span className={cn("flex-1 text-sm font-medium truncate", themeClasses.text.light)}>
+              <span className={cn("flex-1 text-sm font-medium truncate", "text-gray-100")}>
                 {keycloak.tokenParsed?.preferred_username}
               </span>
               <button
@@ -120,9 +118,9 @@ export default function Layout() {
         sidebarOpen ? "block" : "hidden"
       )}>
         <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-        <aside className={cn("fixed inset-y-0 left-0 w-64 shadow-xl", themeClasses.sidebar.bg)}>
+        <aside className={cn("fixed inset-y-0 left-0 w-64 shadow-xl", "bg-gradient-to-br-primary")}>
           <div className="flex flex-col h-full">
-            <div className={cn("flex items-center justify-between h-16 px-4", themeClasses.sidebar.header)}>
+            <div className={cn("flex items-center justify-between h-16 px-4", "bg-black/20")}>
               {theme?.logoUrl ? (
                 <img src={theme.logoUrl} alt={theme.appName} className="h-10 rounded" />
               ) : (
@@ -130,7 +128,7 @@ export default function Layout() {
               )}
               <button
                 onClick={() => setSidebarOpen(false)}
-                className={cn("text-white p-2 rounded-lg", themeClasses.hover.bg)}
+                className={cn("text-white p-2 rounded-lg", "hover:bg-primary-dark")}
               >
                 <X className="w-6 h-6" />
               </button>
@@ -148,8 +146,8 @@ export default function Layout() {
                     className={cn(
                       'flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                       isActive
-                        ? themeClasses.sidebar.item.active
-                        : themeClasses.sidebar.item.inactive
+                        ? 'bg-white/20 text-white font-semibold shadow-md'
+                        : 'text-gray-300 hover:bg-white/10 hover:text-white'
                     )}
                   >
                     <Icon className="w-5 h-5 mr-3" />
@@ -170,14 +168,14 @@ export default function Layout() {
               <span className="ml-auto">{__APP_VERSION__}</span>
             </a>
 
-            <div className={cn("p-4 border-t", themeClasses.sidebar.border)}>
+            <div className={cn("p-4 border-t", "border-white/10")}>
               <div className="flex items-center gap-3 px-2 py-2">
                 <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
                   <span className="text-sm font-semibold text-white">
                     {(keycloak.tokenParsed?.preferred_username as string)?.[0]?.toUpperCase()}
                   </span>
                 </div>
-                <span className={cn("flex-1 text-sm font-medium truncate", themeClasses.text.light)}>
+                <span className={cn("flex-1 text-sm font-medium truncate", "text-gray-100")}>
                   {keycloak.tokenParsed?.preferred_username}
                 </span>
                 <button
