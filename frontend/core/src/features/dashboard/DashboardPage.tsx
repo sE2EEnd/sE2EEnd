@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { sendApi } from '@/services/api.ts';
 import { getSendKey, deleteSendKey } from '@/lib/sendKeysDB.ts';
 import { importKeyFromBase64, decryptText } from '@/lib/crypto.ts';
@@ -20,8 +21,6 @@ export default function DashboardPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sendToDelete, setSendToDelete] = useState<string | null>(null);
   const [copiedSendId, setCopiedSendId] = useState<string | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
 
   const username = (keycloak.tokenParsed?.given_name as string | undefined)
@@ -79,20 +78,15 @@ export default function DashboardPage() {
     try {
       const keyBase64 = await getSendKey(send.id);
       if (!keyBase64) {
-        setToastMessage(t('dashboard.keyMissingDesc'));
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 4000);
+        toast.error(t('dashboard.keyMissingDesc'));
         return;
       }
       await navigator.clipboard.writeText(`${window.location.origin}/download/${send.accessId}#${keyBase64}`);
       setCopiedSendId(send.id);
-      setToastMessage(t('dashboard.linkCopied'));
-      setShowToast(true);
-      setTimeout(() => { setCopiedSendId(null); setShowToast(false); }, 2000);
+      toast.success(t('dashboard.linkCopied'));
+      setTimeout(() => setCopiedSendId(null), 2000);
     } catch {
-      setToastMessage(t('dashboard.copyError'));
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
+      toast.error(t('dashboard.copyError'));
     }
   };
 
@@ -144,14 +138,6 @@ export default function DashboardPage() {
         cancelLabel={t('common.cancel')}
       />
 
-      {showToast && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5">
-          <div className="bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-md">
-            <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
-            <span className="text-sm font-medium">{toastMessage}</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

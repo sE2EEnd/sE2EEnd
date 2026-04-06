@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { formatBytes } from '@/lib/format';
 import type { SendResponse, DeletedSend } from '@/services/api.ts';
 import { Activity, Ban, Database, Filter, History, Info, Search, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Pagination, PaginationContent, PaginationEllipsis,
   PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
@@ -60,14 +61,13 @@ interface SendsTableProps {
   decryptedNames: Record<string, string>;
   reload: () => Promise<void>;
   deletedSends: DeletedSend[];
-  onError: (msg: string) => void;
 }
 
 export default function SendsTable({
   sends, totalPages, totalElements, currentPage, setCurrentPage,
   filterSender, setFilterSender, filterStatus, setFilterStatus,
   sendsLoading, decryptedNames,
-  reload, deletedSends, onError,
+  reload, deletedSends,
 }: SendsTableProps) {
   const { t } = useTranslation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -78,7 +78,7 @@ export default function SendsTable({
       await adminApi.revokeSend(sendId);
       await reload();
     } catch {
-      onError(t('admin.errors.revokeFailed'));
+      toast.error(t('admin.errors.revokeFailed'));
     }
   };
 
@@ -90,7 +90,7 @@ export default function SendsTable({
       setSendToDelete(null);
       await reload();
     } catch {
-      onError(t('admin.errors.deleteFailed'));
+      toast.error(t('admin.errors.deleteFailed'));
     }
   };
 

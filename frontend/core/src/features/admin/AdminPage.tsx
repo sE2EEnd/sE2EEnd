@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { isAxiosError } from 'axios';
 import { adminApi, settingsApi } from '@/services/api.ts';
 import type { AdminStats, CleanupResult, DeletedSend, StorageMetrics } from '@/services/api.ts';
-import { AlertCircle, CheckCircle2, Loader2, Trash } from 'lucide-react';
+import { AlertCircle, Loader2, Trash } from 'lucide-react';
 import { Alert } from '@/components/ui/alert';
+import { toast } from 'sonner';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import PageHeader from '@/components/PageHeader';
 import { formatBytes } from '@/lib/format';
@@ -17,7 +18,6 @@ export default function AdminPage() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [storageMetrics, setStorageMetrics] = useState<StorageMetrics | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -60,17 +60,15 @@ export default function AdminPage() {
     try {
       setCleanupRunning(true);
       setCleanupDialogOpen(false);
-      setError('');
-      setSuccess('');
       const result: CleanupResult = await adminApi.runCleanup();
-      setSuccess(t('admin.cleanupSuccess', {
+      toast.success(t('admin.cleanupSuccess', {
         deletedSends: result.deletedSends,
         deletedFiles: result.deletedFiles,
         freedSpace: formatBytes(result.freedSpace),
       }));
       await Promise.all([loadData(), reloadFromFirstPage()]);
     } catch {
-      setError(t('admin.errors.cleanupFailed'));
+      toast.error(t('admin.errors.cleanupFailed'));
     } finally {
       setCleanupRunning(false);
     }
@@ -88,21 +86,11 @@ export default function AdminPage() {
     <div className="space-y-8 pb-10">
       <PageHeader title={t('admin.title')} subtitle={t('admin.subtitle')} />
 
-      {(error || success) && (
-        <div className="space-y-2">
-          {error && (
-            <Alert variant="error" className="animate-in fade-in slide-in-from-top-2">
-              <AlertCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">{error}</span>
-            </Alert>
-          )}
-          {success && (
-            <Alert variant="success" className="animate-in fade-in slide-in-from-top-2">
-              <CheckCircle2 className="w-5 h-5" />
-              <span className="text-sm font-medium">{success}</span>
-            </Alert>
-          )}
-        </div>
+      {error && (
+        <Alert variant="error" className="animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5" />
+          <span className="text-sm font-medium">{error}</span>
+        </Alert>
       )}
 
       <StorageMetricsPanel
@@ -112,16 +100,11 @@ export default function AdminPage() {
         onCleanupRequest={() => setCleanupDialogOpen(true)}
       />
 
-      <SettingsPanel
-        initialSettings={settings}
-        onError={setError}
-        onSuccess={setSuccess}
-      />
+      <SettingsPanel initialSettings={settings} />
 
       <SendsTable
         {...adminSends}
         deletedSends={deletedSends}
-        onError={setError}
       />
 
       <ConfirmDialog

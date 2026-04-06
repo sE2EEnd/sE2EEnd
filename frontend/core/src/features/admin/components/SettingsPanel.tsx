@@ -3,6 +3,7 @@ import { useBlocker } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { settingsApi } from '@/services/api.ts';
 import { AlertCircle, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -11,11 +12,9 @@ import SectionHeader from '@/components/SectionHeader';
 
 interface SettingsPanelProps {
   initialSettings: Record<string, string>;
-  onError: (msg: string) => void;
-  onSuccess: (msg: string) => void;
 }
 
-export default function SettingsPanel({ initialSettings, onError, onSuccess }: SettingsPanelProps) {
+export default function SettingsPanel({ initialSettings }: SettingsPanelProps) {
   const { t } = useTranslation();
   const [settings, setSettings] = useState(initialSettings);
   const [pendingSettings, setPendingSettings] = useState<Record<string, string>>({});
@@ -37,9 +36,9 @@ export default function SettingsPanel({ initialSettings, onError, onSuccess }: S
       );
       setSettings(prev => ({ ...prev, ...pendingSettings }));
       setPendingSettings({});
-      onSuccess(t('admin.settings.saveSuccess'));
+      toast.success(t('admin.settings.saveSuccess'));
     } catch {
-      onError(t('admin.settings.updateFailed'));
+      toast.error(t('admin.settings.updateFailed'));
     } finally {
       setSettingsLoading(false);
     }
