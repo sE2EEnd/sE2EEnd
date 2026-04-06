@@ -143,9 +143,10 @@ interface DeletedSend {
 }
 
 const adminApi = {
-  getAllSends: async (page = 0, size = 20, ownerSearch?: string, status?: string): Promise<PagedResponse<SendResponse>> => {
+  getAllSends: async (page = 0, size = 20, ownerSearch?: string, status?: string, signal?: AbortSignal): Promise<PagedResponse<SendResponse>> => {
     const response = await api.get('/admin/sends', {
       params: { page, size, ownerSearch: ownerSearch || undefined, status: status === 'all' ? undefined : status },
+      signal,
     });
     return response.data;
   },
