@@ -58,14 +58,20 @@ export function useAdminSends() {
   const { t } = useTranslation();
   const [state, dispatch] = useReducer(sendsReducer, initialState);
   const [currentPage, setCurrentPage] = useState(0);
-  const [filterSender, setFilterSender] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterSender, setFilterSenderState] = useState('');
+  const [filterStatus, setFilterStatusState] = useState('all');
   const debouncedSender = useDebounce(filterSender, 350);
 
-  // Reset to page 0 when filter changes
-  useEffect(() => {
+  // Wrap setters to reset page immediately when filters change
+  const setFilterSender = useCallback((v: string) => {
+    setFilterSenderState(v);
     setCurrentPage(0);
-  }, [debouncedSender, filterStatus]);
+  }, []);
+
+  const setFilterStatus = useCallback((v: string) => {
+    setFilterStatusState(v);
+    setCurrentPage(0);
+  }, []);
 
   const loadSends = useCallback(async (page: number, ownerSearch: string, status: string, signal: AbortSignal) => {
     dispatch({ type: 'LOAD_START' });

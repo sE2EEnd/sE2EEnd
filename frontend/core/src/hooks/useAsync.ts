@@ -43,10 +43,10 @@ export function useAsync<T>(fn: () => Promise<T>, onError?: (err: unknown) => st
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- setState is called asynchronously inside execute(), not synchronously
   useEffect(() => {
     void execute();
-    // Invalidate on unmount so any in-flight execution won't call setState
+    // Invalidate on unmount: increment counter so any in-flight execution won't call setState.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: we write to the ref on cleanup, not read a captured value
     return () => { executionIdRef.current++; };
   }, [execute]);
 
