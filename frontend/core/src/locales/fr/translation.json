@@ -67,6 +67,7 @@
     "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien.",
     "loadError": "Échec du chargement des transferts",
     "deleteError": "Échec de la suppression du transfert",
+    "deleteSuccess": "Send supprimé",
     "copyError": "Impossible de copier le lien"
   },
   "upload": {
@@ -276,6 +277,11 @@
       "requireSendPassword": "Mot de passe obligatoire sur tous les envois",
       "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe."
     }
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "Oups ! La page que vous cherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
   },
   "profile": {
     "title": "Profil",

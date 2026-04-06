@@ -67,6 +67,7 @@
     "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link.",
     "loadError": "Failed to load transfers",
     "deleteError": "Failed to delete transfer",
+    "deleteSuccess": "Send deleted",
     "copyError": "Failed to copy link"
   },
   "upload": {
@@ -276,6 +277,11 @@
       "requireSendPassword": "Require password on all sends",
       "requireSendPasswordDesc": "When enabled, every send must be protected by a password."
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "Oops! The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home"
   },
   "profile": {
     "title": "Profile",

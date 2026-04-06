@@ -8,11 +8,14 @@ import UploadPage from './features/upload/UploadPage';
 import ProfilePage from './features/profile/ProfilePage';
 import DownloadPage from './features/download/DownloadPage';
 import AdminPage from './features/admin/AdminPage';
+import NotFoundPage from './features/not-found/NotFoundPage';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { DarkModeProvider } from './contexts/DarkModeContext';
+import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext';
+import { TooltipProvider } from './components/ui/tooltip';
 import { configApi } from './services/api';
 import type { ThemeConfig } from './services/api';
 import { Loader2 } from 'lucide-react';
+import { Toaster } from 'sonner';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +39,7 @@ const router = createBrowserRouter([
       { path: '/profile', element: <ProfilePage /> },
     ],
   },
+  { path: '*', element: <NotFoundPage /> },
 ]);
 
 function App() {
@@ -66,10 +70,18 @@ function App() {
   return (
     <DarkModeProvider>
       <ThemeProvider>
-        <RouterProvider router={router} />
+        <TooltipProvider>
+          <RouterProvider router={router} />
+          <SonnerToaster />
+        </TooltipProvider>
       </ThemeProvider>
     </DarkModeProvider>
   );
+}
+
+function SonnerToaster() {
+  const { isDark } = useDarkMode();
+  return <Toaster richColors position="bottom-right" theme={isDark ? 'dark' : 'light'} />;
 }
 
 export default App;
