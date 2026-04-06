@@ -67,6 +67,7 @@
     "keyMissingDesc": "The encryption key is not available for this send. You must have created the send on this browser to copy the link.",
     "loadError": "Failed to load transfers",
     "deleteError": "Failed to delete transfer",
+    "deleteSuccess": "Send deleted",
     "copyError": "Failed to copy link"
   },
   "upload": {

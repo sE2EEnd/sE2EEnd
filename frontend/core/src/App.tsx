@@ -10,11 +10,12 @@ import DownloadPage from './features/download/DownloadPage';
 import AdminPage from './features/admin/AdminPage';
 import NotFoundPage from './features/not-found/NotFoundPage';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { DarkModeProvider } from './contexts/DarkModeContext';
+import { DarkModeProvider, useDarkMode } from './contexts/DarkModeContext';
 import { TooltipProvider } from './components/ui/tooltip';
 import { configApi } from './services/api';
 import type { ThemeConfig } from './services/api';
 import { Loader2 } from 'lucide-react';
+import { Toaster } from 'sonner';
 
 const router = createBrowserRouter([
   {
@@ -71,10 +72,16 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <RouterProvider router={router} />
+          <SonnerToaster />
         </TooltipProvider>
       </ThemeProvider>
     </DarkModeProvider>
   );
+}
+
+function SonnerToaster() {
+  const { isDark } = useDarkMode();
+  return <Toaster richColors position="bottom-right" theme={isDark ? 'dark' : 'light'} />;
 }
 
 export default App;

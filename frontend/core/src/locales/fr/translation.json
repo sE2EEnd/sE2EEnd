@@ -67,6 +67,7 @@
     "keyMissingDesc": "La clé de chiffrement n'est pas disponible pour cet envoi. Vous devez avoir créé l'envoi sur ce navigateur pour copier le lien.",
     "loadError": "Échec du chargement des transferts",
     "deleteError": "Échec de la suppression du transfert",
+    "deleteSuccess": "Send supprimé",
     "copyError": "Impossible de copier le lien"
   },
   "upload": {

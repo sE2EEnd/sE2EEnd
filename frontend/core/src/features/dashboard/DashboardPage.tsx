@@ -68,6 +68,7 @@ export default function DashboardPage() {
       setDeleteDialogOpen(false);
       setSendToDelete(null);
       setDeleteError('');
+      toast.success(t('dashboard.deleteSuccess'));
       await reloadSends();
     } catch {
       setDeleteError(t('dashboard.deleteError'));
