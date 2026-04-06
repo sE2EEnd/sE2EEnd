@@ -25,7 +25,7 @@ export default function AdminPage() {
   const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
   const [cleanupRunning, setCleanupRunning] = useState(false);
 
-  const adminSends = useAdminSends({ onError: setError });
+  const adminSends = useAdminSends();
   const { reloadFromFirstPage } = adminSends;
 
   useEffect(() => {
