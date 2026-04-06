@@ -2,11 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import 'flag-icons/css/flag-icons.min.css';
 
 const languages = [
-  { code: 'fr', name: 'Français', countryCode: 'fr' },
-  { code: 'en', name: 'English', countryCode: 'gb' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
 ];
 
 export default function LanguageSwitcher() {
@@ -39,7 +38,7 @@ export default function LanguageSwitcher() {
         title={currentLanguage.name}
       >
         <Globe className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-        <span className={cn("fi rounded-sm shadow-sm", `fi-${currentLanguage.countryCode}`)}></span>
+        <span className="text-base leading-none">{currentLanguage.flag}</span>
         <ChevronDown className={cn("w-3 h-3 text-gray-400 dark:text-gray-500 transition-transform duration-200", isOpen ? "rotate-180" : "")} />
       </button>
       {isOpen && (
@@ -55,7 +54,7 @@ export default function LanguageSwitcher() {
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               )}
             >
-              <span className={cn("fi rounded-sm", `fi-${lang.countryCode}`)}></span>
+              <span className="text-base leading-none">{lang.flag}</span>
               <span className="flex-1 text-left">{lang.name}</span>
               {lang.code === i18n.language && <Check className="w-4 h-4" />}
             </button>
