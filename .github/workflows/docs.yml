@@ -1,0 +1,38 @@
+name: Docs CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/user-guide/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/user-guide/**'
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y pandoc texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra
+
+      - name: Build PDFs
+        working-directory: ./docs/user-guide
+        run: ./build.sh
+
+      - name: Upload PDFs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-guide-pdfs-preview
+          path: |
+            frontend/core/public/guide-en.pdf
+            frontend/core/public/guide-fr.pdf
+          retention-days: 7

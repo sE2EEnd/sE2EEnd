@@ -26,7 +26,8 @@
     "upload": "Téléverser",
     "admin": "Admin",
     "profile": "Profil",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "documentation": "Documentation"
   },
   "dashboard": {
     "welcome": "Bonjour, {{name}}.",

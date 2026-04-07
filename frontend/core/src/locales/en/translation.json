@@ -26,7 +26,8 @@
     "upload": "Upload",
     "admin": "Admin",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "documentation": "Documentation"
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}.",

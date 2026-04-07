@@ -11,6 +11,30 @@ env:
   FRONTEND_IMAGE: ghcr.io/se2eend/se2eend-frontend
 
 jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y pandoc texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra
+
+      - name: Build PDFs
+        working-directory: ./docs/user-guide
+        run: ./build.sh
+
+      - name: Upload PDFs
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-guide-pdfs
+          path: |
+            frontend/core/public/guide-en.pdf
+            frontend/core/public/guide-fr.pdf
+
   backend-test:
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +110,7 @@ jobs:
             ${{ env.BACKEND_IMAGE }}:latest
 
   publish-frontend:
-    needs: [backend-test, frontend-check]
+    needs: [backend-test, frontend-check, build-docs]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -94,6 +118,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Download user guide PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: user-guide-pdfs
+          path: frontend/core/public
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -120,7 +150,7 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:latest
 
   publish-frontend-static:
-    needs: [backend-test, frontend-check]
+    needs: [backend-test, frontend-check, build-docs]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -128,6 +158,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Download user guide PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: user-guide-pdfs
+          path: frontend/core/public
 
       - name: Set up Node.js
         uses: actions/setup-node@v5
