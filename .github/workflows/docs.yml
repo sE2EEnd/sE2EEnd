@@ -15,14 +15,10 @@ on:
 jobs:
   build-check:
     runs-on: ubuntu-latest
+    container: pandoc/extra:latest
 
     steps:
       - uses: actions/checkout@v5
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install -y pandoc texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra
 
       - name: Build PDFs
         working-directory: ./docs/user-guide
