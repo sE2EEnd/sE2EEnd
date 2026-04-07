@@ -19,6 +19,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install bash
+        run: apk add --no-cache bash
+
       - name: Build PDFs
         run: bash docs/user-guide/build.sh
 

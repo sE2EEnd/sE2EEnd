@@ -20,6 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Install bash
+        run: apk add --no-cache bash
+
       - name: Build PDFs
         run: bash docs/user-guide/build.sh
 
