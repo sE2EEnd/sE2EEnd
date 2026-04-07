@@ -20,8 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build PDFs
-        working-directory: ./docs/user-guide
-        run: ./build.sh
+        run: bash docs/user-guide/build.sh
 
       - name: Upload PDFs
         uses: actions/upload-artifact@v4
