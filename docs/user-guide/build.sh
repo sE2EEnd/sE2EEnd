@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")"
+
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 for texbin in /usr/local/texlive/*/bin/*/; do
   [ -d "$texbin" ] && export PATH="$texbin:$PATH"
