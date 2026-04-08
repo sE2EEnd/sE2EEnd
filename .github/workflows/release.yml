@@ -95,6 +95,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Download user guide PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: user-guide-pdfs
+          path: frontend/core/public
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
