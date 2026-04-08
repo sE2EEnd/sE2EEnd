@@ -11,28 +11,6 @@ env:
   FRONTEND_IMAGE: ghcr.io/se2eend/se2eend-frontend
 
 jobs:
-  build-docs:
-    runs-on: ubuntu-latest
-    container: pandoc/extra:latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Install bash
-        run: apk add --no-cache bash
-
-      - name: Build PDFs
-        run: bash docs/user-guide/build.sh
-
-      - name: Upload PDFs
-        uses: actions/upload-artifact@v4
-        with:
-          name: user-guide-pdfs
-          path: |
-            frontend/core/public/guide-en.pdf
-            frontend/core/public/guide-fr.pdf
-
   backend-test:
     runs-on: ubuntu-latest
     steps:
@@ -108,7 +86,7 @@ jobs:
             ${{ env.BACKEND_IMAGE }}:latest
 
   publish-frontend:
-    needs: [backend-test, frontend-check, build-docs]
+    needs: [backend-test, frontend-check]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -148,7 +126,7 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:latest
 
   publish-frontend-static:
-    needs: [backend-test, frontend-check, build-docs]
+    needs: [backend-test, frontend-check]
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -156,12 +134,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-
-      - name: Download user guide PDFs
-        uses: actions/download-artifact@v4
-        with:
-          name: user-guide-pdfs
-          path: frontend/core/public
 
       - name: Set up Node.js
         uses: actions/setup-node@v5

@@ -86,7 +86,7 @@ export default function Layout() {
             className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
           >
             <GitHubIcon className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>Open Source</span>
+            <span>Community Edition</span>
             <span className="ml-auto">{__APP_VERSION__}</span>
           </a>
 

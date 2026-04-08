@@ -3,6 +3,13 @@ import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
+  markdown: {
+    mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   title: 'sE2EEnd',
   tagline: 'End-to-End Encrypted File Transfer — Open Source',
   favicon: 'img/logo.png',
@@ -15,15 +22,10 @@ const config: Config = {
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'fr'],
-    localeConfigs: {
-      en: { label: 'English' },
-      fr: { label: 'Français' },
-    },
+    locales: ['en'],
   },
 
   presets: [
@@ -63,10 +65,6 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          type: 'localeDropdown',
-          position: 'right',
-        },
-        {
           href: 'https://github.com/sE2EEnd/sE2EEnd',
           label: 'GitHub',
           position: 'right',
@@ -80,8 +78,8 @@ const config: Config = {
           title: 'Documentation',
           items: [
             { label: 'Getting Started', to: '/getting-started' },
-            { label: 'Deployment', to: '/deployment/docker-compose' },
-            { label: 'Configuration', to: '/configuration/theming' },
+            { label: 'Deployment', to: '/deployment' },
+            { label: 'Configuration', to: '/configuration' },
           ],
         },
         {
