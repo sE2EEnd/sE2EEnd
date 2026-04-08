@@ -80,8 +80,8 @@ const config: Config = {
           title: 'Documentation',
           items: [
             { label: 'Getting Started', to: '/getting-started' },
-            { label: 'Deployment', to: '/deployment' },
-            { label: 'Configuration', to: '/configuration' },
+            { label: 'Deployment', to: '/deployment/docker-compose' },
+            { label: 'Configuration', to: '/configuration/theming' },
           ],
         },
         {
