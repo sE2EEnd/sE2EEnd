@@ -10,7 +10,6 @@ import {
   Menu,
   X,
   Shield,
-  BookOpen,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -28,9 +27,8 @@ const menuItems = [
 
 export default function Layout() {
   const { keycloak } = useKeycloak();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const location = useLocation();
-  const guideUrl = i18n.language === 'fr' ? '/guide-fr.pdf' : '/guide-en.pdf';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme } = useTheme();
 
@@ -80,16 +78,6 @@ export default function Layout() {
               );
             })}
           </nav>
-
-          <a
-            href={guideUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
-          >
-            <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{t('layout.documentation')}</span>
-          </a>
 
           <a
             href="https://github.com/sE2EEnd/sE2EEnd"
@@ -168,16 +156,6 @@ export default function Layout() {
                 );
               })}
             </nav>
-
-            <a
-              href={guideUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
-            >
-              <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>{t('layout.documentation')}</span>
-            </a>
 
             <a
               href="https://github.com/sE2EEnd/sE2EEnd"
