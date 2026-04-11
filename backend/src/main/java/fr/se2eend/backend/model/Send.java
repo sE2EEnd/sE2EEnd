@@ -43,21 +43,26 @@ public class Send {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
+    @Builder.Default
     @Column(name = "max_downloads", nullable = false)
     private Integer maxDownloads = 1;
 
+    @Builder.Default
     @Column(name = "download_count", nullable = false)
     private Integer downloadCount = 0;
 
+    @Builder.Default
     @Column(name = "password_protected", nullable = false)
     private boolean passwordProtected = false;
 
     @Column(name = "password_hash", length = 60)
     private String passwordHash;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean revoked = false;
 

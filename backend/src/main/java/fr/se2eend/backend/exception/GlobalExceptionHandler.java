@@ -5,6 +5,7 @@ import fr.se2eend.backend.logging.CorrelationIdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -85,6 +86,12 @@ public class GlobalExceptionHandler {
                 List.of()
         );
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Void> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        log.debug("Access denied (cid={}): {}", cid(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @ExceptionHandler(Exception.class)
