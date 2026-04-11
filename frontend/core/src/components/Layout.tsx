@@ -85,14 +85,14 @@ export default function Layout() {
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
           >
-            <GitHubIcon className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>Community Edition</span>
+            <GitHubIcon className="w-3.5 h-3.5 shrink-0" />
+            <span>Open Source</span>
             <span className="ml-auto">{__APP_VERSION__}</span>
           </a>
 
           <div className={cn("p-4 border-t", "border-white/10")}>
             <div className="flex items-center gap-3 px-2 py-2">
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                 <span className="text-sm font-semibold text-white">
                   {(keycloak.tokenParsed?.preferred_username as string)?.[0]?.toUpperCase()}
                 </span>
@@ -103,7 +103,7 @@ export default function Layout() {
               <button
                 onClick={handleLogout}
                 title={t('layout.logout')}
-                className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+                className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors shrink-0"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -163,14 +163,14 @@ export default function Layout() {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
             >
-              <GitHubIcon className="w-3.5 h-3.5 flex-shrink-0" />
+              <GitHubIcon className="w-3.5 h-3.5 shrink-0" />
               <span>Open Source</span>
               <span className="ml-auto">{__APP_VERSION__}</span>
             </a>
 
             <div className={cn("p-4 border-t", "border-white/10")}>
               <div className="flex items-center gap-3 px-2 py-2">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                   <span className="text-sm font-semibold text-white">
                     {(keycloak.tokenParsed?.preferred_username as string)?.[0]?.toUpperCase()}
                   </span>
@@ -181,7 +181,7 @@ export default function Layout() {
                 <button
                   onClick={handleLogout}
                   title={t('layout.logout')}
-                  className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+                  className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
