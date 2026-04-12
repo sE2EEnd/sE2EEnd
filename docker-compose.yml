@@ -51,6 +51,54 @@ services:
       postgres:
         condition: service_healthy
 
+  backend:
+    image: ghcr.io/se2eend/se2eend-backend:latest
+    container_name: backend-se2eend
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/se2eend
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_EXTERNAL_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      STORAGE_LOCAL_BASE_DIR: /app/uploads
+      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET:-}
+      STORAGE_S3_REGION: ${STORAGE_S3_REGION:-us-east-1}
+      STORAGE_S3_ACCESS_KEY: ${STORAGE_S3_ACCESS_KEY:-}
+      STORAGE_S3_SECRET_KEY: ${STORAGE_S3_SECRET_KEY:-}
+      STORAGE_S3_ENDPOINT: ${STORAGE_S3_ENDPOINT:-}
+      STORAGE_S3_PATH_STYLE: ${STORAGE_S3_PATH_STYLE:-false}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+  frontend:
+    image: ghcr.io/se2eend/se2eend-frontend:latest
+    container_name: frontend-se2eend
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      KEYCLOAK_URL: ${KEYCLOAK_EXTERNAL_URL:-http://localhost:8090}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-se2eend}
+      KEYCLOAK_CLIENT_ID: se2eend-frontend
+      # Override if backend is not reachable as "backend" on port 8081 (e.g. Podman, custom network)
+      BACKEND_URL: ${BACKEND_URL:-http://backend:8081}
+    depends_on:
+      - backend
+      - keycloak
+
 volumes:
   postgres_data:
     name: se2eend_data
+  uploads_data:
+    name: se2eend_uploads
