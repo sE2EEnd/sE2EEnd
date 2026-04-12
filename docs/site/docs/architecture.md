@@ -75,18 +75,18 @@ When a send is password-protected, the password is used server-side to gate the 
 
 ## Backend
 
-**Spring Boot 3** / Java 21, Maven multi-module build.
+**Spring Boot 4** / Java 25, Maven multi-module build.
 
 Key packages:
 
-| Package | Responsibility |
-|---|---|
+| Package      | Responsibility                                                                                     |
+|--------------|----------------------------------------------------------------------------------------------------|
 | `controller` | REST endpoints — `SendController`, `SendDownloadController`, `AdminController`, `ConfigController` |
-| `service` | Business logic — send lifecycle, download counting, cleanup scheduling |
-| `storage` | Storage abstraction — `LocalFileSystemStorage`, `S3FileStorage` |
-| `config` | Spring Security (JWT), CORS (`WebConfig`), OpenAPI |
-| `scheduler` | `CleanupScheduler` — cron-based cleanup of expired/revoked/exhausted sends |
-| `model` | JPA entities — `Send`, `FileMetadata`, `DeletedSend`, `InstanceSetting` |
+| `service`    | Business logic — send lifecycle, download counting, cleanup scheduling                             |
+| `storage`    | Storage abstraction — `LocalFileSystemStorage`, `S3FileStorage`                                    |
+| `config`     | Spring Security (JWT), CORS (`WebConfig`), OpenAPI                                                 |
+| `scheduler`  | `CleanupScheduler` — cron-based cleanup of expired/revoked/exhausted sends                         |
+| `model`      | JPA entities — `Send`, `FileMetadata`, `DeletedSend`, `InstanceSetting`                            |
 
 ### Authentication
 
@@ -111,7 +111,7 @@ All terminal states are eligible for cleanup. The cleanup scheduler (configurabl
 
 ## Frontend
 
-**React 18** + **Vite** + **TypeScript**, served as a static SPA by nginx.
+**React 19** + **Vite 8** + **TypeScript 6**, served as a static SPA by nginx.
 
 Key design points:
 

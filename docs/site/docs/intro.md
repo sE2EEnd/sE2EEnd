@@ -42,10 +42,10 @@ Browser (recipient)
 
 | Layer      | Technology                               |
 |------------|------------------------------------------|
-| Frontend   | React + Vite + ShadcnUI, served by nginx |
-| Backend    | Spring Boot 3 (Java 21)                  |
-| Auth       | Keycloak 26                              |
-| Database   | PostgreSQL 18                            |
+| Frontend   | React 19 + Vite 8 + ShadcnUI, served by nginx |
+| Backend    | Spring Boot 4 (Java 25)                        |
+| Auth       | Keycloak 26                                    |
+| Database   | PostgreSQL 18                                  |
 | Encryption | Web Crypto API — AES-256-GCM             |
 | Storage    | Local filesystem or S3-compatible        |
 

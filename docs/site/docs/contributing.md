@@ -15,7 +15,7 @@ Contributions are welcome — bug fixes, new features, documentation improvement
 ### Prerequisites
 
 - Docker & Docker Compose (for the full stack)
-- Java 21 + Maven (backend)
+- Java 25 + Maven (backend)
 - Node.js 20+ (frontend and docs site)
 
 ### Start the full stack locally
