@@ -33,7 +33,7 @@
 	</developers>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springdoc.version>3.0.2</springdoc.version>
 		<aws.sdk.version>2.42.24</aws.sdk.version>
