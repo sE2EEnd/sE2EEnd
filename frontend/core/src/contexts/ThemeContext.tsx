@@ -10,6 +10,7 @@ interface ThemeContextType {
 const defaultTheme: ThemeConfig = {
   appName: 'sE2EEnd',
   logoUrl: '',
+  logoUrlDark: '',
   requireAuthForDownload: true,
   colors: {
     primaryFrom: 'blue-600',
@@ -54,6 +55,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
           setTheme({
             appName: config.theme.appName || defaultTheme.appName,
             logoUrl: config.theme.logoUrl || '',
+            logoUrlDark: config.theme.logoUrlDark || '',
             requireAuthForDownload: defaultTheme.requireAuthForDownload,
             colors: {
               primaryFrom: 'blue-600',

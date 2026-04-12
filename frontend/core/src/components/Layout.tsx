@@ -17,6 +17,7 @@ import GitHubIcon from './icons/GitHubIcon';
 import { useTheme } from '@/contexts/ThemeContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
+import AppLogo from './AppLogo';
 
 const menuItems = [
   { name: 'layout.dashboard', path: '/dashboard', icon: LayoutDashboard, role: null },
@@ -50,11 +51,7 @@ export default function Layout() {
       <aside className={cn("fixed inset-y-0 left-0 z-50 w-64 shadow-xl transform transition-transform duration-300 lg:translate-x-0 hidden lg:block", "bg-gradient-to-br-primary")}>
         <div className="flex flex-col h-full">
           <div className={cn("flex items-center justify-center h-16 px-4", "bg-black/20")}>
-            {theme?.logoUrl ? (
-              <img src={theme.logoUrl} alt={theme.appName} className="h-10 rounded" />
-            ) : (
-              <h1 className="text-2xl font-bold text-white tracking-tight">{theme?.appName}</h1>
-            )}
+            <AppLogo />
           </div>
 
           <nav className="flex-1 px-3 py-6 space-y-1">
@@ -121,11 +118,7 @@ export default function Layout() {
         <aside className={cn("fixed inset-y-0 left-0 w-64 shadow-xl", "bg-gradient-to-br-primary")}>
           <div className="flex flex-col h-full">
             <div className={cn("flex items-center justify-between h-16 px-4", "bg-black/20")}>
-              {theme?.logoUrl ? (
-                <img src={theme.logoUrl} alt={theme.appName} className="h-10 rounded" />
-              ) : (
-                <h1 className="text-2xl font-bold text-white tracking-tight">{theme?.appName}</h1>
-              )}
+              <AppLogo />
               <button
                 onClick={() => setSidebarOpen(false)}
                 className={cn("text-white p-2 rounded-lg", "hover:bg-primary-dark")}
