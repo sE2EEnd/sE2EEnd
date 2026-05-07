@@ -1,15 +1,3 @@
-# Generated docs
-docs/user-guide/guide-en.pdf
-docs/user-guide/guide-fr.pdf
-docs/user-guide/guide-en.tex
-docs/user-guide/guide-fr.tex
-docs/user-guide/guide-en.aux
-docs/user-guide/guide-fr.aux
-docs/user-guide/guide-en.log
-docs/user-guide/guide-fr.log
-docs/user-guide/guide-en.out
-docs/user-guide/guide-fr.out
-
 # Environment variables
 .env
 
@@ -48,3 +36,8 @@ keycloak/themes/se2eend/login/resources/css/login.css
 # Logs
 *.log
 logs/
+
+
+# for the moment
+.run/Start Docker for MacOS.run.xml
+docs/roadmap
