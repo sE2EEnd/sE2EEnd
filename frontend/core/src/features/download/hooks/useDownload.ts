@@ -11,6 +11,7 @@ export function useDownload() {
   const { t } = useTranslation();
   const { accessId } = useParams<{ accessId: string }>();
   const passwordRef = useRef<HTMLInputElement>(null);
+  const keyRef = useRef<CryptoKey | null>(null);
   const [sendInfo, setSendInfo] = useState<SendResponse | null>(null);
   const [decryptedSendName, setDecryptedSendName] = useState<string | null>(null);
   const [decryptedFilenames, setDecryptedFilenames] = useState<Record<string, string>>({});
@@ -21,6 +22,18 @@ export function useDownload() {
   const [downloadProgress, setDownloadProgress] = useState<{ phase: 'downloading' | 'decrypting'; percent: number } | null>(null);
   const [error, setError] = useState('');
 
+  // After the initial load (handled by loadSendInfo), clear any subsequent hash
+  // that appears without a full page reload (e.g. user pastes the link again in the same tab)
+  useEffect(() => {
+    const clearHash = () => {
+      if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    };
+    window.addEventListener('hashchange', clearHash);
+    return () => window.removeEventListener('hashchange', clearHash);
+  }, []);
+
   const loadSendInfo = useCallback(async () => {
     try {
       setLoading(true);
@@ -29,24 +42,31 @@ export function useDownload() {
 
       const keyBase64 = window.location.hash.substring(1);
       if (keyBase64) {
-        try {
-          const encryptionKey = await importKeyFromBase64(keyBase64);
-          if (info.name) {
-            try {
-              setDecryptedSendName(await decryptText(info.name, encryptionKey));
-            } catch {
-              console.warn('Could not decrypt send name, using encrypted value');
-            }
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        if (!keyRef.current) {
+          try {
+            keyRef.current = await importKeyFromBase64(keyBase64);
+          } catch (e) {
+            console.warn('Could not import encryption key:', e);
           }
-          if (info.type !== 'TEXT' && info.file) {
-            try {
-              setDecryptedFilenames({ [info.file.filename]: await decryptText(info.file.filename, encryptionKey) });
-            } catch {
-              setDecryptedFilenames({ [info.file.filename]: info.file.filename });
-            }
+        }
+      }
+
+      const encryptionKey = keyRef.current;
+      if (encryptionKey) {
+        if (info.name) {
+          try {
+            setDecryptedSendName(await decryptText(info.name, encryptionKey));
+          } catch {
+            console.warn('Could not decrypt send name, using encrypted value');
           }
-        } catch (e) {
-          console.warn('Could not decrypt names:', e);
+        }
+        if (info.type !== 'TEXT' && info.file) {
+          try {
+            setDecryptedFilenames({ [info.file.filename]: await decryptText(info.file.filename, encryptionKey) });
+          } catch {
+            setDecryptedFilenames({ [info.file.filename]: info.file.filename });
+          }
         }
       }
       setError('');
@@ -63,15 +83,14 @@ export function useDownload() {
 
   const handleDownload = async () => {
     if (!accessId) return;
-    const keyBase64 = window.location.hash.substring(1);
-    if (!keyBase64) { setError(t('download.errors.keyMissing')); return; }
+    const encryptionKey = keyRef.current;
+    if (!encryptionKey) { setError(t('download.errors.keyMissing')); return; }
 
     setDownloading(true);
     setDownloadProgress({ phase: 'downloading', percent: 0 });
     setError('');
 
     try {
-      const encryptionKey = await importKeyFromBase64(keyBase64);
       const password = passwordRef.current?.value || undefined;
       const encryptedBlob = await sendApi.downloadSend(
         accessId,

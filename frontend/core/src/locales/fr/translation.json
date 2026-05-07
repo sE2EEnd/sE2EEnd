@@ -184,7 +184,8 @@
       "sendNotFound": "Envoi introuvable",
       "limitReached": "Ce fichier a atteint sa limite de téléchargements et ne peut plus être téléchargé."
     },
-    "footer": "Les fichiers sont déchiffrés localement dans votre navigateur • Architecture zéro-connaissance",
+    "footer": "Déchiffrement local dans votre navigateur",
+    "poweredBy": "Propulsé par sE2EEnd",
     "progress": {
       "downloading": "Téléchargement...",
       "decrypting": "Déchiffrement..."

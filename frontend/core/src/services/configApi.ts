@@ -3,6 +3,7 @@ import api from './http';
 export interface ThemeConfig {
   appName: string;
   logoUrl: string;
+  logoUrlDark: string;
   requireAuthForDownload: boolean;
   colors: {
     primaryFrom: string;

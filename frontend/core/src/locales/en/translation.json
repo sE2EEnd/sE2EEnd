@@ -184,7 +184,8 @@
       "sendNotFound": "Send not found",
       "limitReached": "This file has reached its download limit and can no longer be downloaded."
     },
-    "footer": "Files are decrypted locally in your browser • Zero-knowledge architecture",
+    "footer": "Decrypted locally in your browser",
+    "poweredBy": "Powered by sE2EEnd",
     "progress": {
       "downloading": "Downloading...",
       "decrypting": "Decrypting..."

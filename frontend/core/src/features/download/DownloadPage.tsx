@@ -7,6 +7,10 @@ import { useDownload } from './hooks/useDownload';
 import SendMetaPanel from './components/SendMetaPanel';
 import DecryptedTextViewer from './components/DecryptedTextViewer';
 import DownloadQrCode from './components/DownloadQrCode';
+import ThemeToggle from '@/components/ThemeToggle';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import GitHubIcon from '@/components/icons/GitHubIcon';
+import AppLogo from '@/components/AppLogo';
 
 function DownloadPage() {
   const { t } = useTranslation();
@@ -28,10 +32,14 @@ function DownloadPage() {
   const isText = sendInfo?.type === 'TEXT';
 
   return (
-    <div className="min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
+      <div className="absolute top-4 right-4 flex items-center gap-1 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl p-1">
+        <ThemeToggle />
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">sE2EEnd</h1>
+          <AppLogo imgClassName="h-16 mx-auto mb-4 rounded" textClassName="text-5xl font-bold text-white mb-2 tracking-tight" />
           <p className="text-xl text-blue-100">{t('download.title')}</p>
         </div>
 
@@ -144,9 +152,20 @@ function DownloadPage() {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-blue-100">
-          <Shield className="w-4 h-4" />
-          <span>{t('download.footer')}</span>
+        <div className="mt-6 flex flex-col items-center gap-1.5 text-sm text-blue-100/75 text-center">
+          <p>
+            <Shield className="inline w-4 h-4 mr-1.5 -mb-0.5" />
+            {t('download.footer')}
+          </p>
+          <a
+            href="https://github.com/sE2EEnd/sE2EEnd"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-100 transition-colors"
+          >
+            <GitHubIcon className="inline w-3.5 h-3.5 mr-1.5 -mb-0.5" />
+            {t('download.poweredBy')}
+          </a>
         </div>
       </div>
     </div>

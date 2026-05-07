@@ -46,7 +46,7 @@ export default function DecryptedTextViewer({ text, hideText, setHideText }: Dec
         value={text}
         rows={6}
         className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-100 font-mono text-sm resize-none focus:outline-none ${
-          hideText ? 'text-transparent [text-shadow:0_0_8px_rgba(0,0,0,0.5)] select-none' : ''
+          hideText ? '!text-transparent [text-shadow:0_0_12px_rgba(0,0,0,0.9)] dark:[text-shadow:0_0_12px_rgba(255,255,255,0.7)] select-none' : ''
         }`}
       />
     </div>
