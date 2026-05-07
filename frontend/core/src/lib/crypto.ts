@@ -76,6 +76,55 @@ export async function encryptFile(file: File, key: CryptoKey): Promise<Blob> {
 }
 
 /**
+ * Encrypt a raw ArrayBuffer as a single chunk.
+ * Returns a Uint8Array with IV prepended, matching the format of encryptFile.
+ */
+export async function encryptChunk(data: ArrayBuffer, key: CryptoKey): Promise<Uint8Array> {
+  const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+  const encryptedBuffer = await window.crypto.subtle.encrypt({ name: ALGORITHM, iv }, key, data);
+  const result = new Uint8Array(IV_LENGTH + encryptedBuffer.byteLength);
+  result.set(iv, 0);
+  result.set(new Uint8Array(encryptedBuffer), IV_LENGTH);
+  return result;
+}
+
+/**
+ * Decrypt a blob produced by chunked upload.
+ * The blob is a concatenation of [IV | ciphertext] blocks.
+ * chunkSize is the plaintext chunk size used during encryption.
+ * Each encrypted block is chunkSize + IV_LENGTH + 16 (GCM tag) bytes,
+ * except the last which may be smaller.
+ */
+export async function decryptChunkedBlob(
+  encryptedBlob: Blob,
+  key: CryptoKey,
+  chunkSize: number,
+  onProgress?: (percent: number) => void,
+): Promise<Blob> {
+  const encryptedBuffer = await encryptedBlob.arrayBuffer();
+  const encryptedBytes = new Uint8Array(encryptedBuffer);
+  const encryptedChunkSize = chunkSize + IV_LENGTH + 16; // 16 = GCM auth tag
+  const totalChunks = Math.ceil(encryptedBytes.length / encryptedChunkSize);
+  const decryptedParts: ArrayBuffer[] = [];
+
+  let offset = 0;
+  let chunksDone = 0;
+  while (offset < encryptedBytes.length) {
+    const blockSize = Math.min(encryptedChunkSize, encryptedBytes.length - offset);
+    const block = encryptedBytes.slice(offset, offset + blockSize);
+    const iv = block.slice(0, IV_LENGTH);
+    const ciphertext = block.slice(IV_LENGTH);
+    const decrypted = await window.crypto.subtle.decrypt({ name: ALGORITHM, iv }, key, ciphertext);
+    decryptedParts.push(decrypted);
+    offset += blockSize;
+    chunksDone++;
+    onProgress?.(Math.round((chunksDone / totalChunks) * 100));
+  }
+
+  return new Blob(decryptedParts);
+}
+
+/**
  * Decrypt a blob
  * Expects IV to be prepended to the encrypted data
  */

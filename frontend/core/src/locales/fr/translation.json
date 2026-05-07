@@ -128,7 +128,8 @@
       "title": "Téléversement de votre fichier...",
       "titleText": "Envoi de votre texte...",
       "message": "Veuillez patienter pendant que nous téléversons votre fichier en toute sécurité",
-      "messageText": "Veuillez patienter pendant que nous envoyons votre texte en toute sécurité"
+      "messageText": "Veuillez patienter pendant que nous envoyons votre texte en toute sécurité",
+      "progress": "Partie {{loaded}} sur {{total}}"
     },
     "success": {
       "title": "Fichier téléversé avec succès !",
@@ -183,7 +184,11 @@
       "sendNotFound": "Envoi introuvable",
       "limitReached": "Ce fichier a atteint sa limite de téléchargements et ne peut plus être téléchargé."
     },
-    "footer": "Les fichiers sont déchiffrés localement dans votre navigateur • Architecture zéro-connaissance"
+    "footer": "Les fichiers sont déchiffrés localement dans votre navigateur • Architecture zéro-connaissance",
+    "progress": {
+      "downloading": "Téléchargement...",
+      "decrypting": "Déchiffrement..."
+    }
   },
   "admin": {
     "title": "Administration",

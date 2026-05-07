@@ -61,7 +61,8 @@ public class SendMapper {
         return new FileMetadataDto(
                 file.getId(),
                 file.getFilename(),
-                file.getSizeBytes()
+                file.getSizeBytes(),
+                file.getChunkSize()
         );
     }
 }

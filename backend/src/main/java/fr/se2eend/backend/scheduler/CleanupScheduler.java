@@ -1,6 +1,7 @@
 package fr.se2eend.backend.scheduler;
 
 import fr.se2eend.backend.service.AdminService;
+import fr.se2eend.backend.service.ChunkedUploadService;
 import fr.se2eend.backend.service.InstanceSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class CleanupScheduler {
 
     private final AdminService adminService;
+    private final ChunkedUploadService chunkedUploadService;
     private final InstanceSettingsService instanceSettingsService;
 
     /**
@@ -54,6 +56,12 @@ public class CleanupScheduler {
             log.info("Scheduled cleanup completed: {}", result);
         } catch (Exception e) {
             log.error("Scheduled cleanup failed", e);
+        }
+
+        try {
+            chunkedUploadService.cleanupStaleSessions(LocalDateTime.now().minusHours(24));
+        } catch (Exception e) {
+            log.error("Stale upload session cleanup failed", e);
         }
     }
 }

@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { zip } from 'fflate';
 import { sendApi, configApi } from '@/services/api.ts';
 import { getApiErrorMessage } from '@/lib/errors';
-import { generateKey, exportKeyToBase64, encryptFile, encryptText } from '@/lib/crypto.ts';
+import { generateKey, exportKeyToBase64, encryptFile, encryptChunk, encryptText } from '@/lib/crypto.ts';
 import { storeSendKey } from '@/lib/sendKeysDB.ts';
 
 // Multi-file sends are zipped client-side before encryption.
 // Above this threshold the browser risks running out of memory — split into multiple sends.
 const MULTI_FILE_ZIP_SIZE_LIMIT = 150 * 1024 * 1024; // 150 MB
+
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB plaintext per chunk
 
 function zipFilesAsync(entries: Record<string, Uint8Array>): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
@@ -33,6 +35,7 @@ export function useUploadForm() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const [usePassword, setUsePassword] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [error, setError] = useState('');
   const [shareLink, setShareLink] = useState('');
   const [requireSendPassword, setRequireSendPassword] = useState(false);
@@ -147,25 +150,38 @@ export function useUploadForm() {
         });
         await storeSendKey(send.id, keyBase64);
 
+        let sourceBuffer: ArrayBuffer;
+        let originalName: string;
+
         if (selectedFiles.length === 1) {
-          const file = selectedFiles[0];
-          const encryptedBlob = await encryptFile(file, encryptionKey);
-          const encryptedFilename = await encryptText(file.name, encryptionKey);
-          const encryptedFile = new File([encryptedBlob], encryptedFilename, { type: 'application/octet-stream' });
-          await sendApi.uploadFile(send.id, encryptedFile);
+          sourceBuffer = await selectedFiles[0].arrayBuffer();
+          originalName = selectedFiles[0].name;
         } else {
           const fileEntries: Record<string, Uint8Array> = {};
           for (const file of selectedFiles) {
             fileEntries[file.name] = new Uint8Array(await file.arrayBuffer());
           }
           const zipped = await zipFilesAsync(fileEntries);
-          const zipBlob = new Blob([zipped.buffer as ArrayBuffer], { type: 'application/zip' });
-          const zipFile = new File([zipBlob], 'archive.zip');
-          const encryptedBlob = await encryptFile(zipFile, encryptionKey);
-          const encryptedFilename = await encryptText('archive.zip', encryptionKey);
-          const encryptedFile = new File([encryptedBlob], encryptedFilename, { type: 'application/octet-stream' });
-          await sendApi.uploadFile(send.id, encryptedFile);
+          sourceBuffer = zipped.buffer as ArrayBuffer;
+          originalName = 'archive.zip';
         }
+
+        const encryptedFilename = await encryptText(originalName, encryptionKey);
+        const { sessionId } = await sendApi.initChunkedUpload(send.id, encryptedFilename);
+
+        const totalChunks = Math.ceil(sourceBuffer.byteLength / CHUNK_SIZE);
+        setUploadProgress({ loaded: 0, total: totalChunks });
+
+        for (let i = 0; i < totalChunks; i++) {
+          const start = i * CHUNK_SIZE;
+          const end = Math.min(start + CHUNK_SIZE, sourceBuffer.byteLength);
+          const chunkData = sourceBuffer.slice(start, end);
+          const encryptedChunk = await encryptChunk(chunkData, encryptionKey);
+          await sendApi.uploadChunk(sessionId, i, encryptedChunk);
+          setUploadProgress({ loaded: i + 1, total: totalChunks });
+        }
+
+        await sendApi.completeChunkedUpload(sessionId, totalChunks, CHUNK_SIZE);
 
         setShareLink(`${window.location.origin}/download/${send.accessId}#${keyBase64}`);
         setActiveStep(3);
@@ -175,6 +191,7 @@ export function useUploadForm() {
       setActiveStep(1);
     } finally {
       setUploading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -196,6 +213,7 @@ export function useUploadForm() {
     setPasswordHasValue(false);
     setUsedPassword('');
     setError('');
+    setUploadProgress(null);
   };
 
   return {
@@ -211,6 +229,7 @@ export function useUploadForm() {
     passwordRef,
     usePassword, setUsePassword,
     uploading,
+    uploadProgress,
     error, setError,
     shareLink,
     requireSendPassword,

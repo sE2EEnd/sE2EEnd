@@ -30,6 +30,7 @@ export interface FileMetadata {
   fileId: string;
   filename: string;
   fileSize: number;
+  chunkSize?: number;
 }
 
 export const sendApi = {
@@ -53,10 +54,17 @@ export const sendApi = {
     return response.data;
   },
 
-  downloadSend: async (accessId: string, password?: string): Promise<Blob> => {
+  downloadSend: async (
+    accessId: string,
+    password?: string,
+    onProgress?: (percent: number) => void,
+  ): Promise<Blob> => {
     const response = await api.get(`/sends/${accessId}/download`, {
       responseType: 'blob',
       headers: password ? { 'X-Send-Password': password } : undefined,
+      onDownloadProgress: onProgress
+        ? (e) => { if (e.total) onProgress(Math.round((e.loaded / e.total) * 100)); }
+        : undefined,
     });
     return response.data;
   },
@@ -68,5 +76,21 @@ export const sendApi = {
 
   deleteSend: async (sendId: string): Promise<void> => {
     await api.delete(`/sends/${sendId}`);
+  },
+
+  initChunkedUpload: async (sendId: string, filename: string): Promise<{ sessionId: string }> => {
+    const response = await api.post('/files/chunked/init', { sendId, filename });
+    return response.data;
+  },
+
+  uploadChunk: async (sessionId: string, chunkIndex: number, chunk: Uint8Array): Promise<void> => {
+    await api.put(`/files/chunked/${sessionId}/chunk/${chunkIndex}`, chunk, {
+      headers: { 'Content-Type': 'application/octet-stream' },
+    });
+  },
+
+  completeChunkedUpload: async (sessionId: string, totalChunks: number, chunkSize: number): Promise<FileMetadata> => {
+    const response = await api.post(`/files/chunked/${sessionId}/complete`, { totalChunks, chunkSize });
+    return response.data;
   },
 };

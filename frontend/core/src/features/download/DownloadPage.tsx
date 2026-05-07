@@ -2,6 +2,7 @@ import { AlertCircle, Download, FileText, Loader2, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Alert } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { useDownload } from './hooks/useDownload';
 import SendMetaPanel from './components/SendMetaPanel';
 import DecryptedTextViewer from './components/DecryptedTextViewer';
@@ -12,13 +13,13 @@ function DownloadPage() {
   const {
     sendInfo, decryptedSendName, decryptedFilenames,
     decryptedText, hideText, setHideText,
-    passwordRef, loading, downloading, error,
+    passwordRef, loading, downloading, downloadProgress, error,
     handleDownload,
   } = useDownload();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br bg-gradient-to-br-primary flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center">
         <Loader2 className="w-16 h-16 text-white animate-spin" />
       </div>
     );
@@ -27,7 +28,7 @@ function DownloadPage() {
   const isText = sendInfo?.type === 'TEXT';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">sE2EEnd</h1>
@@ -113,6 +114,20 @@ function DownloadPage() {
                   </>
                 )}
               </button>
+
+              {downloadProgress && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>
+                      {downloadProgress.phase === 'downloading'
+                        ? t('download.progress.downloading')
+                        : t('download.progress.decrypting')}
+                    </span>
+                    <span>{downloadProgress.percent}%</span>
+                  </div>
+                  <Progress value={downloadProgress.percent} />
+                </div>
+              )}
 
               {sendInfo.downloadCount >= sendInfo.maxDownloads && (
                 <Alert variant="warning">
