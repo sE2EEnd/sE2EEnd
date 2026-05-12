@@ -69,7 +69,7 @@ export default function UploadPage() {
                 onUpload={form.handleUpload}
               />
             )}
-            {form.activeStep === 2 && <UploadingStep mode={form.mode} uploadProgress={form.uploadProgress} />}
+            {form.activeStep === 2 && <UploadingStep mode={form.mode} uploadProgress={form.uploadProgress} finalizing={form.finalizing} />}
             {form.activeStep === 3 && (
               <ShareStep
                 mode={form.mode}

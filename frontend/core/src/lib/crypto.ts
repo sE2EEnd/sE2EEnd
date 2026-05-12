@@ -101,24 +101,20 @@ export async function decryptChunkedBlob(
   chunkSize: number,
   onProgress?: (percent: number) => void,
 ): Promise<Blob> {
-  const encryptedBuffer = await encryptedBlob.arrayBuffer();
-  const encryptedBytes = new Uint8Array(encryptedBuffer);
   const encryptedChunkSize = chunkSize + IV_LENGTH + 16; // 16 = GCM auth tag
-  const totalChunks = Math.ceil(encryptedBytes.length / encryptedChunkSize);
-  const decryptedParts: ArrayBuffer[] = [];
+  const totalChunks = Math.ceil(encryptedBlob.size / encryptedChunkSize);
+  const decryptedParts: Blob[] = [];
 
-  let offset = 0;
-  let chunksDone = 0;
-  while (offset < encryptedBytes.length) {
-    const blockSize = Math.min(encryptedChunkSize, encryptedBytes.length - offset);
-    const block = encryptedBytes.slice(offset, offset + blockSize);
-    const iv = block.slice(0, IV_LENGTH);
-    const ciphertext = block.slice(IV_LENGTH);
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * encryptedChunkSize;
+    const end = Math.min(start + encryptedChunkSize, encryptedBlob.size);
+    // blob.slice() reads only ~5 MB at a time — safe for arbitrarily large files
+    const chunkBuffer = await encryptedBlob.slice(start, end).arrayBuffer();
+    const iv = new Uint8Array(chunkBuffer, 0, IV_LENGTH);
+    const ciphertext = new Uint8Array(chunkBuffer, IV_LENGTH);
     const decrypted = await window.crypto.subtle.decrypt({ name: ALGORITHM, iv }, key, ciphertext);
-    decryptedParts.push(decrypted);
-    offset += blockSize;
-    chunksDone++;
-    onProgress?.(Math.round((chunksDone / totalChunks) * 100));
+    decryptedParts.push(new Blob([decrypted]));
+    onProgress?.(Math.round(((i + 1) / totalChunks) * 100));
   }
 
   return new Blob(decryptedParts);

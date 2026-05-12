@@ -122,14 +122,17 @@
       "selectFile": "Please select at least one file",
       "enterPassword": "Please enter a password",
       "uploadFailed": "Upload failed. Please try again.",
-      "multiFileSizeLimit": "Multi-file sends are limited to {{limit}} MB total. Please split your files into multiple sends."
+      "multiFileSizeLimit": "Multi-file sends are limited to {{limit}} MB total. Please split your files into multiple sends.",
+      "fileSizeLimit": "File size exceeds the {{limit}} limit set by the administrator."
     },
     "uploading": {
       "title": "Uploading your file...",
       "titleText": "Sending your text...",
       "message": "Please wait while we securely upload your file",
       "messageText": "Please wait while we securely send your text",
-      "progress": "Chunk {{loaded}} of {{total}}"
+      "progress": "Chunk {{loaded}} of {{total}}",
+      "finalizingTitle": "Finalizing upload...",
+      "finalizingMessage": "All chunks uploaded — the server is assembling your file"
     },
     "success": {
       "title": "File uploaded successfully!",
@@ -281,7 +284,15 @@
       "leaveConfirm": "Leave anyway",
       "leaveCancel": "Stay",
       "requireSendPassword": "Require password on all sends",
-      "requireSendPasswordDesc": "When enabled, every send must be protected by a password."
+      "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
+      "maxUploadSize": "Maximum upload size",
+      "maxUploadSizeDesc": "Maximum plaintext file size per send. Set to 0 for unlimited.",
+      "maxUploadSizeUnit": "MB",
+      "maxUploadSizePreset500": "500 MB",
+      "maxUploadSizePreset1G": "1 GB",
+      "maxUploadSizePreset2G": "2 GB",
+      "maxUploadSizePreset4G": "4 GB",
+      "maxUploadSizeUnlimited": "Unlimited"
     }
   },
   "notFound": {

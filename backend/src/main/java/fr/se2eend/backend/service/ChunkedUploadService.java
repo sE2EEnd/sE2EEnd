@@ -1,6 +1,7 @@
 package fr.se2eend.backend.service;
 
 import fr.se2eend.backend.exception.ResourceNotFoundException;
+import fr.se2eend.backend.exception.UploadSizeLimitExceededException;
 import fr.se2eend.backend.exception.enums.ErrorCode;
 import fr.se2eend.backend.model.*;
 import fr.se2eend.backend.repository.*;
@@ -26,6 +27,7 @@ public class ChunkedUploadService {
     private final FileRepository fileRepository;
     private final SendRepository sendRepository;
     private final StorageService storageService;
+    private final InstanceSettingsService instanceSettingsService;
 
     @Transactional
     public UploadSession initUpload(UUID sendId, String filename) {
@@ -72,6 +74,16 @@ public class ChunkedUploadService {
         }
 
         long totalSize = chunks.stream().mapToLong(UploadChunk::getSizeBytes).sum();
+
+        long maxUploadBytes = instanceSettingsService.getLong("max_upload_size_bytes", 2L * 1024 * 1024 * 1024);
+        if (maxUploadBytes > 0) {
+            // Each chunk carries 12-byte IV + 16-byte GCM auth tag overhead; subtract to get plaintext size
+            long plaintextSize = totalSize - (long) totalChunks * 28;
+            if (plaintextSize > maxUploadBytes) {
+                throw new UploadSizeLimitExceededException(maxUploadBytes);
+            }
+        }
+
         String finalPath = UUID.randomUUID().toString();
 
         List<InputStream> streams = new ArrayList<>();

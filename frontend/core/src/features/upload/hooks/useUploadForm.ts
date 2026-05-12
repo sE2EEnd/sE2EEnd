@@ -1,23 +1,71 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { zip } from 'fflate';
+import { Zip, ZipPassThrough } from 'fflate';
 import { sendApi, configApi } from '@/services/api.ts';
 import { getApiErrorMessage } from '@/lib/errors';
 import { generateKey, exportKeyToBase64, encryptFile, encryptChunk, encryptText } from '@/lib/crypto.ts';
 import { storeSendKey } from '@/lib/sendKeysDB.ts';
 
-// Multi-file sends are zipped client-side before encryption.
-// Above this threshold the browser risks running out of memory — split into multiple sends.
-const MULTI_FILE_ZIP_SIZE_LIMIT = 150 * 1024 * 1024; // 150 MB
+const CHUNK_SIZE = 25 * 1024 * 1024; // 25 MB plaintext per chunk
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB plaintext per chunk
+// True pipeline: streams a multi-file zip via fflate and calls onChunk for each
+// CHUNK_SIZE block as soon as it's ready, without buffering the full archive.
+// Backpressure via `await pending` ensures at most one chunk is in-flight at a time.
+// Peak RAM: ~2×CHUNK_SIZE (one source slice being read + one chunk being processed).
+// Returns the actual number of chunks emitted.
+function pipeZipChunks(
+  files: File[],
+  chunkSize: number,
+  onChunk: (chunk: Uint8Array, index: number) => Promise<void>,
+): Promise<number> {
+  return new Promise<number>((resolve, reject) => {
+    let pieces: Uint8Array[] = [];
+    let pieceSize = 0;
+    let chunkIndex = 0;
+    let pending = Promise.resolve<void>(undefined);
 
-function zipFilesAsync(entries: Record<string, Uint8Array>): Promise<Uint8Array> {
-  return new Promise((resolve, reject) => {
-    zip(entries, { level: 0 }, (err, data) => {
-      if (err) reject(err);
-      else resolve(data);
+    const flushChunk = () => {
+      const merged = new Uint8Array(pieceSize);
+      let pos = 0;
+      for (const p of pieces) { merged.set(p, pos); pos += p.length; }
+      pieces = [];
+      pieceSize = 0;
+      const idx = chunkIndex++;
+      pending = pending.then(() => onChunk(merged, idx));
+    };
+
+    const zipStream = new Zip((err, data, final) => {
+      if (err) { reject(err); return; }
+      let offset = 0;
+      while (offset < data.length) {
+        const space = chunkSize - pieceSize;
+        const piece = data.subarray(offset, offset + space);
+        pieces.push(piece);
+        pieceSize += piece.length;
+        offset += piece.length;
+        if (pieceSize >= chunkSize) flushChunk();
+      }
+      if (final) {
+        if (pieceSize > 0) flushChunk();
+        pending.then(() => resolve(chunkIndex)).catch(reject);
+      }
     });
+
+    (async () => {
+      for (const file of files) {
+        const entry = new ZipPassThrough(file.name);
+        zipStream.add(entry);
+        let offset = 0;
+        while (offset < file.size) {
+          const end = Math.min(offset + chunkSize, file.size);
+          const data = new Uint8Array(await file.slice(offset, end).arrayBuffer());
+          entry.push(data, end >= file.size);
+          offset = end;
+          await pending; // backpressure: don't read next slice until previous chunk is uploaded
+        }
+      }
+      zipStream.end();
+    })().catch(reject);
   });
 }
 
@@ -36,9 +84,11 @@ export function useUploadForm() {
   const [usePassword, setUsePassword] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ loaded: number; total: number } | null>(null);
+  const [finalizing, setFinalizing] = useState(false);
   const [error, setError] = useState('');
   const [shareLink, setShareLink] = useState('');
   const [requireSendPassword, setRequireSendPassword] = useState(false);
+  const [maxUploadSizeBytes, setMaxUploadSizeBytes] = useState(0);
   const [passwordHasValue, setPasswordHasValue] = useState(false);
   const [usedPassword, setUsedPassword] = useState('');
 
@@ -48,6 +98,7 @@ export function useUploadForm() {
         setRequireSendPassword(true);
         setUsePassword(true);
       }
+      setMaxUploadSizeBytes(policy.maxUploadSizeBytes ?? 0);
     }).catch(() => { /* policy remains at default */ });
   }, []);
 
@@ -83,10 +134,12 @@ export function useUploadForm() {
         setError(t('upload.errors.selectFile'));
         return;
       }
-      if (selectedFiles.length > 1) {
+      if (maxUploadSizeBytes > 0) {
         const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
-        if (totalSize > MULTI_FILE_ZIP_SIZE_LIMIT) {
-          setError(t('upload.errors.multiFileSizeLimit', { limit: Math.floor(MULTI_FILE_ZIP_SIZE_LIMIT / 1024 / 1024) }));
+        if (totalSize > maxUploadSizeBytes) {
+          const limitMb = Math.round(maxUploadSizeBytes / (1024 * 1024));
+          const limitLabel = limitMb >= 1024 ? `${(limitMb / 1024).toFixed(1)} GB` : `${limitMb} MB`;
+          setError(t('upload.errors.fileSizeLimit', { limit: limitLabel }));
           return;
         }
       }
@@ -150,38 +203,37 @@ export function useUploadForm() {
         });
         await storeSendKey(send.id, keyBase64);
 
-        let sourceBuffer: ArrayBuffer;
-        let originalName: string;
-
         if (selectedFiles.length === 1) {
-          sourceBuffer = await selectedFiles[0].arrayBuffer();
-          originalName = selectedFiles[0].name;
-        } else {
-          const fileEntries: Record<string, Uint8Array> = {};
-          for (const file of selectedFiles) {
-            fileEntries[file.name] = new Uint8Array(await file.arrayBuffer());
+          // Truly streaming: slice → encrypt → upload one chunk at a time, ~5 MB peak RAM
+          const file = selectedFiles[0];
+          const encryptedFilename = await encryptText(file.name, encryptionKey);
+          const { sessionId } = await sendApi.initChunkedUpload(send.id, encryptedFilename);
+          const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+          setUploadProgress({ loaded: 0, total: totalChunks });
+          for (let i = 0, offset = 0; offset < file.size; i++, offset += CHUNK_SIZE) {
+            const data = await file.slice(offset, Math.min(offset + CHUNK_SIZE, file.size)).arrayBuffer();
+            const encrypted = await encryptChunk(data, encryptionKey);
+            await sendApi.uploadChunk(sessionId, i, encrypted);
+            setUploadProgress({ loaded: i + 1, total: totalChunks });
           }
-          const zipped = await zipFilesAsync(fileEntries);
-          sourceBuffer = zipped.buffer as ArrayBuffer;
-          originalName = 'archive.zip';
+          setFinalizing(true);
+          await sendApi.completeChunkedUpload(sessionId, totalChunks, CHUNK_SIZE);
+        } else {
+          // Multi-file: true pipeline zip → encrypt → upload, one chunk at a time.
+          // ZipPassThrough = no compression, so output ≈ input — safe estimate for the progress bar.
+          const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+          const estimatedChunks = Math.ceil(totalSize / CHUNK_SIZE);
+          const encryptedFilename = await encryptText('archive.zip', encryptionKey);
+          const { sessionId } = await sendApi.initChunkedUpload(send.id, encryptedFilename);
+          setUploadProgress({ loaded: 0, total: estimatedChunks });
+          const actualChunks = await pipeZipChunks(selectedFiles, CHUNK_SIZE, async (chunk, i) => {
+            const encrypted = await encryptChunk(chunk.buffer as ArrayBuffer, encryptionKey);
+            await sendApi.uploadChunk(sessionId, i, encrypted);
+            setUploadProgress({ loaded: i + 1, total: Math.max(estimatedChunks, i + 1) });
+          });
+          setFinalizing(true);
+          await sendApi.completeChunkedUpload(sessionId, actualChunks, CHUNK_SIZE);
         }
-
-        const encryptedFilename = await encryptText(originalName, encryptionKey);
-        const { sessionId } = await sendApi.initChunkedUpload(send.id, encryptedFilename);
-
-        const totalChunks = Math.ceil(sourceBuffer.byteLength / CHUNK_SIZE);
-        setUploadProgress({ loaded: 0, total: totalChunks });
-
-        for (let i = 0; i < totalChunks; i++) {
-          const start = i * CHUNK_SIZE;
-          const end = Math.min(start + CHUNK_SIZE, sourceBuffer.byteLength);
-          const chunkData = sourceBuffer.slice(start, end);
-          const encryptedChunk = await encryptChunk(chunkData, encryptionKey);
-          await sendApi.uploadChunk(sessionId, i, encryptedChunk);
-          setUploadProgress({ loaded: i + 1, total: totalChunks });
-        }
-
-        await sendApi.completeChunkedUpload(sessionId, totalChunks, CHUNK_SIZE);
 
         setShareLink(`${window.location.origin}/download/${send.accessId}#${keyBase64}`);
         setActiveStep(3);
@@ -192,6 +244,7 @@ export function useUploadForm() {
     } finally {
       setUploading(false);
       setUploadProgress(null);
+      setFinalizing(false);
     }
   };
 
@@ -230,9 +283,11 @@ export function useUploadForm() {
     usePassword, setUsePassword,
     uploading,
     uploadProgress,
+    finalizing,
     error, setError,
     shareLink,
     requireSendPassword,
+    maxUploadSizeBytes,
     passwordHasValue, setPasswordHasValue,
     usedPassword,
     handleFilesSelected,

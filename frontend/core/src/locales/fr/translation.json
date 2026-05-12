@@ -122,14 +122,17 @@
       "selectFile": "Veuillez sélectionner au moins un fichier",
       "enterPassword": "Veuillez entrer un mot de passe",
       "uploadFailed": "Échec du téléversement. Veuillez réessayer.",
-      "multiFileSizeLimit": "Les envois multi-fichiers sont limités à {{limit}} Mo au total. Veuillez répartir vos fichiers en plusieurs envois."
+      "multiFileSizeLimit": "Les envois multi-fichiers sont limités à {{limit}} Mo au total. Veuillez répartir vos fichiers en plusieurs envois.",
+      "fileSizeLimit": "La taille des fichiers dépasse la limite de {{limit}} fixée par l'administrateur."
     },
     "uploading": {
       "title": "Téléversement de votre fichier...",
       "titleText": "Envoi de votre texte...",
       "message": "Veuillez patienter pendant que nous téléversons votre fichier en toute sécurité",
       "messageText": "Veuillez patienter pendant que nous envoyons votre texte en toute sécurité",
-      "progress": "Partie {{loaded}} sur {{total}}"
+      "progress": "Partie {{loaded}} sur {{total}}",
+      "finalizingTitle": "Finalisation en cours...",
+      "finalizingMessage": "Tous les fragments sont envoyés — le serveur assemble votre fichier"
     },
     "success": {
       "title": "Fichier téléversé avec succès !",
@@ -281,7 +284,15 @@
       "leaveConfirm": "Quitter quand même",
       "leaveCancel": "Rester",
       "requireSendPassword": "Mot de passe obligatoire sur tous les envois",
-      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe."
+      "requireSendPasswordDesc": "Quand activé, chaque envoi doit être protégé par un mot de passe.",
+      "maxUploadSize": "Taille maximale d'envoi",
+      "maxUploadSizeDesc": "Taille maximale en clair par envoi. Mettre 0 pour désactiver la limite.",
+      "maxUploadSizeUnit": "Mo",
+      "maxUploadSizePreset500": "500 Mo",
+      "maxUploadSizePreset1G": "1 Go",
+      "maxUploadSizePreset2G": "2 Go",
+      "maxUploadSizePreset4G": "4 Go",
+      "maxUploadSizeUnlimited": "Illimité"
     }
   },
   "notFound": {
