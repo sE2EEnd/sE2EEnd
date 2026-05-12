@@ -76,6 +76,51 @@ export async function encryptFile(file: File, key: CryptoKey): Promise<Blob> {
 }
 
 /**
+ * Encrypt a raw ArrayBuffer as a single chunk.
+ * Returns a Uint8Array with IV prepended, matching the format of encryptFile.
+ */
+export async function encryptChunk(data: ArrayBuffer, key: CryptoKey): Promise<Uint8Array> {
+  const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+  const encryptedBuffer = await window.crypto.subtle.encrypt({ name: ALGORITHM, iv }, key, data);
+  const result = new Uint8Array(IV_LENGTH + encryptedBuffer.byteLength);
+  result.set(iv, 0);
+  result.set(new Uint8Array(encryptedBuffer), IV_LENGTH);
+  return result;
+}
+
+/**
+ * Decrypt a blob produced by chunked upload.
+ * The blob is a concatenation of [IV | ciphertext] blocks.
+ * chunkSize is the plaintext chunk size used during encryption.
+ * Each encrypted block is chunkSize + IV_LENGTH + 16 (GCM tag) bytes,
+ * except the last which may be smaller.
+ */
+export async function decryptChunkedBlob(
+  encryptedBlob: Blob,
+  key: CryptoKey,
+  chunkSize: number,
+  onProgress?: (percent: number) => void,
+): Promise<Blob> {
+  const encryptedChunkSize = chunkSize + IV_LENGTH + 16; // 16 = GCM auth tag
+  const totalChunks = Math.ceil(encryptedBlob.size / encryptedChunkSize);
+  const decryptedParts: Blob[] = [];
+
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * encryptedChunkSize;
+    const end = Math.min(start + encryptedChunkSize, encryptedBlob.size);
+    // blob.slice() reads only ~5 MB at a time — safe for arbitrarily large files
+    const chunkBuffer = await encryptedBlob.slice(start, end).arrayBuffer();
+    const iv = new Uint8Array(chunkBuffer, 0, IV_LENGTH);
+    const ciphertext = new Uint8Array(chunkBuffer, IV_LENGTH);
+    const decrypted = await window.crypto.subtle.decrypt({ name: ALGORITHM, iv }, key, ciphertext);
+    decryptedParts.push(new Blob([decrypted]));
+    onProgress?.(Math.round(((i + 1) / totalChunks) * 100));
+  }
+
+  return new Blob(decryptedParts);
+}
+
+/**
  * Decrypt a blob
  * Expects IV to be prepended to the encrypted data
  */

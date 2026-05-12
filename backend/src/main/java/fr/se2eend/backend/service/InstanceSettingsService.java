@@ -24,6 +24,14 @@ public class InstanceSettingsService {
         return Boolean.parseBoolean(get(key, String.valueOf(defaultValue)));
     }
 
+    public long getLong(String key, long defaultValue) {
+        try {
+            return Long.parseLong(get(key, String.valueOf(defaultValue)));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     public void set(String key, String value) {
         InstanceSetting setting = repository.findById(key)
                 .orElse(new InstanceSetting(key, value));

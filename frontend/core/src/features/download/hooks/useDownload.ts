@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { isAxiosError } from 'axios';
 import type { SendResponse } from '@/services/api.ts';
 import { sendApi } from '@/services/api.ts';
-import { decryptBlob, decryptText, importKeyFromBase64 } from '@/lib/crypto.ts';
+import { decryptBlob, decryptChunkedBlob, decryptText, importKeyFromBase64 } from '@/lib/crypto.ts';
 import { getApiErrorMessage } from '@/lib/errors';
 
 export function useDownload() {
@@ -19,6 +19,7 @@ export function useDownload() {
   const [hideText, setHideText] = useState(() => new URLSearchParams(window.location.search).get('h') === '1');
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState<{ phase: 'downloading' | 'decrypting'; percent: number } | null>(null);
   const [error, setError] = useState('');
 
   // After the initial load (handled by loadSendInfo), clear any subsequent hash
@@ -86,17 +87,33 @@ export function useDownload() {
     if (!encryptionKey) { setError(t('download.errors.keyMissing')); return; }
 
     setDownloading(true);
+    setDownloadProgress({ phase: 'downloading', percent: 0 });
     setError('');
 
     try {
       const password = passwordRef.current?.value || undefined;
-      const encryptedBlob = await sendApi.downloadSend(accessId, password);
+      const encryptedBlob = await sendApi.downloadSend(
+        accessId,
+        password,
+        (percent) => setDownloadProgress({ phase: 'downloading', percent }),
+      );
+
+      const chunkSize = sendInfo?.file?.chunkSize;
+      const decrypt = async (blob: Blob): Promise<Blob> => {
+        if (chunkSize) {
+          setDownloadProgress({ phase: 'decrypting', percent: 0 });
+          return decryptChunkedBlob(blob, encryptionKey, chunkSize, (percent) =>
+            setDownloadProgress({ phase: 'decrypting', percent }),
+          );
+        }
+        return decryptBlob(blob, encryptionKey);
+      };
 
       if (sendInfo?.type === 'TEXT') {
-        const plaintext = await (await decryptBlob(encryptedBlob, encryptionKey)).text();
+        const plaintext = await (await decrypt(encryptedBlob)).text();
         setDecryptedText(plaintext);
       } else {
-        const decrypted = await decryptBlob(encryptedBlob, encryptionKey);
+        const decrypted = await decrypt(encryptedBlob);
         const url = window.URL.createObjectURL(decrypted);
         const a = document.createElement('a');
         a.href = url;
@@ -121,13 +138,14 @@ export function useDownload() {
       }
     } finally {
       setDownloading(false);
+      setDownloadProgress(null);
     }
   };
 
   return {
     sendInfo, decryptedSendName, decryptedFilenames,
     decryptedText, hideText, setHideText,
-    passwordRef, loading, downloading, error,
+    passwordRef, loading, downloading, downloadProgress, error,
     handleDownload,
   };
 }
