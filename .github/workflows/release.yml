@@ -180,7 +180,7 @@ jobs:
           name: frontend-static
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: sE2EEnd ${{ steps.version.outputs.VERSION }}
           files: frontend-${{ steps.version.outputs.VERSION }}.zip
