@@ -2,13 +2,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Trash2, Shield, Copy, Check, Info, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
-import {
-  Pagination, PaginationContent, PaginationEllipsis,
-  PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
-} from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import StatusBadge from '@/components/StatusBadge';
+import TablePagination from '@/components/TablePagination';
 import type { SendWithDecryptedNames } from '../types';
 import { PAGE_SIZE } from '../types';
 
@@ -31,20 +28,12 @@ interface SendsTableProps {
   onDeleteClick: (sendId: string) => void;
 }
 
-export default function SendsTable({
+export default function DashboardSendsTable({
   sends, currentPage, setCurrentPage, copiedSendId, onCopyLink, onDeleteClick,
 }: SendsTableProps) {
   const { t } = useTranslation();
   const totalPages = Math.ceil(sends.length / PAGE_SIZE);
   const paginatedSends = sends.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
-
-  const paginationItems = Array.from({ length: totalPages }, (_, i) => i)
-    .filter(i => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
-    .reduce<(number | string)[]>((acc, i, idx, arr) => {
-      if (idx > 0 && (i as number) - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
-      acc.push(i);
-      return acc;
-    }, []);
 
   return (
     <Card className="overflow-hidden">
@@ -177,50 +166,13 @@ export default function SendsTable({
             </tbody>
           </table>
 
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between">
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                {t('admin.pagination.showing', {
-                  from: currentPage * PAGE_SIZE + 1,
-                  to: Math.min((currentPage + 1) * PAGE_SIZE, sends.length),
-                  total: sends.length,
-                })}
-              </p>
-              <Pagination className="w-auto mx-0">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
-                      aria-disabled={currentPage === 0}
-                      className={currentPage === 0 ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                  {paginationItems.map((item, idx) =>
-                    item === 'ellipsis' ? (
-                      <PaginationItem key={`e${idx}`}><PaginationEllipsis /></PaginationItem>
-                    ) : (
-                      <PaginationItem key={item}>
-                        <PaginationLink
-                          isActive={currentPage === item}
-                          onClick={() => setCurrentPage(item as number)}
-                          className="cursor-pointer"
-                        >
-                          {(item as number) + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                  )}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
-                      aria-disabled={currentPage >= totalPages - 1}
-                      className={currentPage >= totalPages - 1 ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+          <TablePagination
+            totalPages={totalPages}
+            totalElements={sends.length}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={PAGE_SIZE}
+          />
         </div>
       )}
     </Card>
