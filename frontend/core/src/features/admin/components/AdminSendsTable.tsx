@@ -6,10 +6,6 @@ import { formatBytes } from '@/lib/format';
 import type { SendResponse, DeletedSend } from '@/services/api.ts';
 import { Activity, Ban, Database, Filter, History, Info, Search, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  Pagination, PaginationContent, PaginationEllipsis,
-  PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
-} from '@/components/ui/pagination';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,7 +13,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import ConfirmDialog from '@/components/ConfirmDialog';
 import StatusBadge, { deleteReasonToStatus } from '@/components/StatusBadge';
 import SectionHeader from '@/components/SectionHeader';
+import TablePagination from '@/components/TablePagination';
 import { PAGE_SIZE } from '../hooks/useAdminSends';
+import { DELETED_PAGE_SIZE } from '../hooks/useAdminDeletedSends';
 
 function Th({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -61,13 +59,20 @@ interface SendsTableProps {
   decryptedNames: Record<string, string>;
   reload: () => Promise<void>;
   deletedSends: DeletedSend[];
+  deletedTotalPages: number;
+  deletedTotalElements: number;
+  deletedCurrentPage: number;
+  setDeletedCurrentPage: (page: number) => void;
+  deletedLoading: boolean;
+  reloadDeleted: () => Promise<void>;
 }
 
-export default function SendsTable({
+export default function AdminSendsTable({
   sends, totalPages, totalElements, currentPage, setCurrentPage,
   filterSender, setFilterSender, filterStatus, setFilterStatus,
   sendsLoading, decryptedNames,
   reload, deletedSends,
+  deletedTotalPages, deletedTotalElements, deletedCurrentPage, setDeletedCurrentPage, deletedLoading, reloadDeleted,
 }: SendsTableProps) {
   const { t } = useTranslation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -88,19 +93,11 @@ export default function SendsTable({
       await adminApi.deleteSend(sendToDelete);
       setDeleteDialogOpen(false);
       setSendToDelete(null);
-      await reload();
+      await Promise.all([reload(), reloadDeleted()]);
     } catch {
       toast.error(t('admin.errors.deleteFailed'));
     }
   };
-
-  const paginationItems = Array.from({ length: totalPages }, (_, i) => i)
-    .filter(i => i === 0 || i === totalPages - 1 || Math.abs(i - currentPage) <= 1)
-    .reduce<(number | 'ellipsis')[]>((acc, i, idx, arr) => {
-      if (idx > 0 && i - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
-      acc.push(i);
-      return acc;
-    }, []);
 
   return (
     <>
@@ -238,51 +235,14 @@ export default function SendsTable({
             </table>
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-50 dark:border-gray-700 flex items-center justify-between">
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                {t('admin.pagination.showing', {
-                  from: currentPage * PAGE_SIZE + 1,
-                  to: Math.min((currentPage + 1) * PAGE_SIZE, totalElements),
-                  total: totalElements,
-                })}
-              </p>
-              <Pagination className="w-auto mx-0">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      aria-disabled={currentPage === 0 || sendsLoading}
-                      className={currentPage === 0 || sendsLoading ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                  {paginationItems.map((item, idx) =>
-                    item === 'ellipsis' ? (
-                      <PaginationItem key={`e${idx}`}><PaginationEllipsis /></PaginationItem>
-                    ) : (
-                      <PaginationItem key={item}>
-                        <PaginationLink
-                          isActive={currentPage === item}
-                          onClick={() => setCurrentPage(item as number)}
-                          className="cursor-pointer"
-                        >
-                          {(item as number) + 1}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                  )}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      aria-disabled={currentPage >= totalPages - 1 || sendsLoading}
-                      className={currentPage >= totalPages - 1 || sendsLoading ? 'pointer-events-none opacity-40' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+          <TablePagination
+            totalPages={totalPages}
+            totalElements={totalElements}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            loading={sendsLoading}
+            pageSize={PAGE_SIZE}
+          />
         </Card>
       </div>
 
@@ -290,7 +250,7 @@ export default function SendsTable({
       <div className="space-y-4">
         <SectionHeader label={t('admin.history.title')} icon={<History className="w-4 h-4" />} />
         <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
+          <div className={cn('overflow-x-auto transition-opacity', deletedLoading && 'opacity-50')}>
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-50 dark:border-gray-700">
@@ -327,6 +287,14 @@ export default function SendsTable({
               </tbody>
             </table>
           </div>
+          <TablePagination
+            totalPages={deletedTotalPages}
+            totalElements={deletedTotalElements}
+            currentPage={deletedCurrentPage}
+            setCurrentPage={setDeletedCurrentPage}
+            loading={deletedLoading}
+            pageSize={DELETED_PAGE_SIZE}
+          />
         </Card>
       </div>
 

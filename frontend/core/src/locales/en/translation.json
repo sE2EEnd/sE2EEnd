@@ -1,5 +1,8 @@
 {
   "common": {
+    "pagination": {
+      "showing": "Showing {{from}}–{{to}} of {{total}}"
+    },
     "upload": "Upload",
     "download": "Download",
     "delete": "Delete",
@@ -71,7 +74,7 @@
     "copyError": "Failed to copy link"
   },
   "upload": {
-    "title": "Upload File",
+    "title": "New Transfer",
     "tabs": {
       "file": "File",
       "text": "Text"
@@ -239,9 +242,6 @@
       "deleteFailed": "Failed to delete send"
     },
     "cleanupSuccess": "Cleanup completed: {{deletedSends}} sends deleted, {{deletedFiles}} files removed, {{freedSpace}} freed",
-    "pagination": {
-      "showing": "Showing {{from}}–{{to}} of {{total}}"
-    },
     "history": {
       "title": "Deletion History",
       "reason": "Reason",

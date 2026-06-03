@@ -80,8 +80,11 @@ export const adminApi = {
     return response.data;
   },
 
-  getDeletedSends: async (): Promise<DeletedSend[]> => {
-    const response = await api.get('/admin/deleted-sends');
+  getDeletedSends: async (page = 0, size = 20, signal?: AbortSignal): Promise<PagedResponse<DeletedSend>> => {
+    const response = await api.get('/admin/deleted-sends', {
+      params: { page, size },
+      signal,
+    });
     return response.data;
   },
 };
