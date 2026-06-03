@@ -71,7 +71,7 @@
     "copyError": "Failed to copy link"
   },
   "upload": {
-    "title": "Upload File",
+    "title": "New Transfer",
     "tabs": {
       "file": "File",
       "text": "Text"
