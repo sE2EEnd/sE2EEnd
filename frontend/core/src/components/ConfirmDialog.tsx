@@ -23,9 +23,9 @@ const iconVariantClasses: Record<IconVariant, string> = {
 };
 
 const confirmVariantClasses: Record<IconVariant, string> = {
-  danger:  'bg-red-600    hover:bg-red-700    shadow-red-200',
-  warning: 'bg-orange-500 hover:bg-orange-600 shadow-orange-200',
-  info:    'bg-amber-500  hover:bg-amber-600  shadow-amber-200',
+  danger:  'bg-red-600    hover:bg-red-700',
+  warning: 'bg-orange-500 hover:bg-orange-600',
+  info:    'bg-amber-500  hover:bg-amber-600',
 };
 
 export default function ConfirmDialog({
@@ -58,7 +58,7 @@ export default function ConfirmDialog({
           </button>
           <button
             onClick={onConfirm}
-            className={cn('flex-1 px-4 py-2.5 text-sm font-bold text-white rounded-xl transition-all shadow-lg', confirmVariantClasses[iconVariant])}
+            className={cn('flex-1 px-4 py-2.5 text-sm font-bold text-white rounded-xl transition-all shadow-sm', confirmVariantClasses[iconVariant])}
           >
             {confirmLabel}
           </button>
