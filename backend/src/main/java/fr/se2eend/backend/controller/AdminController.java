@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -80,9 +79,12 @@ public class AdminController {
 
     @GetMapping("/deleted-sends")
     @PreAuthorize("hasRole('admin')")
-    @Operation(summary = "Get audit log of deleted sends")
-    public ResponseEntity<List<DeletedSendDto>> getDeletedSends() {
-        return ResponseEntity.ok(adminService.getDeletedSends());
+    @Operation(summary = "Get paginated audit log of deleted sends")
+    public ResponseEntity<PagedResponse<DeletedSendDto>> getDeletedSends(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(adminService.getDeletedSends(page, size));
     }
 
     @GetMapping("/settings")

@@ -11,7 +11,7 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import PageHeader from '@/components/PageHeader';
 import { useAsync } from '@/hooks/useAsync';
 import DashboardStats from './components/DashboardStats';
-import SendsTable from './components/SendsTable';
+import DashboardSendsTable from './components/DashboardSendsTable';
 import type { SendWithDecryptedNames } from './types';
 
 export default function DashboardPage() {
@@ -118,7 +118,7 @@ export default function DashboardPage() {
 
       <DashboardStats activeSends={activeSends} totalDownloads={totalDownloads} />
 
-      <SendsTable
+      <DashboardSendsTable
         sends={sends}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}

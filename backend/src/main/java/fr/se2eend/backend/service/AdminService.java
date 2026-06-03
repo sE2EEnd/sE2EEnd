@@ -89,12 +89,15 @@ public class AdminService {
     }
 
     /**
-     * Get deleted sends audit log
+     * Get paginated deleted sends audit log
      */
-    public List<DeletedSendDto> getDeletedSends() {
-        return deletedSendRepository.findAllByOrderByDeletedAtDesc()
-                .stream()
-                .map(d -> new DeletedSendDto(
+    public PagedResponse<DeletedSendDto> getDeletedSends(int page, int size) {
+        Page<DeletedSend> pageResult = deletedSendRepository.findAll(
+                PageRequest.of(page, size, Sort.by("deletedAt").descending())
+        );
+
+        return new PagedResponse<>(
+                pageResult.getContent().stream().map(d -> new DeletedSendDto(
                         d.getId(),
                         d.getOriginalSendId(),
                         d.getAccessId(),
@@ -105,8 +108,12 @@ public class AdminService {
                         d.getDeletedAt(),
                         d.getDeleteReason(),
                         d.getTotalSizeBytes()
-                ))
-                .toList();
+                )).toList(),
+                pageResult.getTotalElements(),
+                pageResult.getTotalPages(),
+                pageResult.getNumber(),
+                pageResult.getSize()
+        );
     }
 
     /**
