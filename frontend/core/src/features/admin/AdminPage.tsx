@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isAxiosError } from 'axios';
 import { adminApi, settingsApi } from '@/services/api.ts';
-import type { AdminStats, CleanupResult, DeletedSend, StorageMetrics } from '@/services/api.ts';
+import type { AdminStats, CleanupResult, StorageMetrics } from '@/services/api.ts';
 import { AlertCircle, Loader2, Trash } from 'lucide-react';
 import { Alert } from '@/components/ui/alert';
 import { toast } from 'sonner';
@@ -10,9 +10,10 @@ import ConfirmDialog from '@/components/ConfirmDialog';
 import PageHeader from '@/components/PageHeader';
 import { formatBytes } from '@/lib/format';
 import { useAdminSends } from './hooks/useAdminSends';
+import { useAdminDeletedSends } from './hooks/useAdminDeletedSends';
 import StorageMetricsPanel from './components/StorageMetrics';
 import SettingsPanel from './components/SettingsPanel';
-import SendsTable from './components/SendsTable';
+import AdminSendsTable from './components/AdminSendsTable';
 
 export default function AdminPage() {
   const { t } = useTranslation();
@@ -21,12 +22,13 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [storageMetrics, setStorageMetrics] = useState<StorageMetrics | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [deletedSends, setDeletedSends] = useState<DeletedSend[]>([]);
   const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false);
   const [cleanupRunning, setCleanupRunning] = useState(false);
 
   const adminSends = useAdminSends();
   const { reloadFromFirstPage } = adminSends;
+
+  const deletedSends = useAdminDeletedSends();
 
   useEffect(() => {
     void loadData();
@@ -36,16 +38,14 @@ export default function AdminPage() {
     try {
       setLoading(true);
       setError('');
-      const [statsData, storageData, settingsData, deletedData] = await Promise.all([
+      const [statsData, storageData, settingsData] = await Promise.all([
         adminApi.getStats(),
         adminApi.getStorageMetrics(),
         settingsApi.getAll(),
-        adminApi.getDeletedSends(),
       ]);
       setStats(statsData);
       setStorageMetrics(storageData);
       setSettings(settingsData);
-      setDeletedSends(deletedData);
     } catch (err) {
       setError(isAxiosError(err) && err.response?.status === 403
         ? t('admin.errors.accessDenied')
@@ -66,7 +66,7 @@ export default function AdminPage() {
         deletedFiles: result.deletedFiles,
         freedSpace: formatBytes(result.freedSpace),
       }));
-      await Promise.all([loadData(), reloadFromFirstPage()]);
+      await Promise.all([loadData(), reloadFromFirstPage(), deletedSends.reloadFromFirstPage()]);
     } catch {
       toast.error(t('admin.errors.cleanupFailed'));
     } finally {
@@ -102,9 +102,15 @@ export default function AdminPage() {
 
       <SettingsPanel initialSettings={settings} />
 
-      <SendsTable
+      <AdminSendsTable
         {...adminSends}
-        deletedSends={deletedSends}
+        deletedSends={deletedSends.deletedSends}
+        deletedTotalPages={deletedSends.totalPages}
+        deletedTotalElements={deletedSends.totalElements}
+        deletedCurrentPage={deletedSends.currentPage}
+        setDeletedCurrentPage={deletedSends.setCurrentPage}
+        deletedLoading={deletedSends.deletedLoading}
+        reloadDeleted={deletedSends.reloadFromFirstPage}
       />
 
       <ConfirmDialog

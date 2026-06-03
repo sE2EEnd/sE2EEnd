@@ -1,5 +1,8 @@
 {
   "common": {
+    "pagination": {
+      "showing": "Affichage de {{from}}–{{to}} sur {{total}}"
+    },
     "upload": "Téléverser",
     "download": "Télécharger",
     "delete": "Supprimer",
@@ -71,7 +74,7 @@
     "copyError": "Impossible de copier le lien"
   },
   "upload": {
-    "title": "Téléverser un fichier",
+    "title": "Nouveau transfert",
     "tabs": {
       "file": "Fichier",
       "text": "Texte"
@@ -247,9 +250,6 @@
       "deleteFailed": "Échec de la suppression de l'envoi"
     },
     "cleanupSuccess": "Nettoyage terminé : {{deletedSends}} envois supprimés, {{deletedFiles}} fichiers retirés, {{freedSpace}} libérés",
-    "pagination": {
-      "showing": "Affichage de {{from}}–{{to}} sur {{total}}"
-    },
     "history": {
       "title": "Historique des suppressions",
       "reason": "Raison",
