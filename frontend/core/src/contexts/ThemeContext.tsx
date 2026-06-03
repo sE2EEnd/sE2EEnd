@@ -42,13 +42,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
           // Update CSS variables
           const root = document.documentElement;
           if (config.theme.primaryColor) {
-            root.style.setProperty('--color-primary', config.theme.primaryColor);
+            root.style.setProperty('--brand-primary', config.theme.primaryColor);
           }
           if (config.theme.primaryDark) {
-            root.style.setProperty('--color-primary-dark', config.theme.primaryDark);
+            root.style.setProperty('--brand-primary-dark', config.theme.primaryDark);
           }
           if (config.theme.primaryLight) {
-            root.style.setProperty('--color-primary-light', config.theme.primaryLight);
+            root.style.setProperty('--brand-primary-light', config.theme.primaryLight);
           }
 
           // Update theme state
