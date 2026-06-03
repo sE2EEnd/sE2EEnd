@@ -10,7 +10,6 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
@@ -22,10 +21,16 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+}
+
+@theme {
+  --color-primary: var(--brand-primary);
+  --color-primary-dark: var(--brand-primary-dark);
+  --color-primary-light: var(--brand-primary-light);
+  --color-ring: var(--brand-primary);
 }
 
 @layer base {
@@ -36,7 +41,6 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -48,13 +52,12 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 262 83% 58%;
     --radius: 0.5rem;
 
-    /* Dynamic theme colors (set by ThemeContext) */
-    --color-primary: #2563eb;
-    --color-primary-dark: #1d4ed8;
-    --color-primary-light: #3b82f6;
+    /* Brand palette defaults — overridden at runtime by ThemeContext */
+    --brand-primary: #2563eb;
+    --brand-primary-dark: #1d4ed8;
+    --brand-primary-light: #3b82f6;
   }
 }
 
@@ -66,7 +69,6 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
-    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 98%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -78,7 +80,6 @@
     --destructive-foreground: 0 0% 98%;
     --border: 217 33% 20%;
     --input: 217 33% 20%;
-    --ring: 262 83% 58%;
   }
 }
 
@@ -91,47 +92,18 @@
   }
 }
 
-/* Custom utility classes using dynamic theme colors */
 @layer utilities {
-  .bg-primary {
-    background-color: var(--color-primary);
-  }
-  .bg-primary-dark {
-    background-color: var(--color-primary-dark);
-  }
-  .bg-primary-light {
-    background-color: var(--color-primary-light);
-  }
-  .text-primary {
-    color: var(--color-primary);
-  }
-  .text-primary-dark {
-    color: var(--color-primary-dark);
-  }
-  .text-primary-light {
-    color: var(--color-primary-light);
-  }
-  .border-primary {
-    border-color: var(--color-primary);
-  }
-  .hover\:bg-primary-dark:hover {
-    background-color: var(--color-primary-dark);
-  }
   .bg-gradient-primary {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-dark) 100%);
   }
   .hover\:bg-gradient-primary-reverse:hover {
-    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+    background: linear-gradient(135deg, var(--brand-primary-dark) 0%, var(--brand-primary) 100%);
   }
   .bg-gradient-to-br-primary {
-    background: linear-gradient(to bottom right, var(--color-primary), var(--color-primary-dark));
+    background: linear-gradient(to bottom right, var(--brand-primary), var(--brand-primary-dark));
   }
 }
 
-/* Dark mode sidebar override */
 .dark .bg-gradient-to-br-primary {
   background: linear-gradient(to bottom right, #1a1f2e, #111520);
-}
-.dark .bg-gradient-primary {
-  background: linear-gradient(135deg, #1a1f2e 0%, #111520 100%);
 }
