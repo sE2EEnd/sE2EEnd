@@ -30,6 +30,11 @@ public class ChunkedUploadService {
     private final StorageService storageService;
     private final InstanceSettingsService instanceSettingsService;
 
+    /** Default upload size limit (plaintext) when the instance setting is unset. */
+    private static final long DEFAULT_MAX_UPLOAD_BYTES = 2L * 1024 * 1024 * 1024; // 2 GiB
+    /** Per-chunk ciphertext overhead: 12-byte IV + 16-byte GCM auth tag. */
+    private static final int CHUNK_OVERHEAD_BYTES = 28;
+
     @Transactional
     public UploadSession initUpload(UUID sendId, String filename) {
         Send send = sendRepository.findById(sendId)
@@ -51,6 +56,23 @@ public class ChunkedUploadService {
     public void saveChunk(UUID sessionId, int chunkIndex, InputStream data, long sizeBytes) throws IOException {
         UploadSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.UPLOAD_SESSION_NOT_FOUND, "Upload session not found"));
+
+        // Enforce the upload size budget incrementally, BEFORE writing to disk, so a client can't
+        // exhaust storage by streaming unlimited chunks (the limit used to be checked only at
+        // completion, after everything was already written). Caps cumulative stored (ciphertext)
+        // bytes per session — marginally stricter than the plaintext setting by the GCM overhead.
+        long maxUploadBytes = instanceSettingsService.getLong("max_upload_size_bytes", DEFAULT_MAX_UPLOAD_BYTES);
+        if (maxUploadBytes > 0) {
+            // Reject chunks without a declared length: they can't be budgeted, and the servlet
+            // container only bounds the request body to a declared Content-Length.
+            if (sizeBytes <= 0) {
+                throw new UploadSizeLimitExceededException(maxUploadBytes);
+            }
+            long alreadyStored = chunkRepository.sumSizeBytesBySession(session);
+            if (alreadyStored + sizeBytes > maxUploadBytes) {
+                throw new UploadSizeLimitExceededException(maxUploadBytes);
+            }
+        }
 
         String storagePath = "chunks/" + sessionId + "/" + chunkIndex;
         storageService.save(data, sizeBytes, storagePath);
@@ -82,10 +104,11 @@ public class ChunkedUploadService {
 
         long totalSize = chunks.stream().mapToLong(UploadChunk::getSizeBytes).sum();
 
-        long maxUploadBytes = instanceSettingsService.getLong("max_upload_size_bytes", 2L * 1024 * 1024 * 1024);
+        long maxUploadBytes = instanceSettingsService.getLong("max_upload_size_bytes", DEFAULT_MAX_UPLOAD_BYTES);
         if (maxUploadBytes > 0) {
-            // Each chunk carries 12-byte IV + 16-byte GCM auth tag overhead; subtract to get plaintext size
-            long plaintextSize = totalSize - (long) totalChunks * 28;
+            // Subtract the per-chunk GCM overhead to get the plaintext size; clamp at 0 so a
+            // pathological many-tiny-chunks upload can't drive this negative to bypass the check.
+            long plaintextSize = Math.max(0, totalSize - (long) totalChunks * CHUNK_OVERHEAD_BYTES);
             if (plaintextSize > maxUploadBytes) {
                 throw new UploadSizeLimitExceededException(maxUploadBytes);
             }
