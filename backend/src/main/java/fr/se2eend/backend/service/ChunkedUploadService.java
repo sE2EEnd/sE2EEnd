@@ -1,5 +1,6 @@
 package fr.se2eend.backend.service;
 
+import fr.se2eend.backend.config.SecurityUtils;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
 import fr.se2eend.backend.exception.UploadSizeLimitExceededException;
 import fr.se2eend.backend.exception.enums.ErrorCode;
@@ -34,6 +35,9 @@ public class ChunkedUploadService {
         Send send = sendRepository.findById(sendId)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
 
+        // Only the Send's owner may attach a file (treats "not yours" as "not found").
+        SecurityUtils.requireOwner(send.getOwnerId());
+
         UploadSession session = UploadSession.builder()
                 .send(send)
                 .filename(filename)
@@ -65,6 +69,9 @@ public class ChunkedUploadService {
     public FileMetadata completeUpload(UUID sessionId, int totalChunks, int chunkSize) throws IOException {
         UploadSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.UPLOAD_SESSION_NOT_FOUND, "Upload session not found"));
+
+        // Defense in depth: re-check ownership before assembling the final file.
+        SecurityUtils.requireOwner(session.getSend().getOwnerId());
 
         List<UploadChunk> chunks = chunkRepository.findAllBySessionOrderByChunkIndex(session);
 
