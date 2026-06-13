@@ -13,11 +13,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "send")
+@ToString(onlyExplicitlyIncluded = true)
 public class UploadSession {
 
     @Id
     @GeneratedValue
+    @ToString.Include
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,8 +26,10 @@ public class UploadSession {
     private Send send;
 
     @Column(nullable = false)
+    @ToString.Include
     private String filename;
 
     @Column(name = "created_at", nullable = false)
+    @ToString.Include
     private LocalDateTime createdAt;
 }
