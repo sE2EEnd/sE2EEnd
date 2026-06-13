@@ -135,7 +135,7 @@
       "messageText": "Please wait while we securely send your text",
       "progress": "Chunk {{loaded}} of {{total}}",
       "finalizingTitle": "Finalizing upload...",
-      "finalizingMessage": "All chunks uploaded — the server is assembling your file"
+      "finalizingMessage": "All chunks uploaded — the server is assembling your send"
     },
     "success": {
       "title": "File uploaded successfully!",
@@ -188,11 +188,13 @@
       "downloadFailed": "Download failed",
       "loadFailed": "Failed to load send information",
       "sendNotFound": "Send not found",
-      "limitReached": "This file has reached its download limit and can no longer be downloaded."
+      "limitReached": "This file has reached its download limit and can no longer be downloaded.",
+      "tooLargeNoStreaming": "This file is too large for this browser, which does not support streaming downloads. Please use a recent browser (Chrome, Firefox, or Safari 16.4+)."
     },
     "footer": "Decrypted locally in your browser",
     "poweredBy": "Powered by sE2EEnd",
     "progress": {
+      "label": "Downloading and decrypting...",
       "downloading": "Downloading...",
       "decrypting": "Decrypting..."
     }

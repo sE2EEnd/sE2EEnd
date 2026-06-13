@@ -123,17 +123,13 @@ function DownloadPage() {
                 )}
               </button>
 
-              {downloadProgress && (
+              {downloadProgress !== null && (
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                    <span>
-                      {downloadProgress.phase === 'downloading'
-                        ? t('download.progress.downloading')
-                        : t('download.progress.decrypting')}
-                    </span>
-                    <span>{downloadProgress.percent}%</span>
+                    <span>{t('download.progress.label')}</span>
+                    <span>{downloadProgress}%</span>
                   </div>
-                  <Progress value={downloadProgress.percent} />
+                  <Progress value={downloadProgress} />
                 </div>
               )}
 

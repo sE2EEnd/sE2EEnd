@@ -135,7 +135,7 @@
       "messageText": "Veuillez patienter pendant que nous envoyons votre texte en toute sécurité",
       "progress": "Partie {{loaded}} sur {{total}}",
       "finalizingTitle": "Finalisation en cours...",
-      "finalizingMessage": "Tous les fragments sont envoyés — le serveur assemble votre fichier"
+      "finalizingMessage": "Tous les fragments sont envoyés — le serveur assemble votre send"
     },
     "success": {
       "title": "Fichier téléversé avec succès !",
@@ -188,11 +188,13 @@
       "downloadFailed": "Échec du téléchargement",
       "loadFailed": "Échec du chargement des informations d'envoi",
       "sendNotFound": "Envoi introuvable",
-      "limitReached": "Ce fichier a atteint sa limite de téléchargements et ne peut plus être téléchargé."
+      "limitReached": "Ce fichier a atteint sa limite de téléchargements et ne peut plus être téléchargé.",
+      "tooLargeNoStreaming": "Ce fichier est trop volumineux pour ce navigateur, qui ne prend pas en charge le téléchargement en flux. Utilisez un navigateur récent (Chrome, Firefox ou Safari 16.4+)."
     },
     "footer": "Déchiffrement local dans votre navigateur",
     "poweredBy": "Propulsé par sE2EEnd",
     "progress": {
+      "label": "Téléchargement et déchiffrement...",
       "downloading": "Téléchargement...",
       "decrypting": "Déchiffrement..."
     }

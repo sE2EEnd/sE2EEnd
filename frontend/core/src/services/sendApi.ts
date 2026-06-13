@@ -1,4 +1,5 @@
 import api from './http';
+import keycloak from '../keycloak';
 
 export interface SendCreateRequest {
   name?: string;
@@ -26,10 +27,11 @@ export interface SendResponse {
   file?: FileMetadata;
 }
 
+// Field names mirror the backend FileMetadataDto exactly (id / sizeBytes / chunkSize).
 export interface FileMetadata {
-  fileId: string;
+  id: string;
   filename: string;
-  fileSize: number;
+  sizeBytes: number;
   chunkSize?: number;
 }
 
@@ -67,6 +69,29 @@ export const sendApi = {
         : undefined,
     });
     return response.data;
+  },
+
+  // Streaming download: returns the raw (still-encrypted) network stream + its byte length.
+  // Uses fetch (not axios) so response.body streams instead of buffering the whole file in RAM.
+  downloadSendStream: async (
+    accessId: string,
+    password?: string,
+  ): Promise<{ stream: ReadableStream<Uint8Array>; encryptedSize?: number }> => {
+    const baseURL = window.__config.apiUrl || '/api/v1';
+    const headers: Record<string, string> = {};
+    if (keycloak.token) headers.Authorization = `Bearer ${keycloak.token}`;
+    if (password) headers['X-Send-Password'] = password;
+
+    const response = await fetch(`${baseURL}/sends/${accessId}/download`, { headers });
+    if (!response.ok) {
+      const error = new Error(`Download failed with status ${response.status}`) as Error & { status?: number };
+      error.status = response.status;
+      throw error;
+    }
+    if (!response.body) throw new Error('Streaming downloads are not supported by this browser');
+
+    const contentLength = response.headers.get('Content-Length');
+    return { stream: response.body, encryptedSize: contentLength ? Number(contentLength) : undefined };
   },
 
   getSendInfo: async (accessId: string): Promise<SendResponse> => {

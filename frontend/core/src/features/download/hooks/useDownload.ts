@@ -4,8 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { isAxiosError } from 'axios';
 import type { SendResponse } from '@/services/api.ts';
 import { sendApi } from '@/services/api.ts';
-import { decryptBlob, decryptChunkedBlob, decryptText, importKeyFromBase64 } from '@/lib/crypto.ts';
+import { decryptBlob, decryptChunkedBlob, decryptChunkedStream, decryptText, importKeyFromBase64 } from '@/lib/crypto.ts';
+import { streamToDisk, supportsServiceWorkerStreaming } from '@/lib/streamDownload.ts';
 import { getApiErrorMessage } from '@/lib/errors';
+
+// Largest chunked file we'll decrypt fully in memory when streaming-to-disk is unavailable.
+// Above this, holding the whole plaintext in RAM risks OOM, so we refuse with an honest
+// message instead of crashing.
+const IN_MEMORY_DOWNLOAD_LIMIT = 500 * 1024 * 1024;
 
 export function useDownload() {
   const { t } = useTranslation();
@@ -19,7 +25,7 @@ export function useDownload() {
   const [hideText, setHideText] = useState(() => new URLSearchParams(window.location.search).get('h') === '1');
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState<{ phase: 'downloading' | 'decrypting'; percent: number } | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const [error, setError] = useState('');
 
   // After the initial load (handled by loadSendInfo), clear any subsequent hash
@@ -81,35 +87,77 @@ export function useDownload() {
     if (accessId) void loadSendInfo();
   }, [accessId, loadSendInfo]);
 
+  const resolveFilename = useCallback((): string => {
+    const encryptedFilename = sendInfo?.file?.filename;
+    if (!encryptedFilename) return 'download';
+    return decryptedFilenames[encryptedFilename] || encryptedFilename;
+  }, [sendInfo, decryptedFilenames]);
+
+  const reportDownloadError = useCallback((err: unknown) => {
+    const status = (err as { status?: number })?.status
+      ?? (isAxiosError(err) ? err.response?.status : undefined);
+    if (status === 403) {
+      setError(t('download.errors.invalidPassword'));
+    } else if (status === 410) {
+      setError(t('download.errors.expired'));
+    } else if (err instanceof Error && (err.name === 'OperationError' || err.message?.includes('decrypt'))) {
+      setError(t('download.errors.decryptionFailed'));
+    } else {
+      setError(getApiErrorMessage(err, t('download.errors.downloadFailed')));
+    }
+  }, [t]);
+
   const handleDownload = async () => {
     if (!accessId) return;
     const encryptionKey = keyRef.current;
     if (!encryptionKey) { setError(t('download.errors.keyMissing')); return; }
 
+    const password = passwordRef.current?.value || undefined;
+    const chunkSize = sendInfo?.file?.chunkSize;
+    const isFile = sendInfo?.type !== 'TEXT';
+
+    // Preferred path: stream chunked files straight to disk at constant RAM (all browsers
+    // with a service worker + transferable streams). Fixes the Firefox large-download OOM.
+    if (isFile && chunkSize && supportsServiceWorkerStreaming()) {
+      setDownloading(true);
+      setDownloadProgress(0);
+      setError('');
+      try {
+        const { stream, encryptedSize } = await sendApi.downloadSendStream(accessId, password);
+        let read = 0;
+        const decrypted = decryptChunkedStream(stream, encryptionKey, chunkSize, (bytes) => {
+          read += bytes;
+          if (encryptedSize) setDownloadProgress(Math.min(99, Math.round((read / encryptedSize) * 100)));
+        });
+        // Resolves once the whole file has been decrypted and pumped to the download manager.
+        await streamToDisk(decrypted, resolveFilename());
+        setDownloadProgress(100);
+        await loadSendInfo();
+      } catch (err) {
+        reportDownloadError(err);
+      } finally {
+        setDownloading(false);
+        setDownloadProgress(null);
+      }
+      return;
+    }
+
+    // Fallback path: TEXT, non-chunked files, or browsers without streaming support.
     setDownloading(true);
-    setDownloadProgress({ phase: 'downloading', percent: 0 });
+    setDownloadProgress(0);
     setError('');
-
     try {
-      const password = passwordRef.current?.value || undefined;
-      const encryptedBlob = await sendApi.downloadSend(
-        accessId,
-        password,
-        (percent) => setDownloadProgress({ phase: 'downloading', percent }),
-      );
+      if (isFile && chunkSize && (sendInfo?.file?.sizeBytes ?? 0) > IN_MEMORY_DOWNLOAD_LIMIT) {
+        setError(t('download.errors.tooLargeNoStreaming'));
+        return;
+      }
 
-      const chunkSize = sendInfo?.file?.chunkSize;
-      const decrypt = async (blob: Blob): Promise<Blob> => {
-        if (chunkSize) {
-          setDownloadProgress({ phase: 'decrypting', percent: 0 });
-          return decryptChunkedBlob(blob, encryptionKey, chunkSize, (percent) =>
-            setDownloadProgress({ phase: 'decrypting', percent }),
-          );
-        }
-        return decryptBlob(blob, encryptionKey);
-      };
+      const encryptedBlob = await sendApi.downloadSend(accessId, password, setDownloadProgress);
+      const decrypt = async (blob: Blob): Promise<Blob> =>
+        chunkSize ? decryptChunkedBlob(blob, encryptionKey, chunkSize, setDownloadProgress)
+                  : decryptBlob(blob, encryptionKey);
 
-      if (sendInfo?.type === 'TEXT') {
+      if (!isFile) {
         const plaintext = await (await decrypt(encryptedBlob)).text();
         setDecryptedText(plaintext);
       } else {
@@ -117,8 +165,7 @@ export function useDownload() {
         const url = window.URL.createObjectURL(decrypted);
         const a = document.createElement('a');
         a.href = url;
-        const encryptedFilename = sendInfo?.file?.filename;
-        a.download = encryptedFilename ? (decryptedFilenames[encryptedFilename] || encryptedFilename) : 'download';
+        a.download = resolveFilename();
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
@@ -127,15 +174,7 @@ export function useDownload() {
 
       await loadSendInfo();
     } catch (err) {
-      if (isAxiosError(err) && err.response?.status === 403) {
-        setError(t('download.errors.invalidPassword'));
-      } else if (isAxiosError(err) && err.response?.status === 410) {
-        setError(t('download.errors.expired'));
-      } else if (err instanceof Error && (err.name === 'OperationError' || err.message?.includes('decrypt'))) {
-        setError(t('download.errors.decryptionFailed'));
-      } else {
-        setError(getApiErrorMessage(err, t('download.errors.downloadFailed')));
-      }
+      reportDownloadError(err);
     } finally {
       setDownloading(false);
       setDownloadProgress(null);
