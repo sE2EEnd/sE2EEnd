@@ -10,7 +10,7 @@ sE2EEnd is a four-tier application: a React SPA served by nginx, a Spring Boot A
 
 ```mermaid
 graph TD
-    Browser["🌐 Browser\nReact SPA + Web Crypto API\nAES-256-GCM encrypt / decrypt"]
+    Browser["🌐 Browser\nReact SPA + Web Crypto API\nAES-256-GCM encrypt / decrypt\n+ Service Worker (streaming download)"]
 
     nginx["nginx (frontend)\nport 80"]
     KC["Keycloak\nport 8090"]
@@ -30,7 +30,7 @@ graph TD
 The encryption key is a random 256-bit value generated in the browser at upload time. It is:
 
 - **Never sent to the server** — it lives only in the URL fragment (`#key`) which browsers do not include in HTTP requests
-- Encoded as base64url in the share link: `https://your-domain.com/d/{send-id}#<base64url-key>`
+- Encoded as base64url in the share link: `https://your-domain.com/download/{accessId}#<base64url-key>`
 
 The server stores and serves only ciphertext. Even with full database and storage access, an attacker cannot decrypt the files without the URL fragment.
 
@@ -43,35 +43,73 @@ sequenceDiagram
     participant S as Storage
 
     B->>B: Generate random 256-bit AES key
-    B->>B: Encrypt file with AES-256-GCM
-    B->>API: POST /api/sends (metadata)
-    API-->>B: send id
-    B->>API: POST /api/sends/{id}/files (ciphertext)
-    API->>S: Store ciphertext
-    B->>B: Present share link /d/{id}#key
+    B->>API: POST /api/v1/sends (metadata)
+    API-->>B: send id + access id
+    Note over B,S: File uploaded in encrypted chunks (~25 MB plaintext each)
+    B->>API: POST /api/v1/files/chunked/init
+    API-->>B: session id
+    loop each chunk
+        B->>B: Encrypt chunk (AES-256-GCM)
+        B->>API: PUT /api/v1/files/chunked/{session}/chunk/{i}
+        API->>S: Store chunk
+    end
+    B->>API: POST /api/v1/files/chunked/{session}/complete
+    API->>S: Assemble chunks into the final ciphertext
+    B->>B: Present share link /download/{accessId}#key
 ```
 
 ### Download flow
 
 ```mermaid
 sequenceDiagram
-    participant B as Browser (recipient)
+    participant B as Browser tab (decrypt + pump)
+    participant SW as Service Worker
     participant API as Backend API
-    participant S as Storage
 
-    B->>API: GET /api/sends/{id} (metadata)
+    B->>API: GET /api/v1/sends/{accessId} (metadata)
     API-->>B: expiry, download count, password required
-    B->>API: GET /api/sends/{id}/files/{fileId}
-    API->>S: Fetch ciphertext
-    S-->>API: ciphertext
-    API-->>B: ciphertext
-    B->>B: Decrypt with key from URL fragment (#key)
-    B->>B: Trigger file save
+    B->>API: GET /api/v1/sends/{accessId}/download
+    API-->>B: ciphertext stream
+    loop per chunk, at disk-write pace (backpressure)
+        B->>B: AES-256-GCM decrypt (key from #fragment)
+        B->>SW: pump decrypted chunk
+    end
+    SW-->>B: served as attachment → native download writes to disk
 ```
 
 ### Password protection
 
 When a send is password-protected, the password is used server-side to gate the download — the server validates it before returning the ciphertext. The password is **not** used as or mixed with the encryption key.
+
+## Large files
+
+Files of any size (tested at 12 GB) are transferred without ever holding the whole file in memory — neither on the client nor on the server.
+
+### Chunked upload
+
+The browser streams the file slice by slice: each ~25 MB plaintext chunk is encrypted independently (`IV(12) + ciphertext + GCM tag(16)`) and `PUT` one at a time, with backpressure (a single chunk in flight). Multiple files are zipped on the fly (no compression) into a single stream. The backend stores each chunk, then concatenates them into one ciphertext object on `complete`.
+
+- `POST /api/v1/files/chunked/init` → opens a session
+- `PUT /api/v1/files/chunked/{session}/chunk/{i}` → stores one encrypted chunk
+- `POST /api/v1/files/chunked/{session}/complete` → assembles the final object
+
+The plaintext chunk size is recorded on the file metadata so the download can re-frame the stream. The upload size limit (`max_upload_size_bytes`, see [Instance Settings](./configuration/instance-settings)) is enforced **incrementally on every chunk, before anything is written to storage**.
+
+### Streaming download
+
+The recipient never buffers the whole file either:
+
+```
+fetch(...).body → re-chunk → AES-256-GCM decrypt → Service Worker → native download (disk)
+```
+
+A **same-origin service worker** (`/sw.js`) intercepts a magic URL and answers with a streamed `Response` carrying `Content-Disposition: attachment`, so the browser's native download manager writes to disk at the stream's pace — constant memory, any file size, on Chrome / Firefox / Safari. The page decrypts one chunk at a time and pumps it to the worker over a `MessageChannel` with backpressure; `event.waitUntil` keeps the worker alive for the whole transfer.
+
+:::info E2EE preserved
+The service worker only ever sees plaintext that was **already decrypted in the same browser** — nothing extra crosses the network, and the key still never leaves the URL fragment. The worker is same-origin and self-hosted (no third-party iframe).
+:::
+
+Browsers without service-worker support fall back to an in-memory download, guarded by a size limit.
 
 ## Backend
 
@@ -79,14 +117,14 @@ When a send is password-protected, the password is used server-side to gate the 
 
 Key packages:
 
-| Package      | Responsibility                                                                                     |
-|--------------|----------------------------------------------------------------------------------------------------|
-| `controller` | REST endpoints — `SendController`, `SendDownloadController`, `AdminController`, `ConfigController` |
-| `service`    | Business logic — send lifecycle, download counting, cleanup scheduling                             |
-| `storage`    | Storage abstraction — `LocalFileSystemStorage`, `S3FileStorage`                                    |
-| `config`     | Spring Security (JWT), CORS (`WebConfig`), OpenAPI                                                 |
-| `scheduler`  | `CleanupScheduler` — cron-based cleanup of expired/revoked/exhausted sends                         |
-| `model`      | JPA entities — `Send`, `FileMetadata`, `DeletedSend`, `InstanceSetting`                            |
+| Package      | Responsibility                                                                                                                                  |
+|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `controller` | REST endpoints — `SendController`, `SendDownloadController`, `ChunkedUploadController`, `FileController`, `AdminController`, `ConfigController` |
+| `service`    | Business logic — send lifecycle, chunked upload & assembly, download counting, cleanup scheduling                                               |
+| `storage`    | Storage abstraction — `LocalFileSystemStorage`, `S3FileStorage`                                                                                 |
+| `config`     | Spring Security + CORS (`SecurityConfig`), JWT conversion, OpenAPI                                                                              |
+| `scheduler`  | `CleanupScheduler` — cron cleanup of expired/revoked/exhausted sends + stale upload sessions                                                    |
+| `model`      | JPA entities — `Send`, `FileMetadata`, `UploadSession`, `UploadChunk`, `DeletedSend`, `InstanceSetting`                                         |
 
 ### Authentication
 
@@ -107,7 +145,7 @@ stateDiagram-v2
     revoked --> [*] : cleanup
 ```
 
-All terminal states are eligible for cleanup. The cleanup scheduler (configurable cron, default: nightly at 2AM) deletes expired/revoked/exhausted sends and their files, and records them in the `DeletedSend` audit table.
+All terminal states are eligible for cleanup. The cleanup scheduler (configurable cron, default: nightly at 2AM — see [Instance Settings](./configuration/instance-settings)) deletes expired/revoked/exhausted sends and their files, prunes stale/abandoned upload sessions, and records deletions in the `DeletedSend` audit table.
 
 ## Frontend
 
@@ -116,7 +154,8 @@ All terminal states are eligible for cleanup. The cleanup scheduler (configurabl
 Key design points:
 
 - **Runtime configuration** — Keycloak connection details are injected at container startup via `config.js` (no rebuild needed to change Keycloak URL/realm)
-- **API proxy** — nginx forwards `/api/*` to the backend container, so the SPA only ever talks to its own origin (no CORS issues for the browser)
+- **API proxy** — in the bundled deployment, nginx forwards `/api/*` to the backend container, so the SPA talks only to its own origin (no CORS). In split deployments (SPA and API on different origins) the backend's CORS config applies instead
+- **Streaming download** — a same-origin service worker (`/sw.js`) streams large downloads straight to disk (see [Large files](#large-files))
 - **i18n** — `react-i18next` with EN and FR translation files
 
 ### Runtime config injection
@@ -138,22 +177,28 @@ This file is loaded by `index.html` before the SPA bundle, allowing Keycloak set
 ```
 Send
  ├── id (UUID)
+ ├── accessId (public share id, distinct from id)
  ├── name (encrypted, nullable)
  ├── type (FILE | TEXT)
- ├── status (active | revoked | expired | exhausted)
- ├── ownerId (Keycloak user ID)
- ├── passwordHash (bcrypt, nullable)
- ├── maxDownloads (nullable)
- ├── downloadCount
+ ├── ownerId / ownerName / ownerEmail (Keycloak user)
+ ├── passwordProtected + passwordHash (bcrypt, nullable)
+ ├── maxDownloads / downloadCount
  ├── expiresAt (nullable)
- └── files[]
+ ├── revoked (bool)            // "expired" / "exhausted" are derived at read time
+ └── file (one, nullable)      // multiple files are zipped into a single object
        ├── id (UUID)
-       ├── originalName (encrypted)
-       ├── storagePath
-       └── size
+       ├── filename (encrypted)
+       ├── storagePath (server-generated UUID)
+       ├── sizeBytes
+       └── chunkSize (plaintext chunk size — set for chunked uploads)
+
+UploadSession  (transient, only during a chunked upload)
+ ├── id (UUID) · send · filename (encrypted) · createdAt
+ └── chunks[] → UploadChunk (id, chunkIndex, storagePath, sizeBytes)
 
 InstanceSetting
- └── key / value pairs (requireAuthForDownload, cleanupSchedule, requireSendPassword, …)
+ └── key / value pairs (max_upload_size_bytes, require_send_password,
+                        require_auth_for_download, cleanup_cron)
 
 DeletedSend  (audit log)
  └── id, name, size, reason (expired | revoked | exhausted | manual | user), deletedAt
