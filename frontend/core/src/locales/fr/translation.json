@@ -137,6 +137,12 @@
       "finalizingTitle": "Finalisation en cours...",
       "finalizingMessage": "Tous les fragments sont envoyés — le serveur assemble votre send"
     },
+    "leave": {
+      "title": "Téléversement en cours",
+      "message": "Un téléversement est toujours en cours. Si vous quittez maintenant, il sera annulé et vous perdrez votre progression.",
+      "confirm": "Quitter quand même",
+      "cancel": "Rester"
+    },
     "success": {
       "title": "Fichier téléversé avec succès !",
       "titleText": "Texte envoyé avec succès !",
