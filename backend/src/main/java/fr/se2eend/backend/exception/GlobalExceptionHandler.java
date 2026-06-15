@@ -151,6 +151,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.GONE).body(body);
     }
 
+    @ExceptionHandler(UploadSizeLimitExceededException.class)
+    public ResponseEntity<ApiError> handleUploadSizeLimit(UploadSizeLimitExceededException ex) {
+        log.info("Upload size exceeded (cid={}): {}", cid(), ex.getMessage());
+        ApiError body = ApiError.of(
+                HttpStatus.CONTENT_TOO_LARGE.value(),
+                HttpStatus.CONTENT_TOO_LARGE.getReasonPhrase(),
+                ex.code().name(),
+                ex.getMessage(),
+                cid(),
+                List.of()
+        );
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(body);
+    }
+
     @ExceptionHandler(SendPasswordInvalidException.class)
     public ResponseEntity<ApiError> handlePasswordInvalid(SendPasswordInvalidException ex) {
         log.info("Invalid password (cid={}): code={}, msg={}", cid(), ex.code(), ex.getMessage());

@@ -125,13 +125,17 @@
       "selectFile": "Please select at least one file",
       "enterPassword": "Please enter a password",
       "uploadFailed": "Upload failed. Please try again.",
-      "multiFileSizeLimit": "Multi-file sends are limited to {{limit}} MB total. Please split your files into multiple sends."
+      "multiFileSizeLimit": "Multi-file sends are limited to {{limit}} MB total. Please split your files into multiple sends.",
+      "fileSizeLimit": "File size exceeds the {{limit}} limit set by the administrator."
     },
     "uploading": {
       "title": "Uploading your file...",
       "titleText": "Sending your text...",
       "message": "Please wait while we securely upload your file",
-      "messageText": "Please wait while we securely send your text"
+      "messageText": "Please wait while we securely send your text",
+      "progress": "Chunk {{loaded}} of {{total}}",
+      "finalizingTitle": "Finalizing upload...",
+      "finalizingMessage": "All chunks uploaded — the server is assembling your send"
     },
     "success": {
       "title": "File uploaded successfully!",
@@ -184,10 +188,16 @@
       "downloadFailed": "Download failed",
       "loadFailed": "Failed to load send information",
       "sendNotFound": "Send not found",
-      "limitReached": "This file has reached its download limit and can no longer be downloaded."
+      "limitReached": "This file has reached its download limit and can no longer be downloaded.",
+      "tooLargeNoStreaming": "This file is too large for this browser, which does not support streaming downloads. Please use a recent browser (Chrome, Firefox, or Safari 16.4+)."
     },
     "footer": "Decrypted locally in your browser",
-    "poweredBy": "Powered by sE2EEnd"
+    "poweredBy": "Powered by sE2EEnd",
+    "progress": {
+      "label": "Downloading and decrypting...",
+      "downloading": "Downloading...",
+      "decrypting": "Decrypting..."
+    }
   },
   "admin": {
     "title": "Admin Dashboard",
@@ -276,7 +286,15 @@
       "leaveConfirm": "Leave anyway",
       "leaveCancel": "Stay",
       "requireSendPassword": "Require password on all sends",
-      "requireSendPasswordDesc": "When enabled, every send must be protected by a password."
+      "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
+      "maxUploadSize": "Maximum upload size",
+      "maxUploadSizeDesc": "Maximum plaintext file size per send. Set to 0 for unlimited.",
+      "maxUploadSizeUnit": "MB",
+      "maxUploadSizePreset500": "500 MB",
+      "maxUploadSizePreset1G": "1 GB",
+      "maxUploadSizePreset2G": "2 GB",
+      "maxUploadSizePreset4G": "4 GB",
+      "maxUploadSizeUnlimited": "Unlimited"
     }
   },
   "notFound": {

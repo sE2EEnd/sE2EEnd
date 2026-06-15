@@ -28,9 +28,10 @@ public class ConfigController {
     }
 
     @GetMapping("/send-policy")
-    @Operation(summary = "Get send policy", description = "Returns the send policy for authenticated users (e.g. whether password is required)")
+    @Operation(summary = "Get send policy", description = "Returns the send policy for authenticated users (e.g. whether password is required, max upload size)")
     public ResponseEntity<SendPolicyDto> getSendPolicy() {
         boolean requireSendPassword = instanceSettingsService.getBoolean("require_send_password", false);
-        return ResponseEntity.ok(new SendPolicyDto(requireSendPassword));
+        long maxUploadSizeBytes = instanceSettingsService.getLong("max_upload_size_bytes", 2L * 1024 * 1024 * 1024);
+        return ResponseEntity.ok(new SendPolicyDto(requireSendPassword, maxUploadSizeBytes));
     }
 }

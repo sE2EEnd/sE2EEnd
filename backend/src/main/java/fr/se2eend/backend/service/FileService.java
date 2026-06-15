@@ -1,5 +1,6 @@
 package fr.se2eend.backend.service;
 
+import fr.se2eend.backend.config.SecurityUtils;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
 import fr.se2eend.backend.exception.enums.ErrorCode;
 import fr.se2eend.backend.model.FileMetadata;
@@ -25,6 +26,9 @@ public class FileService {
     public FileMetadata addFileToSend(UUID sendId, MultipartFile file) throws IOException {
         Send send = sendRepository.findById(sendId)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
+
+        // Only the Send's owner may attach a file (treats "not yours" as "not found").
+        SecurityUtils.requireOwner(send.getOwnerId());
 
         String storedPath = storageService.save(
                 file.getInputStream(),

@@ -1,5 +1,6 @@
 package fr.se2eend.backend.service;
 
+import fr.se2eend.backend.config.SecurityUtils;
 import fr.se2eend.backend.dto.SendRequestDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
@@ -92,19 +93,7 @@ public class SendService {
     }
 
     private UUID extractUserIdFromToken() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-            String subject = jwt.getSubject();
-
-            try {
-                return UUID.fromString(subject);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-
-        return null;
+        return SecurityUtils.currentUserId();
     }
 
     private String extractOwnerNameFromToken() {

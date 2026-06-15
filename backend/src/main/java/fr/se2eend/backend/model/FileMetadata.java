@@ -35,4 +35,7 @@ public class FileMetadata {
 
     @Column(length = 128)
     private String checksum;
+
+    @Column(name = "chunk_size")
+    private Integer chunkSize;
 }

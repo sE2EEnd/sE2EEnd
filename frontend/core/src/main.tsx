@@ -5,6 +5,10 @@ import { ReactKeycloakProvider } from '@react-keycloak/web'
 import './index.css'
 import App from './App.tsx'
 import keycloak from './keycloak'
+import { registerStreamingServiceWorker } from './lib/streamDownload'
+
+// Register the streaming-download service worker so large files write straight to disk.
+registerStreamingServiceWorker()
 
 const keycloakProviderInitConfig = {
   onLoad: 'check-sso',

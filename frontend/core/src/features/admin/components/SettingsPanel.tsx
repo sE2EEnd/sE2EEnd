@@ -19,6 +19,9 @@ export default function SettingsPanel({ initialSettings }: SettingsPanelProps) {
   const [settings, setSettings] = useState(initialSettings);
   const [pendingSettings, setPendingSettings] = useState<Record<string, string>>({});
   const [cronInput, setCronInput] = useState(initialSettings['cleanup_cron'] ?? '0 0 2 * * *');
+  const [maxUploadInput, setMaxUploadInput] = useState(
+    String(Math.round(Number(initialSettings['max_upload_size_bytes'] ?? '2147483648') / (1024 * 1024)))
+  );
   const [settingsLoading, setSettingsLoading] = useState(false);
 
   const hasPendingChanges = Object.keys(pendingSettings).length > 0;
@@ -47,6 +50,7 @@ export default function SettingsPanel({ initialSettings }: SettingsPanelProps) {
   const handleDiscard = () => {
     setPendingSettings({});
     setCronInput(settings['cleanup_cron'] ?? '0 0 2 * * *');
+    setMaxUploadInput(String(Math.round(Number(settings['max_upload_size_bytes'] ?? '2147483648') / (1024 * 1024))));
   };
 
   const getBoolSetting = (key: string, defaultVal = 'true') =>
@@ -96,6 +100,60 @@ export default function SettingsPanel({ initialSettings }: SettingsPanelProps) {
               getBoolSetting('require_send_password', 'false') === 'true' ? 'translate-x-7' : 'translate-x-1'
             )} />
           </button>
+        </Card>
+
+        {/* Max upload size */}
+        <Card className="p-6 group hover:shadow-md transition-all space-y-4">
+          <div>
+            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.maxUploadSize')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.maxUploadSizeDesc')}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: t('admin.settings.maxUploadSizePreset500'), mb: 500 },
+              { label: t('admin.settings.maxUploadSizePreset1G'), mb: 1024 },
+              { label: t('admin.settings.maxUploadSizePreset2G'), mb: 2048 },
+              { label: t('admin.settings.maxUploadSizePreset4G'), mb: 4096 },
+              { label: t('admin.settings.maxUploadSizeUnlimited'), mb: 0 },
+            ].map((preset) => (
+              <button
+                key={preset.mb}
+                onClick={() => {
+                  const mb = String(preset.mb);
+                  setMaxUploadInput(mb);
+                  setPendingSetting('max_upload_size_bytes', String(preset.mb * 1024 * 1024));
+                }}
+                disabled={settingsLoading}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors disabled:opacity-50',
+                  maxUploadInput === String(preset.mb)
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-primary/40 hover:text-primary'
+                )}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <Input
+              type="number"
+              min="0"
+              value={maxUploadInput}
+              onChange={(e) => {
+                const mb = e.target.value;
+                setMaxUploadInput(mb);
+                const bytes = Number(mb) * 1024 * 1024;
+                if (!isNaN(bytes) && bytes >= 0) {
+                  setPendingSetting('max_upload_size_bytes', String(bytes));
+                }
+              }}
+              disabled={settingsLoading}
+              placeholder="2048"
+              className="flex-1"
+            />
+            <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">{t('admin.settings.maxUploadSizeUnit')}</span>
+          </div>
         </Card>
 
         {/* Cron schedule */}
