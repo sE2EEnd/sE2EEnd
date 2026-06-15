@@ -137,6 +137,12 @@
       "finalizingTitle": "Finalizing upload...",
       "finalizingMessage": "All chunks uploaded — the server is assembling your send"
     },
+    "leave": {
+      "title": "Upload in progress",
+      "message": "An upload is still in progress. If you leave now, it will be cancelled and you will lose your progress.",
+      "confirm": "Leave anyway",
+      "cancel": "Stay"
+    },
     "success": {
       "title": "File uploaded successfully!",
       "titleText": "Text sent successfully!",

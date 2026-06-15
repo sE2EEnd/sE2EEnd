@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useBlocker } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Zip, ZipPassThrough } from 'fflate';
 import { sendApi, configApi } from '@/services/api.ts';
@@ -91,6 +92,17 @@ export function useUploadForm() {
   const [maxUploadSizeBytes, setMaxUploadSizeBytes] = useState(0);
   const [passwordHasValue, setPasswordHasValue] = useState(false);
   const [usedPassword, setUsedPassword] = useState('');
+
+  useEffect(() => {
+    if (!uploading) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [uploading]);
+
+  const blocker = useBlocker(uploading);
 
   useEffect(() => {
     configApi.getSendPolicy().then(policy => {
@@ -284,6 +296,7 @@ export function useUploadForm() {
     uploading,
     uploadProgress,
     finalizing,
+    blocker,
     error, setError,
     shareLink,
     requireSendPassword,
