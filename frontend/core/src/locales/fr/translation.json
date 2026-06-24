@@ -322,5 +322,10 @@
     "no": "Non",
     "sessionStarted": "Session démarrée",
     "notAvailable": "N/A"
+  },
+  "demo": {
+    "banner": "Mode démo — aucune donnée n'est envoyée à un serveur. Tout reste dans votre navigateur.",
+    "reset": "Effacer les transferts et recommencer",
+    "resetTitle": "Supprime tous les transferts de cette session et recharge la démo depuis zéro"
   }
 }

@@ -82,7 +82,7 @@ export default function DashboardPage() {
         toast.error(t('dashboard.keyMissingDesc'));
         return;
       }
-      await navigator.clipboard.writeText(`${window.location.origin}/download/${send.accessId}#${keyBase64}`);
+      await navigator.clipboard.writeText(`${window.location.origin}${import.meta.env.BASE_URL}download/${send.accessId}#${keyBase64}`);
       setCopiedSendId(send.id);
       toast.success(t('dashboard.linkCopied'));
       setTimeout(() => setCopiedSendId(null), 2000);
