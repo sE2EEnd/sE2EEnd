@@ -71,13 +71,12 @@ export function tx<T>(
   mode: IDBTransactionMode,
   fn: (store: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T> {
-  return new Promise(async (resolve, reject) => {
-    const db = await openDemoDB();
+  return openDemoDB().then(db => new Promise<T>((resolve, reject) => {
     const names = Array.isArray(storeName) ? storeName : [storeName];
     const transaction = db.transaction(names, mode);
     const store = transaction.objectStore(Array.isArray(storeName) ? storeName[0] : storeName);
     const req = fn(store);
     req.onsuccess = () => resolve(req.result as T);
     req.onerror = () => reject(req.error);
-  });
+  }));
 }
