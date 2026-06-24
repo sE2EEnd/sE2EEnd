@@ -322,5 +322,10 @@
     "no": "No",
     "sessionStarted": "Session Started",
     "notAvailable": "N/A"
+  },
+  "demo": {
+    "banner": "Demo mode — no data is sent to any server. Everything stays in your browser.",
+    "reset": "Clear uploads & restart",
+    "resetTitle": "Wipes all uploads from this session and reloads the demo from scratch"
   }
 }

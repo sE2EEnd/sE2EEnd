@@ -5,6 +5,18 @@
     <link rel="icon" type="image/png" href="/se2eend-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sE2EEnd</title>
+    <!-- Decode the SPA redirect injected by 404.html on GitHub Pages.
+         Restores the original path+hash before React/Router boots.
+         The hash (= decryption key) is preserved through this redirect. -->
+    <script>
+      (function() {
+        var l = window.location;
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function(s) { return s.replace(/~and~/g, '&'); }).join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, l.pathname.indexOf('/') + 1) + decoded + l.hash);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

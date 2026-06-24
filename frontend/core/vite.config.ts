@@ -14,6 +14,7 @@ function getVersion(): string {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE || '/',
   define: {
     __APP_VERSION__: JSON.stringify(getVersion()),
   },

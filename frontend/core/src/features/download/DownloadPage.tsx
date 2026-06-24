@@ -33,6 +33,18 @@ function DownloadPage() {
 
   return (
     <div className="relative min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
+      {import.meta.env.VITE_DEMO_MODE === 'true' && (
+        <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-sm font-medium py-2 px-4 z-10 flex items-center justify-center gap-4 flex-wrap">
+          <span>{t('demo.banner')}</span>
+          <button
+            onClick={() => import('@/demo/seed').then(m => m.resetDemo())}
+            title={t('demo.resetTitle')}
+            className="shrink-0 underline underline-offset-2 hover:no-underline opacity-90 hover:opacity-100 transition-opacity"
+          >
+            ↺ {t('demo.reset')}
+          </button>
+        </div>
+      )}
       <div className="absolute top-4 right-4 flex items-center gap-1 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl p-1">
         <ThemeToggle />
         <LanguageSwitcher />

@@ -202,7 +202,7 @@ export function useUploadForm() {
         await storeSendKey(send.id, keyBase64);
         await sendApi.uploadFile(send.id, encryptedFile);
         const hideParam = hideByDefault ? '?h=1' : '';
-        setShareLink(`${window.location.origin}/download/${send.accessId}${hideParam}#${keyBase64}`);
+        setShareLink(`${window.location.origin}${import.meta.env.BASE_URL}download/${send.accessId}${hideParam}#${keyBase64}`);
         setActiveStep(3);
       } else {
         const send = await sendApi.createSend({
@@ -247,7 +247,7 @@ export function useUploadForm() {
           await sendApi.completeChunkedUpload(sessionId, actualChunks, CHUNK_SIZE);
         }
 
-        setShareLink(`${window.location.origin}/download/${send.accessId}#${keyBase64}`);
+        setShareLink(`${window.location.origin}${import.meta.env.BASE_URL}download/${send.accessId}#${keyBase64}`);
         setActiveStep(3);
       }
     } catch (err) {
