@@ -29,3 +29,30 @@ jobs:
       - name: Build and test
         working-directory: ./backend
         run: mvn clean install
+
+      - name: Snyk — dependency scan
+        uses: snyk/actions/maven@master
+        with:
+          args: --severity-threshold=high
+        working-directory: ./backend
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk — static analysis (SAST)
+        uses: snyk/actions/maven@master
+        with:
+          command: code test
+          args: --severity-threshold=high
+        working-directory: ./backend
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk — monitor (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: snyk/actions/maven@master
+        with:
+          command: monitor
+        working-directory: ./backend
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
