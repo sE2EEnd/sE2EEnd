@@ -31,27 +31,25 @@ jobs:
         working-directory: ./backend
         run: mvn clean install
 
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
       - name: Snyk — dependency scan
-        uses: snyk/actions/maven@master
-        with:
-          args: --severity-threshold=high --file=backend/pom.xml
+        working-directory: ./backend
+        run: snyk test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Snyk — static analysis (SAST)
-        uses: snyk/actions/maven@master
-        with:
-          command: code test
-          args: --severity-threshold=high backend/
+        working-directory: ./backend
+        run: snyk code test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Snyk — monitor (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: snyk/actions/maven@master
-        with:
-          command: monitor
-          args: --file=backend/pom.xml
+        working-directory: ./backend
+        run: snyk monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true

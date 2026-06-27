@@ -47,26 +47,22 @@ jobs:
           VITE_KEYCLOAK_REALM: se2eend
           VITE_KEYCLOAK_CLIENT_ID: se2eend-frontend
 
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
       - name: Snyk — dependency scan
-        uses: snyk/actions/node@master
-        with:
-          args: --severity-threshold=high
+        run: snyk test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Snyk — static analysis (SAST)
-        uses: snyk/actions/node@master
-        with:
-          command: code test
-          args: --severity-threshold=high
+        run: snyk code test --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Snyk — monitor (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: snyk/actions/node@master
-        with:
-          command: monitor
+        run: snyk monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
