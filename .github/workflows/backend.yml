@@ -34,6 +34,10 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
+      - name: Remove Maven wrapper (Snyk falls back to system mvn)
+        working-directory: ./backend
+        run: rm -f mvnw mvnw.cmd
+
       - name: Snyk — dependency scan
         working-directory: ./backend
         run: snyk test --severity-threshold=high
