@@ -35,7 +35,7 @@
 	<properties>
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springdoc.version>3.0.2</springdoc.version>
+		<springdoc.version>3.0.3</springdoc.version>
 		<aws.sdk.version>2.46.17</aws.sdk.version>
 	</properties>
 
