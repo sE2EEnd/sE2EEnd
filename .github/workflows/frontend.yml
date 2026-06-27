@@ -11,6 +11,7 @@ on:
       - 'main'
     paths:
       - 'frontend/**'
+  workflow_dispatch:
 
 jobs:
   build-check:
