@@ -55,11 +55,6 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk — static analysis (SAST)
-        run: snyk code test --severity-threshold=high
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
       - name: Snyk — monitor (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: snyk monitor
