@@ -33,8 +33,7 @@ jobs:
       - name: Snyk — dependency scan
         uses: snyk/actions/maven@master
         with:
-          args: --severity-threshold=high
-        working-directory: ./backend
+          args: --severity-threshold=high --file=backend/pom.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -42,8 +41,7 @@ jobs:
         uses: snyk/actions/maven@master
         with:
           command: code test
-          args: --severity-threshold=high
-        working-directory: ./backend
+          args: --severity-threshold=high backend/
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -52,7 +50,7 @@ jobs:
         uses: snyk/actions/maven@master
         with:
           command: monitor
-        working-directory: ./backend
+          args: --file=backend/pom.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
