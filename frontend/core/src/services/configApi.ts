@@ -17,6 +17,7 @@ export interface ThemeConfig {
 
 export interface SendPolicy {
   requireSendPassword: boolean;
+  maxUploadSizeBytes: number;
 }
 
 export const configApi = {

@@ -11,6 +11,7 @@ sidebar_position: 1
 
 - **Zero-knowledge architecture** — the server stores only ciphertext; the encryption key lives only in the URL fragment, never sent to the server
 - **File and text transfers** — share files (single or multiple, auto-zipped) or plaintext/secret notes
+- **Large files** — multi-gigabyte transfers, uploaded and downloaded in encrypted chunks streamed to/from disk, so the whole file is never buffered in memory (client or server)
 - **Enterprise authentication** via Keycloak (OAuth2 / OIDC) — supports SSO, LDAP federation, MFA
 - **Password-protected transfers** — optional second factor on top of the encryption key, with built-in secure password generation
 - **Per-transfer download limits and expiration dates**
@@ -24,18 +25,18 @@ sidebar_position: 1
 
 ```
 Browser (sender)
-  └─ AES-256-GCM encrypt(file, key)
-       └─ POST /api/sends  ──▶  Backend  ──▶  Storage (ciphertext only)
-                                    │
-                                    └─▶  PostgreSQL (metadata only)
+  └─ AES-256-GCM encrypt, chunk by chunk (~25 MB)
+       └─ PUT /api/v1/files/chunked/…  ──▶  Backend  ──▶  Storage (ciphertext only)
+                                              │
+                                              └─▶  PostgreSQL (metadata only)
 
-Share link:  https://your-domain/d/{id}#key
-                                        ↑
-                               Fragment — never sent to server
+Share link:  https://your-domain/download/{accessId}#key
+                                                   ↑
+                                   Fragment — never sent to server
 
 Browser (recipient)
-  └─ GET /api/sends/{id}  ──▶  fetch ciphertext
-       └─ AES-256-GCM decrypt(ciphertext, key from fragment)
+  └─ GET /api/v1/sends/{accessId}/download  ──▶  fetch ciphertext (streamed)
+       └─ AES-256-GCM decrypt  →  Service Worker  →  saved to disk
 ```
 
 ## Stack

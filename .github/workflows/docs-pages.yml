@@ -6,11 +6,15 @@ on:
       - main
     paths:
       - 'docs/site/**'
+      - 'frontend/core/**'
+      - '.github/workflows/docs-pages.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'docs/site/**'
+      - 'frontend/core/**'
+      - '.github/workflows/docs-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -25,27 +29,79 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./docs/site
-
+    # fetch-depth: 0 so `git describe --tags` in vite.config.ts works
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
+      # ── Docs (Docusaurus) ──────────────────────────────────────────────────
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: docs/site/package-lock.json
 
-      - name: Install dependencies
+      - name: Install docs dependencies
+        working-directory: ./docs/site
         run: npm ci
 
       - name: Copy logo from frontend
+        working-directory: ./docs/site
         run: cp ../../frontend/core/public/se2eend-logo.png static/img/logo.png
 
-      - name: Build
+      - name: Build docs
+        working-directory: ./docs/site
         run: npm run build
+
+      # ── Demo (React frontend, demo mode) ──────────────────────────────────
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/core/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend/core
+        run: npm ci
+
+      - name: Build demo
+        working-directory: ./frontend/core
+        env:
+          VITE_DEMO_MODE: 'true'
+          VITE_BASE: '/sE2EEnd/demo/'
+        run: npm run build
+
+      - name: Copy demo into docs build
+        run: cp -r frontend/core/dist docs/site/build/demo
+
+      # Inject SPA redirect prefix into the Docusaurus 404.html so that deep
+      # links like /sE2EEnd/demo/download/<id>#<key> survive a cold reload.
+      # Only activates for paths under /sE2EEnd/demo/; the Docusaurus 404 page
+      # is shown normally for all other paths.
+      - name: Patch 404.html with SPA redirect for /demo/ deep links
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          const path = 'docs/site/build/404.html';
+          const script = `<script>
+            (function() {
+              var l = window.location;
+              if (l.pathname.indexOf('/sE2EEnd/demo/') === 0 && l.pathname.length > '/sE2EEnd/demo/'.length) {
+                var p = l.pathname.slice(1).split('/');
+                var segmentsToKeep = 2; // /sE2EEnd/ + /demo/
+                var q = p.slice(segmentsToKeep).join('/').replace(/&/g, '~and~');
+                window.location.replace(
+                  l.protocol + '//' + l.host + '/' + p.slice(0, segmentsToKeep).join('/') + '/?/' + q + (l.search ? '&' + l.search.slice(1) : '') + l.hash
+                );
+              }
+            })();
+          </script>`;
+          let html = fs.readFileSync(path, 'utf8');
+          html = html.replace('<head>', '<head>\n' + script);
+          fs.writeFileSync(path, html);
+          console.log('Patched 404.html with SPA redirect for /demo/ deep links');
+          EOF
 
       - name: Upload artifact
         if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'

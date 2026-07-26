@@ -8,8 +8,9 @@ Self-hosted, end-to-end encrypted file sharing.
 The server never sees your files or encryption keys.  
 Built for teams who can't compromise on privacy.
 
-[**Website**](https://se2eend.github.io) · [**Documentation**](https://se2eend.github.io/sE2EEnd) · [**Releases**](https://github.com/sE2EEnd/sE2EEnd/releases)
+[**Website**](https://se2eend.github.io) · [**Documentation**](https://se2eend.github.io/sE2EEnd) · [**Releases**](https://github.com/sE2EEnd/sE2EEnd/releases) · [**Try the demo →**](https://se2eend.github.io/sE2EEnd/demo/)
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-try_it_now-blue?style=flat&logo=googlechrome&logoColor=white)](https://se2eend.github.io/sE2EEnd/demo/)
 [![GitHub Release](https://img.shields.io/github/v/release/sE2EEnd/sE2EEnd?style=flat)](https://github.com/sE2EEnd/sE2EEnd/releases/latest)
 [![AGPL-3.0 Licensed](https://img.shields.io/github/license/sE2EEnd/sE2EEnd?style=flat)](https://github.com/sE2EEnd/sE2EEnd/blob/main/LICENSE)
 [![GitHub last commit](https://img.shields.io/github/last-commit/sE2EEnd/sE2EEnd?style=flat)](https://github.com/sE2EEnd/sE2EEnd/commits/main)

@@ -11,6 +11,7 @@ on:
       - 'main'
     paths:
       - 'backend/**'
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -29,3 +30,24 @@ jobs:
       - name: Build and test
         working-directory: ./backend
         run: mvn clean install
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Remove Maven wrapper (Snyk falls back to system mvn)
+        working-directory: ./backend
+        run: rm -f mvnw mvnw.cmd
+
+      - name: Snyk — dependency scan
+        working-directory: ./backend
+        run: snyk test --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk — monitor (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ./backend
+        run: snyk monitor
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true

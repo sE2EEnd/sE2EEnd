@@ -17,30 +17,35 @@ import type { ThemeConfig } from './services/api';
 import { Loader2 } from 'lucide-react';
 import { Toaster } from 'sonner';
 
-const router = createBrowserRouter([
-  {
-    path: '/download/:accessId',
-    element: <DownloadPage />,
-  },
-  {
-    element: <Layout />,
-    children: [
-      { path: '/', element: <Navigate to="/dashboard" replace /> },
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/upload', element: <UploadPage /> },
-      {
-        path: '/admin',
-        element: (
-          <ProtectedAdminRoute>
-            <AdminPage />
-          </ProtectedAdminRoute>
-        ),
-      },
-      { path: '/profile', element: <ProfilePage /> },
-    ],
-  },
-  { path: '*', element: <NotFoundPage /> },
-]);
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const router = createBrowserRouter(
+  [
+    {
+      path: '/download/:accessId',
+      element: <DownloadPage />,
+    },
+    {
+      element: <Layout />,
+      children: [
+        { path: '/', element: <Navigate to="/dashboard" replace /> },
+        { path: '/dashboard', element: <DashboardPage /> },
+        { path: '/upload', element: <UploadPage /> },
+        {
+          path: '/admin',
+          element: (
+            <ProtectedAdminRoute>
+              <AdminPage />
+            </ProtectedAdminRoute>
+          ),
+        },
+        { path: '/profile', element: <ProfilePage /> },
+      ],
+    },
+    { path: '*', element: <NotFoundPage /> },
+  ],
+  { basename },
+);
 
 function App() {
   const { keycloak, initialized } = useKeycloak();
@@ -61,7 +66,7 @@ function App() {
     );
   }
 
-  const isDownloadRoute = window.location.pathname.startsWith('/download/');
+  const isDownloadRoute = window.location.pathname.includes('/download/');
   if (!keycloak.authenticated && !(isDownloadRoute && !instanceConfig?.requireAuthForDownload)) {
     keycloak.login();
     return null;

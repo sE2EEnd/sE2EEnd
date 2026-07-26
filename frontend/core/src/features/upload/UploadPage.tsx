@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import PageHeader from '@/components/PageHeader';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { useUploadForm } from './hooks/useUploadForm';
 import UploadStepper from './components/UploadStepper';
 import SecurityPanel from './components/SecurityPanel';
@@ -69,7 +71,7 @@ export default function UploadPage() {
                 onUpload={form.handleUpload}
               />
             )}
-            {form.activeStep === 2 && <UploadingStep mode={form.mode} />}
+            {form.activeStep === 2 && <UploadingStep mode={form.mode} uploadProgress={form.uploadProgress} finalizing={form.finalizing} />}
             {form.activeStep === 3 && (
               <ShareStep
                 mode={form.mode}
@@ -84,6 +86,18 @@ export default function UploadPage() {
           <SecurityPanel />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={form.blocker.state === 'blocked'}
+        onConfirm={() => form.blocker.proceed?.()}
+        onCancel={() => form.blocker.reset?.()}
+        icon={<AlertCircle className="w-6 h-6" />}
+        iconVariant="warning"
+        title={t('upload.leave.title')}
+        description={t('upload.leave.message')}
+        confirmLabel={t('upload.leave.confirm')}
+        cancelLabel={t('upload.leave.cancel')}
+      />
     </div>
   );
 }

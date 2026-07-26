@@ -27,6 +27,7 @@ public class LocalFileSystemStorage implements StorageService {
         if (!target.startsWith(baseDir)) {
             throw new SecurityException("Invalid path: " + suggestedName);
         }
+        Files.createDirectories(target.getParent());
         Files.copy(data, target, StandardCopyOption.REPLACE_EXISTING);
         return baseDir.relativize(target).toString();
     }

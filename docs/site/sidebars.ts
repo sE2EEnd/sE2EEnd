@@ -48,6 +48,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'configuration/theming',
         'configuration/storage',
+        'configuration/instance-settings',
       ],
     },
     {

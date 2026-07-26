@@ -2,6 +2,7 @@ import { AlertCircle, Download, FileText, Loader2, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Alert } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { useDownload } from './hooks/useDownload';
 import SendMetaPanel from './components/SendMetaPanel';
 import DecryptedTextViewer from './components/DecryptedTextViewer';
@@ -16,13 +17,13 @@ function DownloadPage() {
   const {
     sendInfo, decryptedSendName, decryptedFilenames,
     decryptedText, hideText, setHideText,
-    passwordRef, loading, downloading, error,
+    passwordRef, loading, downloading, downloadProgress, error,
     handleDownload,
   } = useDownload();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br bg-gradient-to-br-primary flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center">
         <Loader2 className="w-16 h-16 text-white animate-spin" />
       </div>
     );
@@ -31,7 +32,19 @@ function DownloadPage() {
   const isText = sendInfo?.type === 'TEXT';
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-linear-to-br bg-gradient-to-br-primary flex items-center justify-center p-4">
+      {import.meta.env.VITE_DEMO_MODE === 'true' && (
+        <div className="absolute top-0 inset-x-0 bg-amber-500 text-white text-sm font-medium py-2 px-4 z-10 flex items-center justify-center gap-4 flex-wrap">
+          <span>{t('demo.banner')}</span>
+          <button
+            onClick={() => import('@/demo/seed').then(m => m.resetDemo())}
+            title={t('demo.resetTitle')}
+            className="shrink-0 underline underline-offset-2 hover:no-underline opacity-90 hover:opacity-100 transition-opacity"
+          >
+            ↺ {t('demo.reset')}
+          </button>
+        </div>
+      )}
       <div className="absolute top-4 right-4 flex items-center gap-1 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl p-1">
         <ThemeToggle />
         <LanguageSwitcher />
@@ -121,6 +134,16 @@ function DownloadPage() {
                   </>
                 )}
               </button>
+
+              {downloadProgress !== null && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <span>{t('download.progress.label')}</span>
+                    <span>{downloadProgress}%</span>
+                  </div>
+                  <Progress value={downloadProgress} />
+                </div>
+              )}
 
               {sendInfo.downloadCount >= sendInfo.maxDownloads && (
                 <Alert variant="warning">

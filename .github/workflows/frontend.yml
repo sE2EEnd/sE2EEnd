@@ -11,6 +11,7 @@ on:
       - 'main'
     paths:
       - 'frontend/**'
+  workflow_dispatch:
 
 jobs:
   build-check:
@@ -45,3 +46,18 @@ jobs:
           VITE_KEYCLOAK_URL: http://localhost:8090
           VITE_KEYCLOAK_REALM: se2eend
           VITE_KEYCLOAK_CLIENT_ID: se2eend-frontend
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Snyk — dependency scan
+        run: snyk test --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk — monitor (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: snyk monitor
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true

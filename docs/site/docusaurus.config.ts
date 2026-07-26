@@ -65,6 +65,11 @@ const config: Config = {
           label: 'Documentation',
         },
         {
+          href: 'https://se2eend.github.io/sE2EEnd/demo/',
+          label: 'Try the demo',
+          position: 'right',
+        },
+        {
           href: 'https://github.com/sE2EEnd/sE2EEnd',
           label: 'GitHub',
           position: 'right',
@@ -92,6 +97,7 @@ const config: Config = {
         {
           title: 'More',
           items: [
+            { label: 'Live Demo', href: 'https://se2eend.github.io/sE2EEnd/demo/' },
             { label: 'GitHub', href: 'https://github.com/sE2EEnd/sE2EEnd' },
             { label: 'License (AGPL-3.0)', href: 'https://github.com/sE2EEnd/sE2EEnd/blob/main/LICENSE' },
           ],
