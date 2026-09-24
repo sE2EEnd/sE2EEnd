@@ -3,6 +3,7 @@ package fr.se2eend.backend.exception.enums;
 public enum ErrorCode {
     VALIDATION_ERROR,
     TYPE_MISMATCH,
+    RESOURCE_NOT_FOUND,
     SEND_NOT_FOUND,
     INTERNAL_ERROR,
     SEND_EXPIRED,

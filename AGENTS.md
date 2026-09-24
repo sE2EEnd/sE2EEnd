@@ -200,12 +200,11 @@ There are currently no frontend unit tests (only lint + build check in CI).
 
 ### Public routes (no auth required)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/v1/sends/{accessId}` | Get send metadata |
-| GET | `/api/v1/sends/{accessId}/download` | Download file list |
-| GET | `/api/v1/files/{fileId}` | Download a file (ciphertext) |
-| GET | `/api/v1/config/theme` | Get theme configuration |
+| Method | Path                                | Description                                                                                           |
+|--------|-------------------------------------|-------------------------------------------------------------------------------------------------------|
+| GET    | `/api/v1/sends/{accessId}`          | Get send metadata                                                                                     |
+| GET    | `/api/v1/sends/{accessId}/download` | Download file(s) — single file or ZIP archive; enforces password/revocation/expiration/download-limit |
+| GET    | `/api/v1/config/theme`              | Get theme configuration                                                                               |
 
 ### Protected routes (JWT required)
 
