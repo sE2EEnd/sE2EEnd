@@ -31,7 +31,7 @@ public class FileService {
         String storedPath = storageService.save(
                 file.getInputStream(),
                 file.getSize(),
-                file.getOriginalFilename()
+                UUID.randomUUID().toString()
         );
 
         FileMetadata meta = FileMetadata.builder()
