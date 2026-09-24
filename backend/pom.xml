@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.0</version>
+		<version>4.1.1</version>
 		<relativePath/>
 	</parent>
 
@@ -35,8 +35,13 @@
 	<properties>
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springdoc.version>3.0.2</springdoc.version>
-		<aws.sdk.version>2.46.17</aws.sdk.version>
+		<springdoc.version>3.1.1</springdoc.version>
+		<aws.sdk.version>2.55.3</aws.sdk.version>
+		<flyway.version>13.5.0</flyway.version>
+		<!-- Override Spring Boot's managed tools.jackson.core (Jackson 3) version: 3.1.5 has
+		     known resource-allocation CVEs, fixed in 3.1.6/3.1.7. -->
+		<jackson-bom.version>3.1.7</jackson-bom.version>
+		<netty.version>4.2.18.Final</netty.version>
 	</properties>
 
 	<dependencyManagement>
@@ -47,6 +52,29 @@
 				<version>${aws.sdk.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- AWS SDK's netty-nio-client pins its own (older, CVE-affected) netty component
+			     versions rather than resolving them from a shared BOM. Importing netty-bom here
+			     overrides all io.netty:* artifacts consistently across the dependency tree. -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>${netty.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- springdoc/swagger-core still depend on the legacy com.fasterxml.jackson.core
+			     group (Spring Boot 4's own BOM only manages the new tools.jackson.core group).
+			     Pin it past the versions with known CVEs (fixed in 2.18.11/2.21.7/2.22.3). -->
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>2.21.7</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>2.21.7</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
