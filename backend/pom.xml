@@ -38,6 +38,10 @@
 		<springdoc.version>3.1.1</springdoc.version>
 		<aws.sdk.version>2.55.3</aws.sdk.version>
 		<flyway.version>13.5.0</flyway.version>
+		<!-- Override Spring Boot's managed tools.jackson.core (Jackson 3) version: 3.1.5 has
+		     known resource-allocation CVEs, fixed in 3.1.6/3.1.7. -->
+		<jackson-bom.version>3.1.7</jackson-bom.version>
+		<netty.version>4.2.18.Final</netty.version>
 	</properties>
 
 	<dependencyManagement>
@@ -46,6 +50,16 @@
 				<groupId>software.amazon.awssdk</groupId>
 				<artifactId>bom</artifactId>
 				<version>${aws.sdk.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- AWS SDK's netty-nio-client pins its own (older, CVE-affected) netty component
+			     versions rather than resolving them from a shared BOM. Importing netty-bom here
+			     overrides all io.netty:* artifacts consistently across the dependency tree. -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>${netty.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
