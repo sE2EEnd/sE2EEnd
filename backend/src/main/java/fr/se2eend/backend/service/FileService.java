@@ -2,7 +2,6 @@ package fr.se2eend.backend.service;
 
 import fr.se2eend.backend.config.SecurityUtils;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
-import fr.se2eend.backend.exception.enums.ErrorCode;
 import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
 import fr.se2eend.backend.repository.FileRepository;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 
 @Service
@@ -44,17 +42,6 @@ public class FileService {
                 .build();
 
         return fileRepository.save(meta);
-    }
-
-    public InputStream readFile(UUID fileId) throws IOException {
-        FileMetadata file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.FILE_NOT_FOUND, "File not found"));
-        return storageService.read(file.getStoragePath());
-    }
-
-    public FileMetadata findMetadata(UUID fileId) {
-        return fileRepository.findById(fileId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.FILE_NOT_FOUND, "File not found"));
     }
 }
 

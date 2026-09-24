@@ -138,6 +138,7 @@ public class SendService {
     public void delete(UUID id) {
         Send send = sendRepository.findById(id)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
+        SecurityUtils.requireOwner(send.getOwnerId());
 
         long totalSize = 0L;
         FileMetadata file = send.getFile();
