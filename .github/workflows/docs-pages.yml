@@ -31,12 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     # fetch-depth: 0 so `git describe --tags` in vite.config.ts works
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       # ── Docs (Docusaurus) ──────────────────────────────────────────────────
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -55,7 +55,7 @@ jobs:
         run: npm run build
 
       # ── Demo (React frontend, demo mode) ──────────────────────────────────
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: npm
@@ -105,7 +105,7 @@ jobs:
 
       - name: Upload artifact
         if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs/site/build
 
