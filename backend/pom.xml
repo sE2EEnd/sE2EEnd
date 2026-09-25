@@ -36,7 +36,7 @@
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springdoc.version>3.1.1</springdoc.version>
-		<aws.sdk.version>2.55.3</aws.sdk.version>
+		<aws.sdk.version>2.55.6</aws.sdk.version>
 		<flyway.version>13.5.0</flyway.version>
 		<!-- Override Spring Boot's managed tools.jackson.core (Jackson 3) version: 3.1.5 has
 		     known resource-allocation CVEs, fixed in 3.1.6/3.1.7. -->
@@ -69,12 +69,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.21.7</version>
+				<version>2.22.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.21.7</version>
+				<version>2.22.3</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
