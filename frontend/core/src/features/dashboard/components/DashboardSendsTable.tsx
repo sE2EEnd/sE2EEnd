@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Shield, Copy, Check, Info, Upload } from 'lucide-react';
+import { Trash2, Shield, Copy, Check, Info, Upload, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -26,10 +26,12 @@ interface SendsTableProps {
   copiedSendId: string | null;
   onCopyLink: (send: SendWithDecryptedNames) => void;
   onDeleteClick: (sendId: string) => void;
+  refreshing: boolean;
+  onRefresh: () => void;
 }
 
 export default function DashboardSendsTable({
-  sends, currentPage, setCurrentPage, copiedSendId, onCopyLink, onDeleteClick,
+  sends, currentPage, setCurrentPage, copiedSendId, onCopyLink, onDeleteClick, refreshing, onRefresh,
 }: SendsTableProps) {
   const { t } = useTranslation();
   const totalPages = Math.ceil(sends.length / PAGE_SIZE);
@@ -37,8 +39,17 @@ export default function DashboardSendsTable({
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-700">
+      <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-700 flex items-center justify-between">
         <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('dashboard.myTransfers')}</h2>
+        <button
+          onClick={onRefresh}
+          disabled={refreshing}
+          title={t('dashboard.refresh')}
+          aria-label={t('dashboard.refresh')}
+          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-60"
+        >
+          <RefreshCw className={cn('w-4 h-4', refreshing && 'animate-spin')} />
+        </button>
       </div>
 
       {sends.length === 0 ? (
