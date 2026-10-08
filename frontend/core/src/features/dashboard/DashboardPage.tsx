@@ -97,7 +97,7 @@ export default function DashboardPage() {
   }).length;
   const totalDownloads = sends.reduce((sum, s) => sum + s.downloadCount, 0);
 
-  if (loading) {
+  if (loading && !data) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <Loader2 className="w-12 h-12 text-primary animate-spin" />
@@ -124,6 +124,8 @@ export default function DashboardPage() {
         setCurrentPage={setCurrentPage}
         copiedSendId={copiedSendId}
         onCopyLink={handleCopyLink}
+        refreshing={loading}
+        onRefresh={() => void reloadSends()}
         onDeleteClick={(id) => { setSendToDelete(id); setDeleteDialogOpen(true); }}
       />
 
