@@ -20,6 +20,7 @@
     "revoked": "Révoqué",
     "expired": "Expiré",
     "exhausted": "Épuisé",
+    "deleted": "Supprimé",
     "previous": "Précédent",
     "next": "Suivant",
     "morePages": "Plus de pages"
@@ -72,7 +73,16 @@
     "loadError": "Échec du chargement des transferts",
     "deleteError": "Échec de la suppression du transfert",
     "deleteSuccess": "Send supprimé",
-    "copyError": "Impossible de copier le lien"
+    "copyError": "Impossible de copier le lien",
+    "history": {
+      "title": "Historique des envois",
+      "subtitle": "Transferts passés et leur issue",
+      "filterAll": "Tous les statuts",
+      "empty": "Aucun transfert passé",
+      "endedOn": "Terminé le",
+      "loadError": "Échec du chargement de l'historique",
+      "statusFilter": "Filtrer par statut"
+    }
   },
   "upload": {
     "title": "Nouveau transfert",

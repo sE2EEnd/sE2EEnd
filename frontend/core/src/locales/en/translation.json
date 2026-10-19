@@ -20,6 +20,7 @@
     "revoked": "Revoked",
     "expired": "Expired",
     "exhausted": "Exhausted",
+    "deleted": "Deleted",
     "previous": "Previous",
     "next": "Next",
     "morePages": "More pages"
@@ -72,7 +73,16 @@
     "loadError": "Failed to load transfers",
     "deleteError": "Failed to delete transfer",
     "deleteSuccess": "Send deleted",
-    "copyError": "Failed to copy link"
+    "copyError": "Failed to copy link",
+    "history": {
+      "title": "Send History",
+      "subtitle": "Past transfers and how they ended",
+      "filterAll": "All statuses",
+      "empty": "No past transfers",
+      "endedOn": "Ended",
+      "loadError": "Failed to load send history",
+      "statusFilter": "Filter by status"
+    }
   },
   "upload": {
     "title": "New Transfer",

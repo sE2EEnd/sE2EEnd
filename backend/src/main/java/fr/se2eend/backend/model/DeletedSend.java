@@ -35,6 +35,18 @@ public class DeletedSend {
     @Column(name = "owner_email")
     private String ownerEmail;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
+    @Column(name = "max_downloads")
+    private Integer maxDownloads;
+
+    @Column(name = "download_count")
+    private Integer downloadCount;
+
     @Column(name = "send_created_at")
     private LocalDateTime sendCreatedAt;
 

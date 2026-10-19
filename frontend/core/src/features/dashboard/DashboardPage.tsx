@@ -12,6 +12,7 @@ import PageHeader from '@/components/PageHeader';
 import { useAsync } from '@/hooks/useAsync';
 import DashboardStats from './components/DashboardStats';
 import DashboardSendsTable from './components/DashboardSendsTable';
+import SendHistoryTable from './components/SendHistoryTable';
 import type { SendWithDecryptedNames } from './types';
 
 export default function DashboardPage() {
@@ -22,6 +23,7 @@ export default function DashboardPage() {
   const [sendToDelete, setSendToDelete] = useState<string | null>(null);
   const [copiedSendId, setCopiedSendId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [historyReloadToken, setHistoryReloadToken] = useState(0);
 
   const username = (keycloak.tokenParsed?.given_name as string | undefined)
     || (keycloak.tokenParsed?.preferred_username as string | undefined)
@@ -69,6 +71,7 @@ export default function DashboardPage() {
       setSendToDelete(null);
       setDeleteError('');
       toast.success(t('dashboard.deleteSuccess'));
+      setHistoryReloadToken(n => n + 1);
       await reloadSends();
     } catch {
       setDeleteError(t('dashboard.deleteError'));
@@ -128,6 +131,8 @@ export default function DashboardPage() {
         onRefresh={() => void reloadSends()}
         onDeleteClick={(id) => { setSendToDelete(id); setDeleteDialogOpen(true); }}
       />
+
+      <SendHistoryTable reloadToken={historyReloadToken} />
 
       <ConfirmDialog
         open={deleteDialogOpen}

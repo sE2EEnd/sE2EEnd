@@ -1,6 +1,9 @@
 package fr.se2eend.backend.controller;
 
+import fr.se2eend.backend.dto.PagedResponse;
+import fr.se2eend.backend.dto.SendHistoryDto;
 import fr.se2eend.backend.dto.SendRequestDto;
+import fr.se2eend.backend.model.enums.DeleteReason;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.service.SendService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +32,18 @@ public class SendController {
     @GetMapping
     public ResponseEntity<List<SendResponseDto>> getAllSends() {
         return ResponseEntity.ok(sendService.findAll());
+    }
+
+    @Operation(
+            summary = "Send history",
+            description = "Past Sends of the current user (expired, revoked, exhausted, deleted) with non-sensitive metadata only."
+    )
+    @GetMapping("/history")
+    public ResponseEntity<PagedResponse<SendHistoryDto>> getHistory(
+            @RequestParam(required = false) DeleteReason status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(sendService.findHistory(status, Math.max(page, 0), Math.min(Math.max(size, 1), 100)));
     }
 
     @Operation(

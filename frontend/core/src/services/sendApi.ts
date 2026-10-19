@@ -27,6 +27,29 @@ export interface SendResponse {
   file?: FileMetadata;
 }
 
+export type SendHistoryStatus = 'EXPIRED' | 'REVOKED' | 'EXHAUSTED' | 'USER';
+
+// Non-sensitive record of a past send (payload and key are gone). `name` is still client-side ciphertext.
+export interface SendHistoryEntry {
+  id: string;
+  name?: string;
+  status: SendHistoryStatus;
+  createdAt?: string;
+  endedAt: string;
+  expiresAt?: string;
+  maxDownloads?: number;
+  downloadCount?: number;
+  totalSizeBytes: number;
+}
+
+export interface SendHistoryPage {
+  content: SendHistoryEntry[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+}
+
 // Field names mirror the backend FileMetadataDto exactly (id / sizeBytes / chunkSize).
 export interface FileMetadata {
   id: string;
@@ -38,6 +61,11 @@ export interface FileMetadata {
 export const sendApi = {
   getAllSends: async (): Promise<SendResponse[]> => {
     const response = await api.get('/sends');
+    return response.data;
+  },
+
+  getHistory: async (page = 0, size = 10, status?: SendHistoryStatus, signal?: AbortSignal): Promise<SendHistoryPage> => {
+    const response = await api.get('/sends/history', { params: { page, size, status }, signal });
     return response.data;
   },
 

@@ -1,6 +1,8 @@
 package fr.se2eend.backend.service;
 
 import fr.se2eend.backend.config.SecurityUtils;
+import fr.se2eend.backend.dto.PagedResponse;
+import fr.se2eend.backend.dto.SendHistoryDto;
 import fr.se2eend.backend.dto.SendRequestDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
@@ -14,6 +16,9 @@ import fr.se2eend.backend.service.mapper.SendMapper;
 import fr.se2eend.backend.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,6 +53,46 @@ public class SendService {
                 .stream()
                 .map(sendMapper::toDto)
                 .toList();
+    }
+
+    /**
+     * Past sends of the current user (expired, revoked, exhausted, deleted), most recent first.
+     * Only metadata survives the cleanup: no keys, no payload, no access ID.
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<SendHistoryDto> findHistory(DeleteReason status, int page, int size) {
+        UUID ownerId = extractUserIdFromToken();
+        if (ownerId == null) {
+            return new PagedResponse<>(List.of(), 0, 0, page, size);
+        }
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("deletedAt").descending());
+        Page<DeletedSend> result;
+        if (status == null) {
+            result = deletedSendRepository.findByOwnerId(ownerId, pageable);
+        } else if (status == DeleteReason.USER || status == DeleteReason.MANUAL) {
+            // Admin deletions and user deletions are both "deleted" from the owner's point of view.
+            result = deletedSendRepository.findByOwnerIdAndDeleteReasonIn(
+                    ownerId, List.of(DeleteReason.USER, DeleteReason.MANUAL), pageable);
+        } else {
+            result = deletedSendRepository.findByOwnerIdAndDeleteReasonIn(ownerId, List.of(status), pageable);
+        }
+        return new PagedResponse<>(
+                result.getContent().stream().map(d -> new SendHistoryDto(
+                        d.getId(),
+                        d.getName(),
+                        d.getDeleteReason() == DeleteReason.MANUAL ? DeleteReason.USER : d.getDeleteReason(),
+                        d.getSendCreatedAt(),
+                        d.getDeletedAt(),
+                        d.getExpiresAt(),
+                        d.getMaxDownloads(),
+                        d.getDownloadCount(),
+                        d.getTotalSizeBytes()
+                )).toList(),
+                result.getTotalElements(),
+                result.getTotalPages(),
+                result.getNumber(),
+                result.getSize()
+        );
     }
 
     public SendResponseDto findById(UUID id) {
@@ -157,6 +202,10 @@ public class SendService {
                 .ownerId(send.getOwnerId())
                 .ownerName(send.getOwnerName())
                 .ownerEmail(send.getOwnerEmail())
+                .name(send.getName())
+                .expiresAt(send.getExpiresAt())
+                .maxDownloads(send.getMaxDownloads())
+                .downloadCount(send.getDownloadCount())
                 .sendCreatedAt(send.getCreatedAt())
                 .deletedAt(LocalDateTime.now())
                 .deleteReason(DeleteReason.USER)
