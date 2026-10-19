@@ -36,6 +36,9 @@
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springdoc.version>3.1.1</springdoc.version>
+		<!-- Security overrides of Spring Boot managed versions (Snyk) -->
+		<tomcat.version>11.0.26</tomcat.version>
+		<postgresql.version>42.7.14</postgresql.version>
 		<aws.sdk.version>2.55.3</aws.sdk.version>
 		<flyway.version>13.5.0</flyway.version>
 		<!-- Override Spring Boot's managed tools.jackson.core (Jackson 3) version: 3.1.5 has
