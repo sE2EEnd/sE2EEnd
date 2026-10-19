@@ -4,6 +4,6 @@ export { sendApi } from './sendApi';
 export { adminApi } from './adminApi';
 export { configApi } from './configApi';
 export { settingsApi } from './settingsApi';
-export type { SendCreateRequest, SendResponse, FileMetadata } from './sendApi';
+export type { SendCreateRequest, SendResponse, FileMetadata, SendHistoryEntry, SendHistoryPage, SendHistoryStatus } from './sendApi';
 export type { StorageMetrics, CleanupResult, PagedResponse, AdminStats, DeletedSend } from './adminApi';
 export type { ThemeConfig, SendPolicy } from './configApi';
