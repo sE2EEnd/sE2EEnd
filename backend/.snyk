@@ -1,0 +1,6 @@
+version: v1.25.0
+ignore:
+  SNYK-JAVA-ORGGLASSFISHJAXB-20883142:
+    - '*':
+        reason: Transitive dep of Hibernate, only parses its own mapping XML; no user-supplied XML. No upstream fix yet.
+        expires: 2027-01-19T00:00:00.000Z
