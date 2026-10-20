@@ -128,7 +128,7 @@ class FileAttachOwnershipTest {
 
         mockMvc.perform(post("/api/v1/files/chunked/{sessionId}/complete", session.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"totalChunks\":0,\"chunkSize\":26214400}"))
+                        .content("{\"totalChunks\":1,\"chunkSize\":26214400}"))
                 .andExpect(status().isNotFound());
     }
 

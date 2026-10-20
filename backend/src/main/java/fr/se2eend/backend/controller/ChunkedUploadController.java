@@ -5,6 +5,11 @@ import fr.se2eend.backend.model.UploadSession;
 import fr.se2eend.backend.service.ChunkedUploadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,13 +28,13 @@ public class ChunkedUploadController {
 
     private final ChunkedUploadService chunkedUploadService;
 
-    public record InitRequest(UUID sendId, String filename) {}
+    public record InitRequest(@NotNull UUID sendId, @NotBlank String filename) {}
     public record InitResponse(UUID sessionId) {}
-    public record CompleteRequest(int totalChunks, int chunkSize) {}
+    public record CompleteRequest(@Min(1) @Max(10_000) int totalChunks, @Min(1) int chunkSize) {}
 
     @Operation(summary = "Initialize a chunked upload session")
     @PostMapping("/init")
-    public ResponseEntity<InitResponse> init(@RequestBody InitRequest body) {
+    public ResponseEntity<InitResponse> init(@Valid @RequestBody InitRequest body) {
         UploadSession session = chunkedUploadService.initUpload(body.sendId(), body.filename());
         return ResponseEntity.status(HttpStatus.CREATED).body(new InitResponse(session.getId()));
     }
@@ -50,7 +55,7 @@ public class ChunkedUploadController {
     @PostMapping("/{sessionId}/complete")
     public ResponseEntity<FileMetadata> complete(
             @PathVariable UUID sessionId,
-            @RequestBody CompleteRequest body) throws IOException {
+            @Valid @RequestBody CompleteRequest body) throws IOException {
 
         FileMetadata meta = chunkedUploadService.completeUpload(sessionId, body.totalChunks(), body.chunkSize());
         return ResponseEntity.status(HttpStatus.CREATED).body(meta);

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,10 @@ public class ChunkedUploadService {
     private static final long DEFAULT_MAX_UPLOAD_BYTES = 2L * 1024 * 1024 * 1024; // 2 GiB
     /** Per-chunk ciphertext overhead: 12-byte IV + 16-byte GCM auth tag. */
     private static final int CHUNK_OVERHEAD_BYTES = 28;
+    /** Hard server-side ceiling on stored (ciphertext) bytes per upload, even when the limit is "unlimited" (0). */
+    static final long ABSOLUTE_MAX_UPLOAD_BYTES = 16L * 1024 * 1024 * 1024; // 16 GiB
+    /** Upper bound on the number of chunks in a single upload. */
+    static final int MAX_CHUNKS = 10_000;
 
     @Transactional
     public UploadSession initUpload(UUID sendId, String filename) {
@@ -42,6 +48,10 @@ public class ChunkedUploadService {
 
         // Only the Send's owner may attach a file (treats "not yours" as "not found").
         SecurityUtils.requireOwner(send.getOwnerId());
+
+        if (!fileRepository.findBySendId(sendId).isEmpty()) {
+            throw new IllegalArgumentException("Send already has a file");
+        }
 
         UploadSession session = UploadSession.builder()
                 .send(send)
@@ -57,21 +67,34 @@ public class ChunkedUploadService {
         UploadSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.UPLOAD_SESSION_NOT_FOUND, "Upload session not found"));
 
-        // Enforce the upload size budget incrementally, BEFORE writing to disk, so a client can't
-        // exhaust storage by streaming unlimited chunks (the limit used to be checked only at
-        // completion, after everything was already written). Caps cumulative stored (ciphertext)
-        // bytes per session — marginally stricter than the plaintext setting by the GCM overhead.
+        // Only the Send's owner may upload chunks (treats "not yours" as "not found").
+        SecurityUtils.requireOwner(session.getSend().getOwnerId());
+
+        if (chunkIndex < 0 || chunkIndex >= MAX_CHUNKS) {
+            throw new IllegalArgumentException("Invalid chunk index");
+        }
+
+        // Every chunk must declare its length: it can't be budgeted otherwise, and the servlet
+        // container only bounds the request body to a declared Content-Length.
+        if (sizeBytes <= 0) {
+            throw new IllegalArgumentException("Content-Length is required for each chunk");
+        }
+
+        // Refuse an already-received index BEFORE writing anything to storage.
+        boolean alreadyReceived = chunkRepository.findAllBySessionOrderByChunkIndex(session).stream()
+                .anyMatch(c -> c.getChunkIndex() == chunkIndex);
+        if (alreadyReceived) {
+            throw new IllegalArgumentException("Chunk already received");
+        }
+
+        // Enforce the upload size budget incrementally, BEFORE writing to disk. Caps cumulative
+        // stored (ciphertext) bytes per session — marginally stricter than the plaintext setting
+        // by the GCM overhead. A server-side ceiling applies even when the setting is unlimited.
         long maxUploadBytes = instanceSettingsService.getLong("max_upload_size_bytes", DEFAULT_MAX_UPLOAD_BYTES);
-        if (maxUploadBytes > 0) {
-            // Reject chunks without a declared length: they can't be budgeted, and the servlet
-            // container only bounds the request body to a declared Content-Length.
-            if (sizeBytes <= 0) {
-                throw new UploadSizeLimitExceededException(maxUploadBytes);
-            }
-            long alreadyStored = chunkRepository.sumSizeBytesBySession(session);
-            if (alreadyStored + sizeBytes > maxUploadBytes) {
-                throw new UploadSizeLimitExceededException(maxUploadBytes);
-            }
+        long effectiveMax = maxUploadBytes > 0 ? Math.min(maxUploadBytes, ABSOLUTE_MAX_UPLOAD_BYTES) : ABSOLUTE_MAX_UPLOAD_BYTES;
+        long alreadyStored = chunkRepository.sumSizeBytesBySession(session);
+        if (alreadyStored + sizeBytes > effectiveMax) {
+            throw new UploadSizeLimitExceededException(effectiveMax);
         }
 
         String storagePath = "chunks/" + sessionId + "/" + chunkIndex;
@@ -95,6 +118,14 @@ public class ChunkedUploadService {
         // Defense in depth: re-check ownership before assembling the final file.
         SecurityUtils.requireOwner(session.getSend().getOwnerId());
 
+        if (totalChunks <= 0 || totalChunks > MAX_CHUNKS || chunkSize <= 0) {
+            throw new IllegalArgumentException("Invalid chunk parameters");
+        }
+
+        if (!fileRepository.findBySendId(session.getSend().getId()).isEmpty()) {
+            throw new IllegalArgumentException("Send already has a file");
+        }
+
         List<UploadChunk> chunks = chunkRepository.findAllBySessionOrderByChunkIndex(session);
 
         if (chunks.size() != totalChunks) {
@@ -102,9 +133,20 @@ public class ChunkedUploadService {
                     "Expected " + totalChunks + " chunks but got " + chunks.size());
         }
 
+        // Indices must be exactly 0..n-1 (chunks are ordered by index).
+        for (int i = 0; i < chunks.size(); i++) {
+            if (chunks.get(i).getChunkIndex() != i) {
+                throw new ResourceNotFoundException(ErrorCode.UPLOAD_INCOMPLETE,
+                        "Chunk indices are not contiguous");
+            }
+        }
+
         long totalSize = chunks.stream().mapToLong(UploadChunk::getSizeBytes).sum();
 
         long maxUploadBytes = instanceSettingsService.getLong("max_upload_size_bytes", DEFAULT_MAX_UPLOAD_BYTES);
+        if (totalSize > ABSOLUTE_MAX_UPLOAD_BYTES) {
+            throw new UploadSizeLimitExceededException(ABSOLUTE_MAX_UPLOAD_BYTES);
+        }
         if (maxUploadBytes > 0) {
             // Subtract the per-chunk GCM overhead to get the plaintext size; clamp at 0 so a
             // pathological many-tiny-chunks upload can't drive this negative to bypass the check.
@@ -126,10 +168,6 @@ public class ChunkedUploadService {
             storageService.save(combined, totalSize, finalPath);
         }
 
-        for (UploadChunk chunk : chunks) {
-            storageService.delete(chunk.getStoragePath());
-        }
-
         FileMetadata meta = FileMetadata.builder()
                 .send(session.getSend())
                 .filename(session.getFilename())
@@ -138,10 +176,35 @@ public class ChunkedUploadService {
                 .chunkSize(chunkSize)
                 .build();
 
+        FileMetadata saved = fileRepository.save(meta);
         chunkRepository.deleteAll(chunks);
         sessionRepository.delete(session);
 
-        return fileRepository.save(meta);
+        // Remove the chunk blobs only once the metadata is durably persisted.
+        List<String> chunkPaths = chunks.stream().map(UploadChunk::getStoragePath).toList();
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    deleteStoredChunks(chunkPaths);
+                }
+            });
+        } else {
+            deleteStoredChunks(chunkPaths);
+        }
+
+        return saved;
+    }
+
+    private void deleteStoredChunks(List<String> paths) {
+        for (String path : paths) {
+            try {
+                storageService.delete(path);
+            } catch (IOException e) {
+                log.warn("Failed to delete chunk {}: {}", path, e.getMessage());
+            }
+        }
+
     }
 
     @Transactional
