@@ -117,4 +117,53 @@ class SendPolicyEnforcementTest {
         // When/Then: Should succeed
         assertNotNull(sendService.createSend(request));
     }
+
+    private SendRequestDto req(Boolean protectedFlag, String password) {
+        return new SendRequestDto("Test", SendType.FILE, null, 5, protectedFlag, password);
+    }
+
+    private void assertRejected(boolean policy, Boolean protectedFlag, String password) {
+        settingsService.set("require_send_password", String.valueOf(policy));
+        assertThrows(IllegalArgumentException.class,
+                () -> sendService.createSend(req(protectedFlag, password)));
+    }
+
+    private void assertAccepted(boolean policy, Boolean protectedFlag, String password, boolean expectProtected) {
+        settingsService.set("require_send_password", String.valueOf(policy));
+        var result = sendService.createSend(req(protectedFlag, password));
+        assertEquals(expectProtected, result.passwordProtected());
+    }
+
+    @Test
+    void passwordConsistency_policyOff() {
+        assertAccepted(false, false, null, false);
+        assertAccepted(false, null, null, false);
+        assertAccepted(false, false, "", false);
+        assertAccepted(false, true, "secret", true);
+        assertRejected(false, false, "secret");
+        assertRejected(false, null, "secret");
+        assertRejected(false, true, null);
+        assertRejected(false, true, "");
+        assertRejected(false, true, "   ");
+    }
+
+    @Test
+    void passwordConsistency_policyOn() {
+        assertAccepted(true, true, "secret", true);
+        assertRejected(true, false, "secret");
+        assertRejected(true, null, "secret");
+        assertRejected(true, false, null);
+        assertRejected(true, null, null);
+        assertRejected(true, true, null);
+        assertRejected(true, true, "");
+        assertRejected(true, true, "   ");
+    }
+
+    @Test
+    void passwordLength_isBounded() {
+        assertAccepted(false, true, "a".repeat(72), true);
+        assertRejected(false, true, "a".repeat(73));
+        // 37 two-byte characters = 74 bytes
+        assertRejected(false, true, "é".repeat(37));
+    }
 }

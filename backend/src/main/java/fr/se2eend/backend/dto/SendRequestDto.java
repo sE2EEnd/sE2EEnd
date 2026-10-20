@@ -19,5 +19,6 @@ public record SendRequestDto(
 
         Boolean passwordProtected,
 
+        @Size(max = 72)
         String password
 ) {}

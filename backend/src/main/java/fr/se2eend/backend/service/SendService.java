@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,8 +110,17 @@ public class SendService {
 
     public SendResponseDto createSend(SendRequestDto dto) {
         boolean requireSendPassword = instanceSettingsService.getBoolean("require_send_password", false);
-        if (requireSendPassword && (dto.password() == null || dto.password().isBlank())) {
+        boolean hasPassword = dto.password() != null && !dto.password().isBlank();
+        boolean protectedRequested = Boolean.TRUE.equals(dto.passwordProtected());
+
+        if (requireSendPassword && !(protectedRequested && hasPassword)) {
             throw new IllegalArgumentException("A password is required by this instance's policy");
+        }
+        if (protectedRequested != hasPassword) {
+            throw new IllegalArgumentException("Password settings are inconsistent");
+        }
+        if (hasPassword && dto.password().getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new IllegalArgumentException("Password must be at most 72 bytes");
         }
 
         Send entity = sendMapper.toEntity(dto);
@@ -126,7 +136,7 @@ public class SendService {
         entity.setOwnerName(extractOwnerNameFromToken());
         entity.setOwnerEmail(extractOwnerEmailFromToken());
 
-        if (Boolean.TRUE.equals(dto.passwordProtected()) && dto.password() != null && !dto.password().isBlank()) {
+        if (hasPassword) {
             entity.setPasswordHash(passwordEncoder.encode(dto.password()));
             entity.setPasswordProtected(true);
         } else {

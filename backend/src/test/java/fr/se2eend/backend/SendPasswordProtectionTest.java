@@ -207,7 +207,7 @@ class SendPasswordProtectionTest {
     }
 
     @Test
-    void testPasswordProtectedSend_passwordNotSetButFlagTrue() {
+    void testPasswordProtectedSend_passwordNotSetButFlagTrue_isRejected() {
         // Given: passwordProtected=true but no password provided
         SendRequestDto request = new SendRequestDto(null, 
                 SendType.FILE,
@@ -217,12 +217,7 @@ class SendPasswordProtectionTest {
                 null
         );
 
-        // When: Create the Send
-        SendResponseDto response = sendService.createSend(request);
-
-        // Then: Should not be password protected if no password was provided
-        Send send = sendRepository.findById(response.id()).orElseThrow();
-        assertFalse(send.isPasswordProtected());
-        assertNull(send.getPasswordHash());
+        // When/Then: Inconsistent settings are rejected
+        assertThrows(IllegalArgumentException.class, () -> sendService.createSend(request));
     }
 }
