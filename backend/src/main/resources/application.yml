@@ -35,6 +35,8 @@ spring:
 
 server:
   port: 8081
+  # Resolve client IP from X-Forwarded-For, honoured only from trusted (private-range) proxies
+  forward-headers-strategy: native
 
 springdoc:
   swagger-ui:

@@ -195,6 +195,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
     }
 
+    @ExceptionHandler(SendRateLimitedException.class)
+    public ResponseEntity<ApiError> handleRateLimited(SendRateLimitedException ex) {
+        log.info("Rate limited (cid={})", cid());
+        ApiError body = ApiError.of(
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                ErrorCode.TOO_MANY_REQUESTS.name(),
+                ex.getMessage(),
+                cid(),
+                List.of()
+        );
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.retryAfterSeconds()))
+                .body(body);
+    }
+
     private static String humanize(FieldError fe) {
         String defaultMsg = fe.getDefaultMessage();
         return defaultMsg != null ? defaultMsg : "is invalid";

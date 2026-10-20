@@ -1,6 +1,12 @@
 package fr.se2eend.backend.config;
 
+import fr.se2eend.backend.service.InstanceSettingsService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -38,15 +44,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, InstanceSettingsService instanceSettings) {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/v1/sends/*/download").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sends/*/download").access(authIfRequired(instanceSettings))
                         .requestMatchers(HttpMethod.GET, "/api/v1/sends/history").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/sends/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sends/*").access(authIfRequired(instanceSettings))
                         .requestMatchers(HttpMethod.GET, "/api/v1/config/theme").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -74,6 +80,17 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    private static AuthorizationManager<RequestAuthorizationContext> authIfRequired(InstanceSettingsService settings) {
+        return (authentication, context) -> {
+            if (!settings.getBoolean("require_auth_for_download", true)) {
+                return new AuthorizationDecision(true);
+            }
+            Authentication auth = authentication.get();
+            return new AuthorizationDecision(auth != null && auth.isAuthenticated()
+                    && !(auth instanceof AnonymousAuthenticationToken));
+        };
     }
 
     @Bean

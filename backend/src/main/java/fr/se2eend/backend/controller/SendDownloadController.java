@@ -4,6 +4,7 @@ import fr.se2eend.backend.service.SendDownloadService;
 import fr.se2eend.backend.service.SendDownloadService.DownloadStream;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
@@ -31,8 +32,9 @@ public class SendDownloadController {
     @GetMapping("/{accessId}/download")
     public ResponseEntity<InputStreamResource> download(
             @PathVariable String accessId,
-            @RequestHeader(value = "X-Send-Password", required = false) String password) throws IOException {
-        DownloadStream stream = sendDownloadService.downloadByAccessId(accessId, password);
+            @RequestHeader(value = "X-Send-Password", required = false) String password,
+            HttpServletRequest request) throws IOException {
+        DownloadStream stream = sendDownloadService.downloadByAccessId(accessId, password, request.getRemoteAddr());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

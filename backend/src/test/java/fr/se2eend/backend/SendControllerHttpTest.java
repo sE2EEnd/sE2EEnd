@@ -6,6 +6,7 @@ import fr.se2eend.backend.model.enums.SendType;
 import fr.se2eend.backend.repository.DeletedSendRepository;
 import fr.se2eend.backend.repository.FileRepository;
 import fr.se2eend.backend.repository.SendRepository;
+import fr.se2eend.backend.service.InstanceSettingsService;
 import fr.se2eend.backend.support.WithMockJwtUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
@@ -37,6 +38,7 @@ class SendControllerHttpTest {
     @Autowired private SendRepository sendRepository;
     @Autowired private FileRepository fileRepository;
     @Autowired private DeletedSendRepository deletedSendRepository;
+    @Autowired private InstanceSettingsService instanceSettingsService;
 
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -47,6 +49,7 @@ class SendControllerHttpTest {
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .build();
+        instanceSettingsService.set("require_auth_for_download", "false");
     }
 
     @AfterEach

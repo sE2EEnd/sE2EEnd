@@ -4,6 +4,7 @@ import fr.se2eend.backend.exception.ResourceNotFoundException;
 import fr.se2eend.backend.exception.SendDownloadLimitExceededException;
 import fr.se2eend.backend.exception.SendExpiredException;
 import fr.se2eend.backend.exception.SendPasswordInvalidException;
+import fr.se2eend.backend.exception.SendRateLimitedException;
 import fr.se2eend.backend.exception.SendRevokedException;
 import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
@@ -25,9 +26,17 @@ public class SendDownloadService {
     private final SendRepository sendRepository;
     private final StorageService storageService;
     private final PasswordEncoder passwordEncoder;
+    private final DownloadPasswordAttemptLimiter attemptLimiter;
+
+    private static final int MAX_PASSWORD_LENGTH = 256;
 
     @Transactional(rollbackFor = Exception.class)
     public DownloadStream downloadByAccessId(String accessId, String password) throws IOException {
+        return downloadByAccessId(accessId, password, null);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public DownloadStream downloadByAccessId(String accessId, String password, String clientKey) throws IOException {
         Send send = sendRepository.findByAccessId(accessId)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
 
@@ -36,16 +45,15 @@ public class SendDownloadService {
             throw new SendExpiredException();
 
         if (send.isPasswordProtected()) {
-            if (password == null || password.isBlank()) {
+            long retryAfter = attemptLimiter.retryAfterSeconds(accessId, clientKey);
+            if (retryAfter > 0) throw new SendRateLimitedException(retryAfter);
+            if (password == null || password.isBlank()
+                    || password.length() > MAX_PASSWORD_LENGTH
+                    || !passwordEncoder.matches(password, send.getPasswordHash())) {
+                attemptLimiter.recordFailure(accessId, clientKey);
                 throw new SendPasswordInvalidException();
             }
-            if (!passwordEncoder.matches(password, send.getPasswordHash())) {
-                throw new SendPasswordInvalidException();
-            }
-        }
-
-        if (send.getDownloadCount() >= send.getMaxDownloads()) {
-            throw new SendDownloadLimitExceededException();
+            attemptLimiter.reset(accessId);
         }
 
         FileMetadata file = send.getFile();
@@ -56,10 +64,11 @@ public class SendDownloadService {
             );
         }
 
-        InputStream inputStream = storageService.read(file.getStoragePath());
+        if (sendRepository.incrementDownloadCountIfBelowLimit(send.getId()) == 0) {
+            throw new SendDownloadLimitExceededException();
+        }
 
-        send.setDownloadCount(send.getDownloadCount() + 1);
-        sendRepository.save(send);
+        InputStream inputStream = storageService.read(file.getStoragePath());
 
         return new DownloadStream(inputStream, file.getFilename(), file.getSizeBytes());
     }
