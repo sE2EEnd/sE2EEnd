@@ -27,6 +27,25 @@ export interface SendResponse {
   file?: FileMetadata;
 }
 
+// Public metadata served on the access route: no owner info, no internal ids.
+export interface PublicFileMetadata {
+  filename: string;
+  sizeBytes: number;
+  chunkSize?: number;
+}
+
+export interface SendPublicResponse {
+  accessId: string;
+  name?: string;
+  type: string;
+  expiresAt?: string;
+  maxDownloads: number;
+  downloadCount: number;
+  passwordProtected: boolean;
+  createdAt: string;
+  file?: PublicFileMetadata;
+}
+
 export type SendHistoryStatus = 'EXPIRED' | 'REVOKED' | 'EXHAUSTED' | 'USER';
 
 // Non-sensitive record of a past send (payload and key are gone). `name` is still client-side ciphertext.
@@ -122,7 +141,7 @@ export const sendApi = {
     return { stream: response.body, encryptedSize: contentLength ? Number(contentLength) : undefined };
   },
 
-  getSendInfo: async (accessId: string): Promise<SendResponse> => {
+  getSendInfo: async (accessId: string): Promise<SendPublicResponse> => {
     const response = await api.get(`/sends/${accessId}`);
     return response.data;
   },

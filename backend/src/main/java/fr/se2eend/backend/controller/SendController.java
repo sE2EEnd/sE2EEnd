@@ -4,6 +4,7 @@ import fr.se2eend.backend.dto.PagedResponse;
 import fr.se2eend.backend.dto.SendHistoryDto;
 import fr.se2eend.backend.dto.SendRequestDto;
 import fr.se2eend.backend.model.enums.DeleteReason;
+import fr.se2eend.backend.dto.SendPublicResponseDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.service.SendService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,19 +48,12 @@ public class SendController {
     }
 
     @Operation(
-            summary = "Retrieve a Send by ID",
-            description = "Return detailed metadata and the list of attached files for a given Send ID."
+            summary = "Retrieve a Send by access ID",
+            description = "Return the public metadata of a Send (no owner information) for a given access ID."
     )
     @GetMapping("/{id}")
-    public ResponseEntity<SendResponseDto> getSend(@PathVariable String id) {
-        // Try to parse as UUID first, otherwise treat as accessId
-        try {
-            UUID uuid = UUID.fromString(id);
-            return ResponseEntity.ok(sendService.findById(uuid));
-        } catch (IllegalArgumentException e) {
-            // Not a UUID, treat as accessId
-            return ResponseEntity.ok(sendService.findByAccessId(id));
-        }
+    public ResponseEntity<SendPublicResponseDto> getSend(@PathVariable String id) {
+        return ResponseEntity.ok(sendService.findByAccessId(id));
     }
 
     @Operation(

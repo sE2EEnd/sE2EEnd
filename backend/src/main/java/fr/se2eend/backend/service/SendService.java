@@ -4,6 +4,7 @@ import fr.se2eend.backend.config.SecurityUtils;
 import fr.se2eend.backend.dto.PagedResponse;
 import fr.se2eend.backend.dto.SendHistoryDto;
 import fr.se2eend.backend.dto.SendRequestDto;
+import fr.se2eend.backend.dto.SendPublicResponseDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
 import fr.se2eend.backend.model.DeletedSend;
@@ -96,15 +97,9 @@ public class SendService {
         );
     }
 
-    public SendResponseDto findById(UUID id) {
-        return sendRepository.findById(id)
-                .map(sendMapper::toDto)
-                .orElseThrow(ResourceNotFoundException::sendNotFound);
-    }
-
-    public SendResponseDto findByAccessId(String accessId) {
+    public SendPublicResponseDto findByAccessId(String accessId) {
         return sendRepository.findByAccessId(accessId)
-                .map(sendMapper::toDto)
+                .map(sendMapper::toPublicDto)
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
     }
 

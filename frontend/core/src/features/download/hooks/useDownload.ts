@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { isAxiosError } from 'axios';
-import type { SendResponse } from '@/services/api.ts';
+import type { SendPublicResponse } from '@/services/api.ts';
 import { sendApi } from '@/services/api.ts';
 import { decryptBlob, decryptChunkedBlob, decryptChunkedStream, decryptText, importKeyFromBase64 } from '@/lib/crypto.ts';
 import { streamToDisk, supportsServiceWorkerStreaming } from '@/lib/streamDownload.ts';
@@ -18,7 +18,7 @@ export function useDownload() {
   const { accessId } = useParams<{ accessId: string }>();
   const passwordRef = useRef<HTMLInputElement>(null);
   const keyRef = useRef<CryptoKey | null>(null);
-  const [sendInfo, setSendInfo] = useState<SendResponse | null>(null);
+  const [sendInfo, setSendInfo] = useState<SendPublicResponse | null>(null);
   const [decryptedSendName, setDecryptedSendName] = useState<string | null>(null);
   const [decryptedFilenames, setDecryptedFilenames] = useState<Record<string, string>>({});
   const [decryptedText, setDecryptedText] = useState<string | null>(null);

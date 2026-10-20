@@ -22,6 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -148,5 +149,57 @@ class SendControllerHttpTest {
 
         mockMvc.perform(delete("/api/v1/sends/{id}", id))
                 .andExpect(status().isNoContent());
+    }
+
+    // -------------------------------------------------------------------------
+    // Public metadata shape
+    // -------------------------------------------------------------------------
+
+    private String createSendAsOwner(String name) throws Exception {
+        SendRequestDto request = new SendRequestDto(name, SendType.FILE, null, 5, false, null);
+        String body = mockMvc.perform(post("/api/v1/sends")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        return body;
+    }
+
+    @Test
+    @WithMockJwtUser
+    void getSend_anonymous_returnsPublicMetadataOnly() throws Exception {
+        String accessId = objectMapper.readTree(createSendAsOwner("Shared")).get("accessId").asText();
+
+        mockMvc.perform(get("/api/v1/sends/{id}", accessId).with(anonymous()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessId").value(accessId))
+                .andExpect(jsonPath("$.name").value("Shared"))
+                .andExpect(jsonPath("$.maxDownloads").value(5))
+                .andExpect(jsonPath("$.ownerId").doesNotExist())
+                .andExpect(jsonPath("$.ownerName").doesNotExist())
+                .andExpect(jsonPath("$.ownerEmail").doesNotExist())
+                .andExpect(jsonPath("$.id").doesNotExist())
+                .andExpect(jsonPath("$.revoked").doesNotExist());
+    }
+
+    @Test
+    @WithMockJwtUser
+    void getSend_byInternalUuid_returnsNotFound() throws Exception {
+        String id = objectMapper.readTree(createSendAsOwner("Shared")).get("id").asText();
+
+        mockMvc.perform(get("/api/v1/sends/{id}", id).with(anonymous()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockJwtUser
+    void getAllSends_owner_keepsFullMetadata() throws Exception {
+        createSendAsOwner("Mine");
+
+        mockMvc.perform(get("/api/v1/sends"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", notNullValue()))
+                .andExpect(jsonPath("$[0].ownerId", notNullValue()))
+                .andExpect(jsonPath("$[0].revoked").exists());
     }
 }

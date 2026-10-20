@@ -1,6 +1,8 @@
 package fr.se2eend.backend.service.mapper;
 
 import fr.se2eend.backend.dto.FileMetadataDto;
+import fr.se2eend.backend.dto.PublicFileMetadataDto;
+import fr.se2eend.backend.dto.SendPublicResponseDto;
 import fr.se2eend.backend.dto.SendRequestDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.model.FileMetadata;
@@ -49,6 +51,32 @@ public class SendMapper {
                 entity.getDownloadCount(),
                 entity.isPasswordProtected(),
                 entity.isRevoked(),
+                entity.getCreatedAt(),
+                fileDto
+        );
+    }
+
+    /**
+     * Convert a Send entity to the metadata exposed on the public access route.
+     */
+    public SendPublicResponseDto toPublicDto(Send entity) {
+        if (entity == null) return null;
+
+        PublicFileMetadataDto fileDto = entity.getFile() != null
+                ? new PublicFileMetadataDto(
+                        entity.getFile().getFilename(),
+                        entity.getFile().getSizeBytes(),
+                        entity.getFile().getChunkSize())
+                : null;
+
+        return new SendPublicResponseDto(
+                entity.getAccessId(),
+                entity.getName(),
+                entity.getType(),
+                entity.getExpiresAt(),
+                entity.getMaxDownloads(),
+                entity.getDownloadCount(),
+                entity.isPasswordProtected(),
                 entity.getCreatedAt(),
                 fileDto
         );
