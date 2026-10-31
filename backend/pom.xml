@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.1</version>
+		<version>4.1.2</version>
 		<relativePath/>
 	</parent>
 
@@ -35,16 +35,16 @@
 	<properties>
 		<java.version>25</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<springdoc.version>3.1.1</springdoc.version>
+		<springdoc.version>3.2.0</springdoc.version>
 		<!-- Security overrides of Spring Boot managed versions (Snyk) -->
 		<tomcat.version>11.0.26</tomcat.version>
 		<postgresql.version>42.7.14</postgresql.version>
-		<aws.sdk.version>2.55.3</aws.sdk.version>
+		<aws.sdk.version>2.57.8</aws.sdk.version>
 		<flyway.version>13.5.0</flyway.version>
 		<!-- Override Spring Boot's managed tools.jackson.core (Jackson 3) version: 3.1.5 has
 		     known resource-allocation CVEs, fixed in 3.1.6/3.1.7. -->
 		<jackson-bom.version>3.1.7</jackson-bom.version>
-		<netty.version>4.2.18.Final</netty.version>
+		<netty.version>4.2.19.Final</netty.version>
 	</properties>
 
 	<dependencyManagement>
@@ -72,12 +72,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.21.7</version>
+				<version>2.22.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.21.7</version>
+				<version>2.22.4</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
