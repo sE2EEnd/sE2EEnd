@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   Shield,
+  Sparkles,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -18,6 +19,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
 import AppLogo from './AppLogo';
+import WhatsNewDialog from '@/features/whats-new/components/WhatsNewDialog';
+import { useWhatsNew } from '@/features/whats-new/hooks/useWhatsNew';
 
 const menuItems = [
   { name: 'layout.dashboard', path: '/dashboard', icon: LayoutDashboard, role: null },
@@ -32,6 +35,7 @@ export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { theme } = useTheme();
+  const whatsNew = useWhatsNew();
 
   // Check if user has admin role
   const isAdmin = keycloak.tokenParsed?.realm_access?.roles?.includes('admin') || false;
@@ -77,6 +81,14 @@ export default function Layout() {
               );
             })}
           </nav>
+
+          <button
+            onClick={whatsNew.showAll}
+            className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span>{t('whatsNew.link')}</span>
+          </button>
 
           <a
             href="https://github.com/sE2EEnd/sE2EEnd"
@@ -153,6 +165,14 @@ export default function Layout() {
                 );
               })}
             </nav>
+
+            <button
+              onClick={() => { setSidebarOpen(false); whatsNew.showAll(); }}
+              className="flex items-center gap-1.5 px-5 py-2 text-white/40 hover:text-white/70 transition-colors text-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span>{t('whatsNew.link')}</span>
+            </button>
 
             <a
               href="https://github.com/sE2EEnd/sE2EEnd"
@@ -237,6 +257,8 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+
+      <WhatsNewDialog open={whatsNew.open} releases={whatsNew.releases} onClose={whatsNew.close} />
     </div>
   );
 }

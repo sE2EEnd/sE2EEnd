@@ -338,5 +338,26 @@
     "banner": "Mode démo — aucune donnée n'est envoyée à un serveur. Tout reste dans votre navigateur.",
     "reset": "Effacer les transferts et recommencer",
     "resetTitle": "Supprime tous les transferts de cette session et recharge la démo depuis zéro"
+  },
+  "whatsNew": {
+    "title": "Quoi de neuf",
+    "description": "Les dernières nouveautés de l'application.",
+    "link": "Quoi de neuf",
+    "close": "Compris",
+    "version": "Version {{version}}",
+    "items": {
+      "recipientDestroy": {
+        "title": "Le destinataire peut détruire un envoi",
+        "description": "À la création d'un envoi, vous pouvez permettre au destinataire de le supprimer du serveur dès qu'il a terminé, sans attendre l'expiration ou la limite de téléchargements. Disponible si votre administrateur l'active."
+      },
+      "sendHistory": {
+        "title": "Historique des envois",
+        "description": "Votre tableau de bord liste désormais vos envois passés et leur fin : expiré, révoqué, limite de téléchargements atteinte ou supprimé."
+      },
+      "dashboardRefresh": {
+        "title": "Actualiser vos transferts",
+        "description": "Un bouton d'actualisation recharge le tableau des transferts sans recharger la page."
+      }
+    }
   }
 }
