@@ -1,5 +1,6 @@
 package fr.se2eend.backend.repository;
 
+import fr.se2eend.backend.model.Send;
 import fr.se2eend.backend.model.UploadSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -9,4 +10,5 @@ import java.util.UUID;
 
 public interface UploadSessionRepository extends JpaRepository<UploadSession, UUID> {
     List<UploadSession> findAllByCreatedAtBefore(LocalDateTime cutoff);
+    List<UploadSession> findAllBySend(Send send);
 }

@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority';
-import { CheckCircle2, Ban, Clock, AlertCircle, Trash2 } from 'lucide-react';
+import { CheckCircle2, Ban, Clock, AlertCircle, Trash2, UserX } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
-export type SendStatus = 'active' | 'revoked' | 'expired' | 'exhausted' | 'deleted';
+export type SendStatus = 'active' | 'revoked' | 'expired' | 'exhausted' | 'deleted' | 'destroyed';
 
 const badgeVariants = cva(
   'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-tight',
@@ -15,6 +15,7 @@ const badgeVariants = cva(
         expired:   'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
         exhausted: 'bg-red-50    dark:bg-red-900/20    text-red-600    dark:text-red-400',
         deleted:   'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+        destroyed: 'bg-slate-100 dark:bg-slate-800     text-slate-600  dark:text-slate-300',
       },
     },
   }
@@ -26,6 +27,7 @@ const statusIcons: Record<SendStatus, React.ReactNode> = {
   expired:   <Clock        className="w-3.5 h-3.5" />,
   exhausted: <AlertCircle  className="w-3.5 h-3.5" />,
   deleted:   <Trash2       className="w-3.5 h-3.5" />,
+  destroyed: <UserX        className="w-3.5 h-3.5" />,
 };
 
 const statusKeys: Record<SendStatus, string> = {
@@ -34,6 +36,7 @@ const statusKeys: Record<SendStatus, string> = {
   expired:   'common.expired',
   exhausted: 'common.exhausted',
   deleted:   'common.deleted',
+  destroyed: 'common.destroyed',
 };
 
 interface StatusBadgeProps {
@@ -52,13 +55,14 @@ export default function StatusBadge({ status, label, className }: StatusBadgePro
   );
 }
 
-/** Maps a raw deleteReason string (EXPIRED, REVOKED, EXHAUSTED, MANUAL…) to a SendStatus */
+/** Maps a raw deleteReason string (EXPIRED, REVOKED, EXHAUSTED, RECIPIENT, MANUAL…) to a SendStatus */
 // eslint-disable-next-line react-refresh/only-export-components
 export function deleteReasonToStatus(reason: string): SendStatus {
   switch (reason) {
     case 'EXPIRED':   return 'expired';
     case 'REVOKED':   return 'revoked';
     case 'EXHAUSTED': return 'exhausted';
+    case 'RECIPIENT': return 'destroyed';
     default:          return 'deleted';
   }
 }

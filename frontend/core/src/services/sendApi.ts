@@ -8,6 +8,7 @@ export interface SendCreateRequest {
   maxDownloads?: number;
   passwordProtected?: boolean;
   password?: string;
+  recipientDestroyTokenHash?: string;
 }
 
 export interface SendResponse {
@@ -22,6 +23,7 @@ export interface SendResponse {
   maxDownloads: number;
   downloadCount: number;
   passwordProtected: boolean;
+  recipientCanDestroy: boolean;
   revoked: boolean;
   createdAt: string;
   file?: FileMetadata;
@@ -42,11 +44,12 @@ export interface SendPublicResponse {
   maxDownloads: number;
   downloadCount: number;
   passwordProtected: boolean;
+  recipientCanDestroy: boolean;
   createdAt: string;
   file?: PublicFileMetadata;
 }
 
-export type SendHistoryStatus = 'EXPIRED' | 'REVOKED' | 'EXHAUSTED' | 'USER';
+export type SendHistoryStatus = 'EXPIRED' | 'REVOKED' | 'EXHAUSTED' | 'USER' | 'RECIPIENT';
 
 // Non-sensitive record of a past send (payload and key are gone). `name` is still client-side ciphertext.
 export interface SendHistoryEntry {
@@ -148,6 +151,10 @@ export const sendApi = {
 
   deleteSend: async (sendId: string): Promise<void> => {
     await api.delete(`/sends/${sendId}`);
+  },
+
+  destroySend: async (accessId: string, token: string): Promise<void> => {
+    await api.post(`/sends/${accessId}/destroy`, { token });
   },
 
   initChunkedUpload: async (sendId: string, filename: string): Promise<{ sessionId: string }> => {

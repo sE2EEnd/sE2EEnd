@@ -1,8 +1,10 @@
 package fr.se2eend.backend.repository;
 
 import fr.se2eend.backend.model.Send;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +19,10 @@ import java.util.UUID;
 public interface SendRepository extends JpaRepository<Send, UUID>, JpaSpecificationExecutor<Send> {
 
     Optional<Send> findByAccessId(String accessId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from Send s where s.accessId = :accessId")
+    Optional<Send> findByAccessIdForUpdate(@Param("accessId") String accessId);
 
     List<Send> findByExpiresAtBefore(LocalDateTime dateTime);
 

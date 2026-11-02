@@ -8,13 +8,11 @@ import fr.se2eend.backend.dto.SendPublicResponseDto;
 import fr.se2eend.backend.dto.SendResponseDto;
 import fr.se2eend.backend.exception.ResourceNotFoundException;
 import fr.se2eend.backend.model.DeletedSend;
-import fr.se2eend.backend.model.FileMetadata;
 import fr.se2eend.backend.model.Send;
 import fr.se2eend.backend.model.enums.DeleteReason;
 import fr.se2eend.backend.repository.DeletedSendRepository;
 import fr.se2eend.backend.repository.SendRepository;
 import fr.se2eend.backend.service.mapper.SendMapper;
-import fr.se2eend.backend.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,7 +41,7 @@ public class SendService {
     private final DeletedSendRepository deletedSendRepository;
     private final SendMapper sendMapper;
     private final PasswordEncoder passwordEncoder;
-    private final StorageService storageService;
+    private final SendDeletionService sendDeletionService;
     private final InstanceSettingsService instanceSettingsService;
 
     public List<SendResponseDto> findAll() {
@@ -117,6 +115,12 @@ public class SendService {
         if (hasPassword && dto.password().getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new IllegalArgumentException("Password must be at most 72 bytes");
         }
+        String destroyTokenHash = dto.recipientDestroyTokenHash();
+        boolean destroyRequested = destroyTokenHash != null && !destroyTokenHash.isBlank();
+        // Only gates new sends: sends created while the option was on stay destroyable by their recipient.
+        if (destroyRequested && !instanceSettingsService.getBoolean(InstanceSettingsService.ALLOW_RECIPIENT_DESTROY, true)) {
+            throw new IllegalArgumentException("Recipient destruction is disabled on this instance");
+        }
 
         Send entity = sendMapper.toEntity(dto);
 
@@ -138,6 +142,8 @@ public class SendService {
             entity.setPasswordProtected(false);
             entity.setPasswordHash(null);
         }
+
+        entity.setRecipientDestroyTokenHash(destroyRequested ? destroyTokenHash : null);
 
         return sendMapper.toDto(sendRepository.save(entity));
     }
@@ -190,34 +196,6 @@ public class SendService {
                 .orElseThrow(ResourceNotFoundException::sendNotFound);
         SecurityUtils.requireOwner(send.getOwnerId());
 
-        long totalSize = 0L;
-        FileMetadata file = send.getFile();
-        if (file != null) {
-            try {
-                storageService.delete(file.getStoragePath());
-                totalSize += file.getSizeBytes();
-            } catch (Exception e) {
-                log.error("Failed to delete file {} from storage: {}", file.getStoragePath(), e.getMessage());
-            }
-        }
-
-        DeletedSend audit = DeletedSend.builder()
-                .originalSendId(send.getId())
-                .accessId(send.getAccessId())
-                .ownerId(send.getOwnerId())
-                .ownerName(send.getOwnerName())
-                .ownerEmail(send.getOwnerEmail())
-                .name(send.getName())
-                .expiresAt(send.getExpiresAt())
-                .maxDownloads(send.getMaxDownloads())
-                .downloadCount(send.getDownloadCount())
-                .sendCreatedAt(send.getCreatedAt())
-                .deletedAt(LocalDateTime.now())
-                .deleteReason(DeleteReason.USER)
-                .totalSizeBytes(totalSize)
-                .build();
-
-        deletedSendRepository.save(audit);
-        sendRepository.delete(send);
+        sendDeletionService.auditAndDelete(send, DeleteReason.USER);
     }
 }

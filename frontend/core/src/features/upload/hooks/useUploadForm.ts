@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Zip, ZipPassThrough } from 'fflate';
 import { sendApi, configApi } from '@/services/api.ts';
 import { getApiErrorMessage } from '@/lib/errors';
-import { generateKey, exportKeyToBase64, encryptFile, encryptChunk, encryptText } from '@/lib/crypto.ts';
+import { generateKey, exportKeyToBase64, encryptFile, encryptChunk, encryptText, deriveRecipientDestroyToken, hashToken } from '@/lib/crypto.ts';
 import { storeSendKey } from '@/lib/sendKeysDB.ts';
 
 const CHUNK_SIZE = 25 * 1024 * 1024; // 25 MB plaintext per chunk
@@ -83,6 +83,8 @@ export function useUploadForm() {
   const [expirationHours, setExpirationHours] = useState(24);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [usePassword, setUsePassword] = useState(false);
+  const [allowRecipientDestroy, setAllowRecipientDestroy] = useState(false);
+  const [recipientDestroyAvailable, setRecipientDestroyAvailable] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [finalizing, setFinalizing] = useState(false);
@@ -111,6 +113,7 @@ export function useUploadForm() {
         setUsePassword(true);
       }
       setMaxUploadSizeBytes(policy.maxUploadSizeBytes ?? 0);
+      setRecipientDestroyAvailable(policy.allowRecipientDestroy === true);
     }).catch(() => { /* policy remains at default */ });
   }, []);
 
@@ -184,6 +187,11 @@ export function useUploadForm() {
         ? await encryptText(sendName, encryptionKey)
         : undefined;
 
+      // Only the hash of the derived token leaves the browser; the token is re-derived by the recipient.
+      const recipientDestroyTokenHash = recipientDestroyAvailable && allowRecipientDestroy
+        ? await hashToken(await deriveRecipientDestroyToken(encryptionKey))
+        : undefined;
+
       if (mode === 'text') {
         const textBytes = new TextEncoder().encode(textContent);
         const textFile = new File([textBytes], 'text.txt', { type: 'text/plain' });
@@ -198,6 +206,7 @@ export function useUploadForm() {
           maxDownloads,
           passwordProtected: usePassword,
           ...(usePassword && password ? { password } : {}),
+          ...(recipientDestroyTokenHash ? { recipientDestroyTokenHash } : {}),
         });
         await storeSendKey(send.id, keyBase64);
         await sendApi.uploadFile(send.id, encryptedFile);
@@ -212,6 +221,7 @@ export function useUploadForm() {
           maxDownloads,
           passwordProtected: usePassword,
           ...(usePassword && password ? { password } : {}),
+          ...(recipientDestroyTokenHash ? { recipientDestroyTokenHash } : {}),
         });
         await storeSendKey(send.id, keyBase64);
 
@@ -275,6 +285,7 @@ export function useUploadForm() {
     setHideByDefault(false);
     if (passwordRef.current) passwordRef.current.value = '';
     setUsePassword(false);
+    setAllowRecipientDestroy(false);
     setPasswordHasValue(false);
     setUsedPassword('');
     setError('');
@@ -293,6 +304,8 @@ export function useUploadForm() {
     expirationHours, setExpirationHours,
     passwordRef,
     usePassword, setUsePassword,
+    allowRecipientDestroy, setAllowRecipientDestroy,
+    recipientDestroyAvailable,
     uploading,
     uploadProgress,
     finalizing,

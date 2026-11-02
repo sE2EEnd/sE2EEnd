@@ -1,9 +1,9 @@
-import { generateKey, exportKeyToBase64, encryptText, encryptFile } from '@/lib/crypto';
+import { generateKey, exportKeyToBase64, encryptText, encryptFile, deriveRecipientDestroyToken, hashToken } from '@/lib/crypto';
 import { storeSendKey } from '@/lib/sendKeysDB';
-import { createSend, storeSendFile, revokeSend } from './store';
+import { createSend, storeSendFile, revokeSend, deleteSend } from './store';
 import { clearDemoDB } from './db';
 
-const LS_KEY = 'demo_session_start_v1';
+const LS_KEY = 'demo_session_start_v2'; // bumped when the seed changes, to reseed existing demo sessions
 const TTL_MS = 4 * 60 * 60 * 1000; // 4 hours — shared across tabs via localStorage
 
 export async function runSeedIfNeeded(): Promise<void> {
@@ -37,7 +37,7 @@ async function seed(): Promise<void> {
     expiresAt: days(7),
   });
 
-  // 2. Active file send — expires in 3 days
+  // 2. Active file send — expires in 3 days, the recipient may destroy it
   await seedFile({
     name: 'Demo report',
     filename: 'demo-report.txt',
@@ -45,6 +45,7 @@ async function seed(): Promise<void> {
     maxDownloads: 5,
     downloadCount: 1,
     expiresAt: days(3),
+    recipientDestroy: true,
   });
 
   // 3. Password-protected file send
@@ -88,6 +89,27 @@ async function seed(): Promise<void> {
     downloadCount: 2,
     expiresAt: days(30),
   });
+
+  // 7. Past sends, so the dashboard history is not empty
+  const destroyed = await seedFile({
+    name: 'Signed contract',
+    filename: 'contract.txt',
+    content: 'The recipient destroyed this send once done.',
+    maxDownloads: 3,
+    downloadCount: 1,
+    expiresAt: days(7),
+    recipientDestroy: true,
+  });
+  await deleteSend(destroyed.id, 'RECIPIENT');
+
+  const deleted = await seedText({
+    name: 'Old draft',
+    text: 'The owner deleted this send.',
+    maxDownloads: 5,
+    downloadCount: 0,
+    expiresAt: days(7),
+  });
+  await deleteSend(deleted.id, 'USER');
 }
 
 async function seedText(opts: {
@@ -145,11 +167,15 @@ async function seedFile(opts: {
   downloadCount: number;
   expiresAt: string;
   password?: string;
+  recipientDestroy?: boolean;
 }) {
   const key = await generateKey();
   const keyBase64 = await exportKeyToBase64(key);
   const encName = await encryptText(opts.name, key);
   const encFilename = await encryptText(opts.filename, key);
+  const recipientDestroyTokenHash = opts.recipientDestroy
+    ? await hashToken(await deriveRecipientDestroyToken(key))
+    : undefined;
 
   const fileBytes = new TextEncoder().encode(opts.content);
   const file = new File([fileBytes], opts.filename, { type: 'text/plain' });
@@ -162,6 +188,7 @@ async function seedFile(opts: {
     maxDownloads: opts.maxDownloads,
     passwordProtected: !!opts.password,
     password: opts.password,
+    recipientDestroyTokenHash,
   });
 
   const { openDemoDB } = await import('./db');

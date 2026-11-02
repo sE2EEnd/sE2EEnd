@@ -5,5 +5,6 @@ public enum DeleteReason {
     REVOKED,
     EXHAUSTED,
     MANUAL,
-    USER
+    USER,
+    RECIPIENT
 }
