@@ -320,7 +320,7 @@
       "requireSendPassword": "Require password on all sends",
       "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
       "allowRecipientDestroy": "Allow recipients to destroy sends",
-      "allowRecipientDestroyDesc": "When enabled, senders can let the recipient destroy a send once done. Turning it off only affects new sends: existing sends with the option can still be destroyed.",
+      "allowRecipientDestroyDesc": "When enabled, senders can let the recipient destroy a send once done.",
       "maxUploadSize": "Maximum upload size",
       "maxUploadSizeDesc": "Maximum plaintext file size per send. Set to 0 for unlimited.",
       "maxUploadSizeUnit": "MB",
