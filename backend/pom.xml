@@ -37,13 +37,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<springdoc.version>3.1.1</springdoc.version>
 		<!-- Security overrides of Spring Boot managed versions (Snyk) -->
-		<tomcat.version>11.0.26</tomcat.version>
+		<tomcat.version>11.0.27</tomcat.version>
 		<postgresql.version>42.7.14</postgresql.version>
 		<aws.sdk.version>2.55.3</aws.sdk.version>
 		<flyway.version>13.5.0</flyway.version>
 		<!-- Override Spring Boot's managed tools.jackson.core (Jackson 3) version: 3.1.5 has
-		     known resource-allocation CVEs, fixed in 3.1.6/3.1.7. -->
-		<jackson-bom.version>3.1.7</jackson-bom.version>
+		     known resource-allocation CVEs, fixed in 3.1.6/3.1.7; 3.1.7 has a deserialization CVE, fixed in 3.1.8. -->
+		<jackson-bom.version>3.1.8</jackson-bom.version>
 		<netty.version>4.2.18.Final</netty.version>
 	</properties>
 
@@ -68,16 +68,16 @@
 			</dependency>
 			<!-- springdoc/swagger-core still depend on the legacy com.fasterxml.jackson.core
 			     group (Spring Boot 4's own BOM only manages the new tools.jackson.core group).
-			     Pin it past the versions with known CVEs (fixed in 2.18.11/2.21.7/2.22.3). -->
+			     Pin it past the versions with known CVEs (fixed in 2.18.12/2.21.8/2.22.4). -->
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.21.7</version>
+				<version>2.21.8</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.21.7</version>
+				<version>2.21.8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
