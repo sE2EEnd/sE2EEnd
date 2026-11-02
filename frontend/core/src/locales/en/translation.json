@@ -338,5 +338,26 @@
     "banner": "Demo mode — no data is sent to any server. Everything stays in your browser.",
     "reset": "Clear uploads & restart",
     "resetTitle": "Wipes all uploads from this session and reloads the demo from scratch"
+  },
+  "whatsNew": {
+    "title": "What's new",
+    "description": "The latest improvements to the application.",
+    "link": "What's new",
+    "close": "Got it",
+    "version": "Version {{version}}",
+    "items": {
+      "recipientDestroy": {
+        "title": "Recipients can destroy a send",
+        "description": "When creating a send, you can let the recipient delete it from the server as soon as they are done, without waiting for the expiration or the download limit. Available if your administrator enables it."
+      },
+      "sendHistory": {
+        "title": "Send history",
+        "description": "Your dashboard now lists your past sends and how they ended: expired, revoked, download limit reached or deleted."
+      },
+      "dashboardRefresh": {
+        "title": "Refresh your transfers",
+        "description": "A refresh button reloads the transfers table without reloading the page."
+      }
+    }
   }
 }
