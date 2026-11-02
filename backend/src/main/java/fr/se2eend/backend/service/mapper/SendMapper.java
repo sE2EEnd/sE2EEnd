@@ -50,6 +50,7 @@ public class SendMapper {
                 entity.getMaxDownloads(),
                 entity.getDownloadCount(),
                 entity.isPasswordProtected(),
+                entity.getRecipientDestroyTokenHash() != null,
                 entity.isRevoked(),
                 entity.getCreatedAt(),
                 fileDto
@@ -77,6 +78,7 @@ public class SendMapper {
                 entity.getMaxDownloads(),
                 entity.getDownloadCount(),
                 entity.isPasswordProtected(),
+                entity.getRecipientDestroyTokenHash() != null,
                 entity.getCreatedAt(),
                 fileDto
         );

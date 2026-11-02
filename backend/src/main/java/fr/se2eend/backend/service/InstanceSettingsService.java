@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InstanceSettingsService {
 
+    public static final String ALLOW_RECIPIENT_DESTROY = "allow_recipient_destroy";
+
     private final InstanceSettingRepository repository;
 
     public String get(String key, String defaultValue) {

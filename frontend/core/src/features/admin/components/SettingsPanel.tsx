@@ -102,6 +102,27 @@ export default function SettingsPanel({ initialSettings }: SettingsPanelProps) {
           </button>
         </Card>
 
+        {/* Toggle: allow recipients to destroy sends */}
+        <Card className="p-6 flex items-center justify-between group hover:shadow-md transition-all">
+          <div>
+            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{t('admin.settings.allowRecipientDestroy')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.settings.allowRecipientDestroyDesc')}</p>
+          </div>
+          <button
+            onClick={() => setPendingSetting('allow_recipient_destroy', getBoolSetting('allow_recipient_destroy') === 'true' ? 'false' : 'true')}
+            disabled={settingsLoading}
+            className={cn(
+              'relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50',
+              getBoolSetting('allow_recipient_destroy') === 'true' ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'
+            )}
+          >
+            <span className={cn(
+              'inline-block h-6 w-6 transform rounded-full bg-white transition-transform',
+              getBoolSetting('allow_recipient_destroy') === 'true' ? 'translate-x-7' : 'translate-x-1'
+            )} />
+          </button>
+        </Card>
+
         {/* Max upload size */}
         <Card className="p-6 group hover:shadow-md transition-all space-y-4">
           <div>

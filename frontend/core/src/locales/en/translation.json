@@ -21,6 +21,7 @@
     "expired": "Expired",
     "exhausted": "Exhausted",
     "deleted": "Deleted",
+    "destroyed": "Destroyed by recipient",
     "previous": "Previous",
     "next": "Next",
     "morePages": "More pages"
@@ -122,7 +123,9 @@
       "generatePassword": "Generate a secure password",
       "showPassword": "Show password",
       "hidePassword": "Hide password",
-      "copyPassword": "Copy password"
+      "copyPassword": "Copy password",
+      "allowRecipientDestroy": "Allow the recipient to destroy this send",
+      "allowRecipientDestroyHelp": "Once done, the recipient can delete the files from the server right away, without waiting for the expiration or the download limit."
     },
     "textForm": {
       "placeholder": "Enter your text, password, note...",
@@ -214,6 +217,17 @@
       "label": "Downloading and decrypting...",
       "downloading": "Downloading...",
       "decrypting": "Decrypting..."
+    },
+    "destroy": {
+      "notice": "The sender allows you to destroy this send once you are done. Destruction is immediate and permanent: nobody, including you, will be able to download it again.",
+      "button": "I'm done, destroy this send",
+      "destroying": "Destroying...",
+      "confirmTitle": "Destroy this send?",
+      "confirmMessage": "The files will be deleted from the server right away. This cannot be undone, and the link will stop working for everyone.",
+      "confirm": "Destroy",
+      "done": "This send has been destroyed. Its files were deleted from the server.",
+      "failed": "This send could not be destroyed. The link may be invalid or the send may already be gone.",
+      "tooManyAttempts": "Too many attempts. Please try again later."
     }
   },
   "admin": {
@@ -281,7 +295,8 @@
         "revoked": "Revoked",
         "exhausted": "Exhausted",
         "manual": "Admin",
-        "user": "User"
+        "user": "User",
+        "recipient": "Recipient"
       }
     },
     "settings": {
@@ -304,6 +319,8 @@
       "leaveCancel": "Stay",
       "requireSendPassword": "Require password on all sends",
       "requireSendPasswordDesc": "When enabled, every send must be protected by a password.",
+      "allowRecipientDestroy": "Allow recipients to destroy sends",
+      "allowRecipientDestroyDesc": "When enabled, senders can let the recipient destroy a send once done. Turning it off only affects new sends: existing sends with the option can still be destroyed.",
       "maxUploadSize": "Maximum upload size",
       "maxUploadSizeDesc": "Maximum plaintext file size per send. Set to 0 for unlimited.",
       "maxUploadSizeUnit": "MB",

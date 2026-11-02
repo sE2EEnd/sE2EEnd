@@ -1,6 +1,7 @@
 import { openDemoDB, tx } from './db';
-import type { DemoSendRecord, DemoSetting, DemoMeta } from './db';
-import type { SendResponse, FileMetadata, SendCreateRequest } from '@/services/sendApi';
+import type { DemoHistoryRecord, DemoSendRecord, DemoSetting, DemoMeta } from './db';
+import type { SendResponse, FileMetadata, SendCreateRequest, SendHistoryEntry, SendHistoryPage, SendHistoryStatus } from '@/services/sendApi';
+import { hashToken } from '@/lib/crypto';
 import type { PagedResponse, AdminStats, StorageMetrics, CleanupResult, DeletedSend } from '@/services/adminApi';
 
 const DEMO_OWNER_ID = 'demo-user-id';
@@ -20,6 +21,10 @@ function shortId(): string {
 // ── Sends ────────────────────────────────────────────────────────────────────
 
 export async function createSend(req: SendCreateRequest): Promise<SendResponse> {
+  // Same rule as the backend: the instance setting gates new sends only.
+  if (req.recipientDestroyTokenHash && (await getSettings()).allow_recipient_destroy === 'false') {
+    throw Object.assign(new Error('Recipient destruction is disabled on this instance'), { status: 400 });
+  }
   const send: DemoSendRecord = {
     id: uuid(),
     accessId: shortId(),
@@ -33,6 +38,8 @@ export async function createSend(req: SendCreateRequest): Promise<SendResponse> 
     downloadCount: 0,
     passwordProtected: req.passwordProtected ?? false,
     ownerPassword: req.password,
+    recipientDestroyTokenHash: req.recipientDestroyTokenHash,
+    recipientCanDestroy: !!req.recipientDestroyTokenHash,
     revoked: false,
     createdAt: new Date().toISOString(),
   };
@@ -79,8 +86,62 @@ export async function listAllSends(): Promise<DemoSendRecord[]> {
   });
 }
 
-export async function deleteSend(id: string): Promise<void> {
+/** Delete a send and keep its non-sensitive metadata in the history, like the backend audit. */
+export async function deleteSend(id: string, reason: SendHistoryStatus = 'USER'): Promise<void> {
+  const send = await getSendById(id);
+  if (!send) return;
+  // Keyed by the send id so the owner's browser can still decrypt the name with its stored key.
+  const entry: DemoHistoryRecord = {
+    id: send.id,
+    ownerId: send.ownerId,
+    name: send.name,
+    status: reason,
+    createdAt: send.createdAt,
+    endedAt: new Date().toISOString(),
+    expiresAt: send.expiresAt,
+    maxDownloads: send.maxDownloads,
+    downloadCount: send.downloadCount,
+    totalSizeBytes: send.file?.sizeBytes ?? 0,
+  };
+  await tx<IDBValidKey>('history', 'readwrite', (s) => s.put(entry));
   await tx<undefined>('sends', 'readwrite', (s) => s.delete(id));
+}
+
+/** Recipient-side destruction: same checks as the backend, all failures look like "not found". */
+export async function destroyByRecipient(accessId: string, token: unknown): Promise<void> {
+  const send = await getSendByAccessId(accessId);
+  let presented: string | null = null;
+  try {
+    presented = typeof token === 'string' ? await hashToken(token) : null;
+  } catch { /* malformed token */ }
+  if (!send?.recipientDestroyTokenHash || presented !== send.recipientDestroyTokenHash) {
+    throw Object.assign(new Error('Not found'), { status: 404 });
+  }
+  await deleteSend(send.id, 'RECIPIENT');
+}
+
+export async function getHistory(
+  page: number,
+  size: number,
+  status?: SendHistoryStatus,
+): Promise<SendHistoryPage> {
+  const all = await new Promise<DemoHistoryRecord[]>((resolve, reject) => {
+    openDemoDB().then((db) => {
+      const req = db.transaction('history', 'readonly').objectStore('history').getAll();
+      req.onsuccess = () => resolve((req.result as DemoHistoryRecord[]) ?? []);
+      req.onerror = () => reject(req.error);
+    }, reject);
+  });
+  const entries = all
+    .filter((h) => h.ownerId === DEMO_OWNER_ID && (!status || h.status === status))
+    .sort((a, b) => b.endedAt.localeCompare(a.endedAt));
+  return {
+    content: entries.slice(page * size, (page + 1) * size).map(toHistoryEntry),
+    totalElements: entries.length,
+    totalPages: Math.ceil(entries.length / size),
+    currentPage: page,
+    pageSize: size,
+  };
 }
 
 export async function revokeSend(id: string): Promise<void> {
@@ -248,6 +309,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   require_auth_for_download: 'false',
   require_send_password: 'false',
   max_upload_size_bytes: String(2 * 1024 * 1024 * 1024),
+  allow_recipient_destroy: 'true',
 };
 
 export async function getSettings(): Promise<Record<string, string>> {
@@ -286,13 +348,21 @@ export async function setMeta(key: string, value: string): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function toResponse(s: DemoSendRecord): SendResponse {
+export function toResponse(s: DemoSendRecord): SendResponse {
   const {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     encryptedChunks: _ec,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ownerPassword: _op,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    recipientDestroyTokenHash: _dh,
     ...rest
   } = s;
   return rest;
+}
+
+function toHistoryEntry(h: DemoHistoryRecord): SendHistoryEntry {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { ownerId: _o, ...entry } = h;
+  return entry;
 }

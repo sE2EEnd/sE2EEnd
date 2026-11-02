@@ -12,6 +12,7 @@ public record SendPublicResponseDto(
         Integer maxDownloads,
         Integer downloadCount,
         Boolean passwordProtected,
+        Boolean recipientCanDestroy,
         LocalDateTime createdAt,
         PublicFileMetadataDto file
 ) {}

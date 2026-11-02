@@ -13,7 +13,7 @@ import { PAGE_SIZE } from '../types';
 
 type StatusFilter = 'all' | SendHistoryStatus;
 
-const FILTERS: SendHistoryStatus[] = ['EXPIRED', 'REVOKED', 'EXHAUSTED', 'USER'];
+const FILTERS: SendHistoryStatus[] = ['EXPIRED', 'REVOKED', 'EXHAUSTED', 'USER', 'RECIPIENT'];
 
 interface SendHistoryTableProps {
   /** Bump to reload the history (e.g. after a send was deleted). */

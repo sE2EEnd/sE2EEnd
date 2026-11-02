@@ -1,4 +1,4 @@
 package fr.se2eend.backend.dto;
 
-public record SendPolicyDto(boolean requireSendPassword, long maxUploadSizeBytes) {
+public record SendPolicyDto(boolean requireSendPassword, long maxUploadSizeBytes, boolean allowRecipientDestroy) {
 }

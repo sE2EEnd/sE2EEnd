@@ -20,5 +20,14 @@ public record SendRequestDto(
         Boolean passwordProtected,
 
         @Size(max = 72)
-        String password
-) {}
+        String password,
+
+        // base64url SHA-256 of the recipient destroy token (derived client-side). Absent = option off.
+        @Pattern(regexp = "^[A-Za-z0-9_-]{43}$")
+        String recipientDestroyTokenHash
+) {
+    public SendRequestDto(String name, SendType type, LocalDateTime expiresAt, Integer maxDownloads,
+                          Boolean passwordProtected, String password) {
+        this(name, type, expiresAt, maxDownloads, passwordProtected, password, null);
+    }
+}

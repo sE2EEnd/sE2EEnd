@@ -20,6 +20,9 @@ interface ConfigStepProps {
   setExpirationHours: (v: number) => void;
   usePassword: boolean;
   setUsePassword: (v: boolean) => void;
+  allowRecipientDestroy: boolean;
+  setAllowRecipientDestroy: (v: boolean) => void;
+  recipientDestroyAvailable: boolean;
   requireSendPassword: boolean;
   passwordRef: React.RefObject<HTMLInputElement | null>;
   passwordHasValue: boolean;
@@ -35,6 +38,7 @@ export default function ConfigStep({
   sendName, setSendName, maxDownloads, setMaxDownloads,
   expirationHours, setExpirationHours,
   usePassword, setUsePassword, requireSendPassword,
+  allowRecipientDestroy, setAllowRecipientDestroy, recipientDestroyAvailable,
   passwordRef, passwordHasValue, setPasswordHasValue,
   error, uploading, onBack, onUpload,
 }: ConfigStepProps) {
@@ -230,6 +234,27 @@ export default function ConfigStep({
               <AlertTitle>{t('upload.form.passwordWarningTitle')}</AlertTitle>
               <AlertDescription>{t('upload.form.passwordWarning')}</AlertDescription>
             </Alert>
+          </div>
+        )}
+
+        {recipientDestroyAvailable && (
+          <div className="pt-2">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={allowRecipientDestroy}
+                onChange={(e) => setAllowRecipientDestroy(e.target.checked)}
+                className="mt-0.5 w-4 h-4 text-primary border-gray-300 dark:border-gray-600 rounded focus:ring-primary"
+              />
+              <span>
+                <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t('upload.form.allowRecipientDestroy')}
+                </span>
+                <span className="block mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {t('upload.form.allowRecipientDestroyHelp')}
+                </span>
+              </span>
+            </label>
           </div>
         )}
 

@@ -1,12 +1,17 @@
-import type { SendResponse } from '@/services/sendApi';
+import type { SendHistoryEntry, SendResponse } from '@/services/sendApi';
 
 const DB_NAME = 'DemoDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export interface DemoSendRecord extends SendResponse {
   encryptedChunks?: Uint8Array[];
   chunkSize?: number;
   ownerPassword?: string;
+  recipientDestroyTokenHash?: string;
+}
+
+export interface DemoHistoryRecord extends SendHistoryEntry {
+  ownerId?: string;
 }
 
 export interface DemoSetting {
@@ -29,7 +34,7 @@ export async function clearDemoDB(): Promise<void> {
   try {
     const db = await openDemoDB();
     await new Promise<void>((resolve, reject) => {
-      const names = ['sends', 'settings', 'meta'];
+      const names = ['sends', 'settings', 'meta', 'history'];
       const t = db.transaction(names, 'readwrite');
       for (const name of names) t.objectStore(name).clear();
       t.oncomplete = () => resolve();
@@ -60,6 +65,9 @@ export function openDemoDB(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains('meta')) {
         db.createObjectStore('meta', { keyPath: 'key' });
+      }
+      if (!db.objectStoreNames.contains('history')) {
+        db.createObjectStore('history', { keyPath: 'id' });
       }
     };
   });
