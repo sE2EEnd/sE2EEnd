@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/v1/sends/*/download").access(authIfRequired(instanceSettings))
+                        .requestMatchers(HttpMethod.POST, "/api/v1/sends/*/destroy").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/sends/history").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/sends/*").access(authIfRequired(instanceSettings))
                         .requestMatchers(HttpMethod.GET, "/api/v1/config/theme").permitAll()

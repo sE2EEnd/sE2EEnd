@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { isAxiosError } from 'axios';
 import type { SendPublicResponse } from '@/services/api.ts';
 import { sendApi } from '@/services/api.ts';
-import { decryptBlob, decryptChunkedBlob, decryptChunkedStream, decryptText, importKeyFromBase64 } from '@/lib/crypto.ts';
+import { decryptBlob, decryptChunkedBlob, decryptChunkedStream, decryptText, deriveRecipientDestroyToken, importKeyFromBase64 } from '@/lib/crypto.ts';
 import { streamToDisk, supportsServiceWorkerStreaming } from '@/lib/streamDownload.ts';
 import { getApiErrorMessage } from '@/lib/errors';
 
@@ -27,6 +27,8 @@ export function useDownload() {
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [destroying, setDestroying] = useState(false);
+  const [destroyed, setDestroyed] = useState(false);
 
   // After the initial load (handled by loadSendInfo), clear any subsequent hash
   // that appears without a full page reload (e.g. user pastes the link again in the same tab)
@@ -181,10 +183,33 @@ export function useDownload() {
     }
   };
 
+  // Recipient-side destruction: re-derive the token from the key in the fragment and send only the token.
+  const handleDestroy = async () => {
+    if (!accessId) return;
+    const encryptionKey = keyRef.current;
+    if (!encryptionKey) { setError(t('download.errors.keyMissing')); return; }
+
+    setDestroying(true);
+    setError('');
+    try {
+      await sendApi.destroySend(accessId, await deriveRecipientDestroyToken(encryptionKey));
+      setDestroyed(true);
+      setSendInfo(null);
+      setDecryptedText(null);
+      keyRef.current = null;
+    } catch (err) {
+      const status = isAxiosError(err) ? err.response?.status : undefined;
+      setError(status === 429 ? t('download.destroy.tooManyAttempts') : t('download.destroy.failed'));
+    } finally {
+      setDestroying(false);
+    }
+  };
+
   return {
     sendInfo, decryptedSendName, decryptedFilenames,
     decryptedText, hideText, setHideText,
     passwordRef, loading, downloading, downloadProgress, error,
     handleDownload,
+    destroying, destroyed, handleDestroy,
   };
 }

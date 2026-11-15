@@ -66,6 +66,9 @@ public class Send {
     @Column(nullable = false)
     private boolean revoked = false;
 
+    @Column(name = "recipient_destroy_token_hash", length = 64)
+    private String recipientDestroyTokenHash;
+
     @OneToOne(mappedBy = "send", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private FileMetadata file;

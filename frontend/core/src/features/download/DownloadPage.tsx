@@ -1,4 +1,5 @@
-import { AlertCircle, Download, FileText, Loader2, Shield } from 'lucide-react';
+import { useState } from 'react';
+import { AlertCircle, CheckCircle2, Download, FileText, Loader2, Shield, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Alert } from '@/components/ui/alert';
@@ -11,6 +12,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import GitHubIcon from '@/components/icons/GitHubIcon';
 import AppLogo from '@/components/AppLogo';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 function DownloadPage() {
   const { t } = useTranslation();
@@ -19,7 +21,9 @@ function DownloadPage() {
     decryptedText, hideText, setHideText,
     passwordRef, loading, downloading, downloadProgress, error,
     handleDownload,
+    destroying, destroyed, handleDestroy,
   } = useDownload();
+  const [confirmDestroy, setConfirmDestroy] = useState(false);
 
   if (loading) {
     return (
@@ -90,6 +94,13 @@ function DownloadPage() {
                 expiresAt={sendInfo.expiresAt}
               />
 
+              {sendInfo.recipientCanDestroy && (
+                <Alert variant="info">
+                  <Trash2 className="w-5 h-5" />
+                  <span className="text-sm font-medium">{t('download.destroy.notice')}</span>
+                </Alert>
+              )}
+
               <DownloadQrCode />
 
               <div>
@@ -151,7 +162,23 @@ function DownloadPage() {
                   <span className="text-sm font-medium">{t('download.errors.limitReached')}</span>
                 </Alert>
               )}
+
+              {sendInfo.recipientCanDestroy && (
+                <button
+                  onClick={() => setConfirmDestroy(true)}
+                  disabled={destroying || downloading}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {destroying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  {destroying ? t('download.destroy.destroying') : t('download.destroy.button')}
+                </button>
+              )}
             </div>
+          ) : destroyed ? (
+            <Alert variant="success">
+              <CheckCircle2 className="w-5 h-5" />
+              <span className="text-sm font-medium">{t('download.destroy.done')}</span>
+            </Alert>
           ) : (
             <Alert variant="error">
               <AlertCircle className="w-5 h-5" />
@@ -176,6 +203,18 @@ function DownloadPage() {
           </a>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDestroy}
+        onConfirm={() => { setConfirmDestroy(false); void handleDestroy(); }}
+        onCancel={() => setConfirmDestroy(false)}
+        icon={<Trash2 className="w-6 h-6" />}
+        iconVariant="danger"
+        title={t('download.destroy.confirmTitle')}
+        description={t('download.destroy.confirmMessage')}
+        confirmLabel={t('download.destroy.confirm')}
+        cancelLabel={t('common.cancel')}
+      />
     </div>
   );
 }

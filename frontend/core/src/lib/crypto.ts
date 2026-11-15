@@ -7,8 +7,10 @@
  *   - text     : short-string encryption (send name, filenames)
  *   - blob     : single-shot whole-blob encryption (TEXT body, legacy files)
  *   - chunked  : chunked format — encryptChunk, decryptChunkedBlob, decryptChunkedStream
+ *   - tokens   : purpose-bound tokens derived from the key (HKDF), e.g. recipient destroy
  */
 export * from './crypto/keys';
 export * from './crypto/text';
 export * from './crypto/blob';
 export * from './crypto/chunked';
+export * from './crypto/tokens';

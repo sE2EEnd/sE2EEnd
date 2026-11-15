@@ -61,6 +61,9 @@ export default function UploadPage() {
                 setExpirationHours={form.setExpirationHours}
                 usePassword={form.usePassword}
                 setUsePassword={form.setUsePassword}
+                allowRecipientDestroy={form.allowRecipientDestroy}
+                setAllowRecipientDestroy={form.setAllowRecipientDestroy}
+                recipientDestroyAvailable={form.recipientDestroyAvailable}
                 requireSendPassword={form.requireSendPassword}
                 passwordRef={form.passwordRef}
                 passwordHasValue={form.passwordHasValue}

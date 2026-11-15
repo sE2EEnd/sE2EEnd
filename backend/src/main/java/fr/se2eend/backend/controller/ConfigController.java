@@ -32,6 +32,7 @@ public class ConfigController {
     public ResponseEntity<SendPolicyDto> getSendPolicy() {
         boolean requireSendPassword = instanceSettingsService.getBoolean("require_send_password", false);
         long maxUploadSizeBytes = instanceSettingsService.getLong("max_upload_size_bytes", 2L * 1024 * 1024 * 1024);
-        return ResponseEntity.ok(new SendPolicyDto(requireSendPassword, maxUploadSizeBytes));
+        boolean allowRecipientDestroy = instanceSettingsService.getBoolean(InstanceSettingsService.ALLOW_RECIPIENT_DESTROY, true);
+        return ResponseEntity.ok(new SendPolicyDto(requireSendPassword, maxUploadSizeBytes, allowRecipientDestroy));
     }
 }

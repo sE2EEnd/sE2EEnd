@@ -1,12 +1,15 @@
 import type {AxiosRequestConfig} from 'axios';
+import type {SendHistoryStatus} from '@/services/sendApi';
 import api from '@/services/http';
 import {
   appendChunk,
   createSend,
   deleteSend as dbDeleteSend,
+  destroyByRecipient,
   finalizeChunkedUpload,
   getAdminSends,
   getDeletedSends,
+  getHistory,
   getSendByAccessId,
   getSendById,
   getSettings,
@@ -19,6 +22,7 @@ import {
   runCleanup,
   setSetting,
   storeSendFile,
+  toResponse,
 } from './store';
 
 type DemoAxiosResponse<T = unknown> = {
@@ -51,7 +55,25 @@ export function installDemoAdapter(): void {
 
       if (method === 'GET' && url === '/sends') {
         const sends = await listOwnerSends();
-        return ok(sends, config);
+        return ok(sends.map(toResponse), config);
+      }
+
+      // Must come before GET /sends/:accessId, which would otherwise swallow it.
+      if (method === 'GET' && url === '/sends/history') {
+        const params = config.params as Record<string, string | undefined> ?? {};
+        const result = await getHistory(
+          parseInt(params.page ?? '0', 10),
+          parseInt(params.size ?? '20', 10),
+          params.status as SendHistoryStatus | undefined,
+        );
+        return ok(result, config);
+      }
+
+      const destroyMatch = url.match(/^\/sends\/([^/]+)\/destroy$/);
+      if (method === 'POST' && destroyMatch) {
+        const body = typeof config.data === 'string' ? JSON.parse(config.data) : config.data;
+        await destroyByRecipient(destroyMatch[1], body?.token);
+        return { ...ok(null, config), status: 204, statusText: 'No Content' };
       }
 
       if (method === 'POST' && url === '/sends') {
@@ -82,7 +104,7 @@ export function installDemoAdapter(): void {
         const accessId = url.split('/').pop()!;
         const send = await getSendByAccessId(accessId);
         if (!send) err(404, 'Not found');
-        return ok(send, config);
+        return ok(toResponse(send), config);
       }
 
       const deleteSendMatch = url.match(/^\/sends\/([^/]+)$/) && method === 'DELETE';
@@ -136,7 +158,7 @@ export function installDemoAdapter(): void {
       const adminDeleteMatch = url.match(/^\/admin\/sends\/([^/]+)$/) && method === 'DELETE';
       if (adminDeleteMatch) {
         const id = url.split('/').pop()!;
-        await dbDeleteSend(id);
+        await dbDeleteSend(id, 'USER');
         return ok(null, config);
       }
 
@@ -201,6 +223,7 @@ export function installDemoAdapter(): void {
           {
             requireSendPassword: settings.require_send_password === 'true',
             maxUploadSizeBytes: parseInt(settings.max_upload_size_bytes, 10),
+            allowRecipientDestroy: settings.allow_recipient_destroy !== 'false',
           },
           config,
         );

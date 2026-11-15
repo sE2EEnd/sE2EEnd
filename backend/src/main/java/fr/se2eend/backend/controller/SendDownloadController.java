@@ -1,8 +1,10 @@
 package fr.se2eend.backend.controller;
 
+import fr.se2eend.backend.dto.RecipientDestroyRequestDto;
 import fr.se2eend.backend.service.SendDownloadService;
 import fr.se2eend.backend.service.SendDownloadService.DownloadStream;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +55,27 @@ public class SendDownloadController {
                 .ok()
                 .headers(headers)
                 .body(new InputStreamResource(stream.stream()));
+    }
+
+    @Operation(
+            summary = "Destroy a Send as its recipient",
+            description = """
+        Immediately deletes the Send and its stored files when the sender allowed it.
+        The body carries the destroy token the client derives from the key in the URL fragment;
+        the key itself is never sent. The Send password is not required.
+        An unknown Send, a Send without this option and an invalid token all return the same 404.
+        """
+    )
+    @ApiResponse(responseCode = "204", description = "Send destroyed")
+    @ApiResponse(responseCode = "404", description = "Send not found, option disabled or invalid token")
+    @ApiResponse(responseCode = "429", description = "Too many failed attempts")
+    @PostMapping("/{accessId}/destroy")
+    public ResponseEntity<Void> destroy(
+            @PathVariable String accessId,
+            @RequestBody(required = false) RecipientDestroyRequestDto body,
+            HttpServletRequest request) {
+        String token = body != null ? body.token() : null;
+        sendDownloadService.destroyByRecipient(accessId, token, request.getRemoteAddr());
+        return ResponseEntity.noContent().build();
     }
 }
