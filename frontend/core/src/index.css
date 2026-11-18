@@ -107,3 +107,58 @@
 .dark .bg-gradient-to-br-primary {
   background: linear-gradient(to bottom right, #1a1f2e, #111520);
 }
+/* Stepped range slider (upload form expiration). `--fill` is set inline to the selected position. */
+.range-slider {
+  --track: #e5e7eb;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.75rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.dark .range-slider {
+  --track: #374151;
+}
+.range-slider:focus {
+  outline: none;
+}
+.range-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--brand-primary) var(--fill, 0%), var(--track) var(--fill, 0%));
+}
+.range-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--track);
+}
+.range-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--brand-primary);
+}
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid var(--brand-primary);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+.range-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid var(--brand-primary);
+}
+.range-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 45%, transparent);
+}
+.range-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 45%, transparent);
+}

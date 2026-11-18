@@ -24,7 +24,8 @@
     "destroyed": "Détruit par le destinataire",
     "previous": "Précédent",
     "next": "Suivant",
-    "morePages": "Plus de pages"
+    "morePages": "Plus de pages",
+    "apply": "Appliquer"
   },
   "layout": {
     "dashboard": "Tableau de bord",
@@ -109,10 +110,8 @@
       "sendName": "Nom de l'envoi (optionnel)",
       "sendNamePlaceholder": "ex: Rapports Q3, Photos de vacances...",
       "sendNameHelp": "Donnez un nom à cet envoi pour l'identifier facilement",
-      "maxDownloads": "Nombre maximum de téléchargements",
-      "maxDownloadsHelp": "Nombre de fois que ce fichier peut être téléchargé",
-      "expiration": "Expiration (heures)",
-      "expirationHelp": "Le fichier sera automatiquement supprimé après cette période",
+      "maxDownloads": "Téléchargements max.",
+      "expiration": "Expiration",
       "passwordProtect": "Protégé par mot de passe",
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez un mot de passe",
@@ -125,7 +124,43 @@
       "hidePassword": "Masquer le mot de passe",
       "copyPassword": "Copier le mot de passe",
       "allowRecipientDestroy": "Autoriser le destinataire à détruire cet envoi",
-      "allowRecipientDestroyHelp": "Une fois terminé, le destinataire pourra supprimer immédiatement les fichiers du serveur, sans attendre l'expiration ni la limite de téléchargements."
+      "allowRecipientDestroyHelp": "Une fois terminé, le destinataire pourra supprimer immédiatement les fichiers du serveur, sans attendre l'expiration ni la limite de téléchargements.",
+      "maxDownloadsHelpOnce": "Le lien est détruit après le premier téléchargement",
+      "maxDownloadsHelpMany": "Le lien est désactivé après {{count}} téléchargements",
+      "decreaseDownloads": "Diminuer",
+      "increaseDownloads": "Augmenter",
+      "expirationDeadline": "Suppression automatique le",
+      "expirationDateTime": "{{date}} à {{time}}",
+      "expirationPickTitle": "Choisir une date et une heure précises",
+      "expirationCustom": "Date précise",
+      "expirationCustomLabel": "Date et heure d'expiration",
+      "expirationCustomHelp": "Au plus tard dans 7 jours",
+      "expirationSteps": {
+        "1": {
+          "short": "1 h",
+          "long": "1 heure"
+        },
+        "6": {
+          "short": "6 h",
+          "long": "6 heures"
+        },
+        "12": {
+          "short": "12 h",
+          "long": "12 heures"
+        },
+        "24": {
+          "short": "1 j",
+          "long": "1 jour"
+        },
+        "72": {
+          "short": "3 j",
+          "long": "3 jours"
+        },
+        "168": {
+          "short": "7 j",
+          "long": "7 jours"
+        }
+      }
     },
     "textForm": {
       "placeholder": "Entrez votre texte, mot de passe, note...",
@@ -363,17 +398,17 @@
     "close": "Compris",
     "version": "Version {{version}}",
     "items": {
+      "customExpiration": {
+        "title": "Choisir une date d'expiration précise",
+        "description": "En plus des durées proposées, vous pouvez fixer le jour et l'heure exacts de suppression d'un envoi, jusqu'à 7 jours."
+      },
       "recipientDestroy": {
         "title": "Le destinataire peut détruire un envoi",
-        "description": "À la création d'un envoi, vous pouvez permettre au destinataire de le supprimer du serveur dès qu'il a terminé, sans attendre l'expiration ou la limite de téléchargements. Disponible si votre administrateur l'active."
+        "description": "À la création d'un envoi, vous pouvez autoriser le destinataire à le supprimer dès qu'il l'a récupéré, sans attendre l'expiration. Disponible si votre administrateur l'a activé."
       },
       "sendHistory": {
         "title": "Historique des envois",
-        "description": "Votre tableau de bord liste désormais vos envois passés et leur fin : expiré, révoqué, limite de téléchargements atteinte ou supprimé."
-      },
-      "dashboardRefresh": {
-        "title": "Actualiser vos transferts",
-        "description": "Un bouton d'actualisation recharge le tableau des transferts sans recharger la page."
+        "description": "Votre tableau de bord affiche désormais vos envois terminés et la raison : expiré, révoqué, limite de téléchargements atteinte ou supprimé."
       }
     }
   }

@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Flame, History, RefreshCw } from 'lucide-react';
+import { CalendarClock, Flame, History } from 'lucide-react';
 
 export interface ReleaseNoteItem {
   // i18n keys: whatsNew.items.<id>.title / whatsNew.items.<id>.description
@@ -21,6 +21,13 @@ export interface ReleaseNote {
  */
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: '1.6.0',
+    date: '2026-11-17',
+    items: [
+      { id: 'customExpiration', icon: CalendarClock },
+    ],
+  },
+  {
     version: '1.5.0',
     date: '2026-11-02',
     items: [
@@ -32,7 +39,6 @@ export const releaseNotes: ReleaseNote[] = [
     date: '2026-10-20',
     items: [
       { id: 'sendHistory', icon: History },
-      { id: 'dashboardRefresh', icon: RefreshCw },
     ],
   },
 ];

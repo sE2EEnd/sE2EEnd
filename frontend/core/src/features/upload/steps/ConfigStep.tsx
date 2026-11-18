@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
+import DownloadsField from '../components/DownloadsField';
+import ExpirationField from '../components/ExpirationField';
 
 interface ConfigStepProps {
   mode: 'file' | 'text';
@@ -97,10 +99,11 @@ export default function ConfigStep({
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => removeFile(index)}
                 className="text-red-600 hover:text-red-800 text-sm font-medium"
               >
-                Remove
+                {t('common.remove')}
               </button>
             </div>
           ))}
@@ -132,35 +135,9 @@ export default function ConfigStep({
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('upload.form.sendNameHelp')}</p>
         </div>
 
-        {/* Max Downloads */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {t('upload.form.maxDownloads')}
-          </label>
-          <Input
-            type="number"
-            value={maxDownloads}
-            onChange={(e) => setMaxDownloads(parseInt(e.target.value) || 1)}
-            min="1"
-            max="50"
-          />
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('upload.form.maxDownloadsHelp')}</p>
-        </div>
+        <DownloadsField value={maxDownloads} onChange={setMaxDownloads} />
 
-        {/* Expiration */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {t('upload.form.expiration')}
-          </label>
-          <Input
-            type="number"
-            value={expirationHours}
-            onChange={(e) => setExpirationHours(parseInt(e.target.value) || 1)}
-            min="1"
-            max="168"
-          />
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('upload.form.expirationHelp')}</p>
-        </div>
+        <ExpirationField value={expirationHours} onChange={setExpirationHours} />
 
         {/* Password Protection */}
         <div className="pt-2">

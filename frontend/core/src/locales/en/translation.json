@@ -24,7 +24,8 @@
     "destroyed": "Destroyed by recipient",
     "previous": "Previous",
     "next": "Next",
-    "morePages": "More pages"
+    "morePages": "More pages",
+    "apply": "Apply"
   },
   "layout": {
     "dashboard": "Dashboard",
@@ -109,10 +110,8 @@
       "sendName": "Send Name (optional)",
       "sendNamePlaceholder": "e.g., Q3 Reports, Vacation Photos...",
       "sendNameHelp": "Give a name to this send to identify it easily",
-      "maxDownloads": "Maximum Downloads",
-      "maxDownloadsHelp": "Number of times this file can be downloaded",
-      "expiration": "Expiration (hours)",
-      "expirationHelp": "File will auto-delete after this period",
+      "maxDownloads": "Max downloads",
+      "expiration": "Expiration",
       "passwordProtect": "Password protect this file",
       "password": "Password",
       "passwordPlaceholder": "Enter password",
@@ -125,7 +124,43 @@
       "hidePassword": "Hide password",
       "copyPassword": "Copy password",
       "allowRecipientDestroy": "Allow the recipient to destroy this send",
-      "allowRecipientDestroyHelp": "Once done, the recipient can delete the files from the server right away, without waiting for the expiration or the download limit."
+      "allowRecipientDestroyHelp": "Once done, the recipient can delete the files from the server right away, without waiting for the expiration or the download limit.",
+      "maxDownloadsHelpOnce": "The link is destroyed after the first download",
+      "maxDownloadsHelpMany": "The link is disabled after {{count}} downloads",
+      "decreaseDownloads": "Decrease",
+      "increaseDownloads": "Increase",
+      "expirationDeadline": "Automatically deleted on",
+      "expirationDateTime": "{{date}} at {{time}}",
+      "expirationPickTitle": "Choose an exact expiration date",
+      "expirationCustom": "Exact date",
+      "expirationCustomLabel": "Expiration date and time",
+      "expirationCustomHelp": "At most 7 days from now",
+      "expirationSteps": {
+        "1": {
+          "short": "1 h",
+          "long": "1 hour"
+        },
+        "6": {
+          "short": "6 h",
+          "long": "6 hours"
+        },
+        "12": {
+          "short": "12 h",
+          "long": "12 hours"
+        },
+        "24": {
+          "short": "1 d",
+          "long": "1 day"
+        },
+        "72": {
+          "short": "3 d",
+          "long": "3 days"
+        },
+        "168": {
+          "short": "7 d",
+          "long": "7 days"
+        }
+      }
     },
     "textForm": {
       "placeholder": "Enter your text, password, note...",
@@ -363,17 +398,17 @@
     "close": "Got it",
     "version": "Version {{version}}",
     "items": {
+      "customExpiration": {
+        "title": "Choose an exact expiration date",
+        "description": "Besides the suggested durations, you can set the exact day and time a send is deleted, up to 7 days ahead."
+      },
       "recipientDestroy": {
         "title": "Recipients can destroy a send",
-        "description": "When creating a send, you can let the recipient delete it from the server as soon as they are done, without waiting for the expiration or the download limit. Available if your administrator enables it."
+        "description": "When creating a send, you can let the recipient delete it as soon as they have retrieved it, without waiting for the expiration. Available if your administrator has enabled it."
       },
       "sendHistory": {
         "title": "Send history",
-        "description": "Your dashboard now lists your past sends and how they ended: expired, revoked, download limit reached or deleted."
-      },
-      "dashboardRefresh": {
-        "title": "Refresh your transfers",
-        "description": "A refresh button reloads the transfers table without reloading the page."
+        "description": "Your dashboard now shows your finished sends and why they ended: expired, revoked, download limit reached or deleted."
       }
     }
   }
